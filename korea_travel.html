@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🇰🇷 韓国旅行ツール</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0F1923">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="韓国旅行">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP',sans-serif;background:#0F1923;color:#fff;min-height:100vh;padding-bottom:90px}
+
+/* ─── HEADER ─── */
+.hdr{padding:20px 18px 16px;background:linear-gradient(160deg,#0A1628 0%,#0F1923 100%)}
+.hdr-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.hdr-flag{font-size:30px}
+.hdr-title{font-size:22px;font-weight:800;letter-spacing:-0.3px}
+.hdr-sub{font-size:12px;color:rgba(255,255,255,.55)}
+
+/* Rate strip */
+.rate-strip{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.rate-strip::-webkit-scrollbar{display:none}
+.rate-chip{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:8px 14px;white-space:nowrap;flex-shrink:0}
+.rate-label{font-size:11px;color:rgba(255,255,255,.5);margin-bottom:2px}
+.rate-value{font-size:17px;font-weight:700;color:#fff}
+
+/* ─── MAIN ─── */
+.main{padding:0 14px}
+.sec{display:none;animation:fi .18s ease}
+.sec.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── SECTION LABELS ─── */
+.slabel{font-size:12px;font-weight:700;color:rgba(255,255,255,.45);letter-spacing:1px;text-transform:uppercase;margin:22px 0 10px}
+.slabel:first-child{margin-top:8px}
+
+/* ─── APP TILES ─── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:2px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+.tile{
+  border:none;border-radius:22px;padding:20px 12px 18px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  cursor:pointer;font-family:inherit;text-align:center;
+  transition:transform .12s,filter .12s;
+  -webkit-user-select:none;user-select:none;
+  position:relative;overflow:hidden;
+}
+.tile:active{transform:scale(.94);filter:brightness(.88)}
+
+.tile-logo{
+  width:62px;height:62px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;font-weight:900;margin-bottom:2px;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);
+}
+.tile-name{font-size:15px;font-weight:700;line-height:1.2}
+.tile-desc{font-size:11px;opacity:.7;line-height:1.4}
+.tile-badge{
+  position:absolute;top:10px;right:10px;
+  background:#FF6B35;color:#fff;
+  font-size:9px;font-weight:700;
+  padding:2px 6px;border-radius:8px;
+  letter-spacing:.3px;
+}
+
+/* Brand backgrounds */
+.t-kakaot{background:linear-gradient(145deg,#2D1B00,#1A0E00);color:#FEE500}
+.t-kakaot .tile-logo{background:#FEE500;color:#1A0E00}
+
+.t-uber{background:linear-gradient(145deg,#1A1A1A,#111);color:#fff}
+.t-uber .tile-logo{background:#fff;color:#000}
+
+.t-naver{background:linear-gradient(145deg,#024F2E,#013D23);color:#fff}
+.t-naver .tile-logo{background:#03C75A;color:#fff}
+
+.t-gmap{background:linear-gradient(145deg,#1A2744,#141F38);color:#fff}
+.t-gmap .tile-logo{background:#fff;color:#EA4335}
+
+.t-papago{background:linear-gradient(145deg,#005E59,#004540);color:#fff}
+.t-papago .tile-logo{background:#00BEB4;color:#fff}
+
+.t-gtrans{background:linear-gradient(145deg,#1A3A7A,#122B60);color:#fff}
+.t-gtrans .tile-logo{background:#4285F4;color:#fff}
+
+.t-subway{background:linear-gradient(145deg,#0D2C6E,#091E4F);color:#fff}
+.t-subway .tile-logo{background:#1A5CDB;color:#fff}
+
+.t-weather{background:linear-gradient(145deg,#1A3352,#112540);color:#fff}
+.t-weather .tile-logo{background:#2B7FBE;color:#fff}
+
+/* ─── EMERGENCY ─── */
+.emg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.emg{
+  border:none;border-radius:18px;padding:16px 8px;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  cursor:pointer;font-family:inherit;
+  transition:transform .12s,filter .12s;
+}
+.emg:active{transform:scale(.94);filter:brightness(.85)}
+.emg-em{font-size:26px}
+.emg-num{font-size:20px;font-weight:800}
+.emg-lbl{font-size:10px;opacity:.85;text-align:center;line-height:1.3}
+.e-police{background:linear-gradient(145deg,#003478,#002060);color:#fff}
+.e-fire{background:linear-gradient(145deg,#C60C30,#950A24);color:#fff}
+.e-info{background:linear-gradient(145deg,#D4570A,#A84308);color:#fff}
+
+/* ─── CURRENCY TAB ─── */
+.card{background:rgba(255,255,255,.07);border-radius:20px;padding:20px;margin-bottom:12px;border:1px solid rgba(255,255,255,.08)}
+.ctitle{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:#fff}
+.cur-from{background:rgba(255,255,255,.06);border-radius:14px;padding:14px;margin-bottom:10px}
+.cur-lb{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:8px}
+.cur-row{display:flex;align-items:center;gap:8px}
+.cur-input{flex:1;font-size:32px;font-weight:700;border:none;background:transparent;color:#fff;outline:none;min-width:0}
+.cur-sel{font-size:14px;font-weight:600;border:none;background:rgba(255,255,255,.12);color:#fff;padding:6px 10px;border-radius:10px;outline:none;cursor:pointer;font-family:inherit}
+.swap-row{text-align:center;padding:4px 0;font-size:22px;color:rgba(255,255,255,.3)}
+.cur-res{background:linear-gradient(135deg,#003478,#001F5C);border-radius:14px;padding:18px;text-align:center;border:1px solid rgba(255,255,255,.1)}
+.res-lb{font-size:12px;color:rgba(255,255,255,.6);margin-bottom:4px}
+.res-val{font-size:40px;font-weight:800;letter-spacing:-1px}
+.res-rt{font-size:12px;color:rgba(255,255,255,.55);margin-top:6px}
+.rate-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);gap:8px}
+.rate-row:last-child{border-bottom:none}
+.rate-nm{font-size:14px;font-weight:500;color:#fff}
+.rate-in{width:90px;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:5px 8px;font-size:14px;text-align:right;outline:none;background:rgba(255,255,255,.08);color:#fff;font-family:inherit}
+.rate-u{font-size:13px;color:rgba(255,255,255,.4)}
+.rate-badge2{font-size:11px;font-weight:600;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);margin-left:auto}
+.rate-ok{background:rgba(22,163,74,.3);color:#4ADE80}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pitem{background:rgba(255,255,255,.06);border-radius:10px;padding:10px 12px}
+.pitem-nm{font-size:11px;color:rgba(255,255,255,.5)}
+.pitem-pr{font-size:14px;font-weight:600;margin-top:2px}
+.note{font-size:12px;color:rgba(255,255,255,.35);text-align:center;margin-top:10px}
+
+/* ─── TRANSLATION TAB ─── */
+.trans-in{width:100%;min-height:90px;padding:14px;border:1.5px solid rgba(255,255,255,.12);border-radius:14px;font-size:15px;font-family:inherit;resize:none;outline:none;background:rgba(255,255,255,.06);color:#fff;line-height:1.6}
+.trans-in:focus{border-color:rgba(255,255,255,.3)}
+.trans-in::placeholder{color:rgba(255,255,255,.3)}
+.trans-btn{width:100%;padding:13px;background:#003478;color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;font-family:inherit;transition:opacity .15s}
+.trans-btn:disabled{opacity:.5}
+.trans-res{background:rgba(0,52,120,.3);border-radius:14px;padding:16px;margin-top:12px;display:none;border:1px solid rgba(0,52,120,.5)}
+.trans-kr{font-size:22px;font-weight:700;color:#7EB8FF;line-height:1.5}
+.trans-pw{font-size:11px;color:rgba(255,255,255,.3);margin-top:8px}
+.sbox{width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);font-size:15px;background:rgba(255,255,255,.06);color:#fff;outline:none;margin-bottom:14px;font-family:inherit}
+.sbox:focus{border-color:rgba(255,255,255,.25)}
+.sbox::placeholder{color:rgba(255,255,255,.3)}
+.cscroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;margin-bottom:8px}
+.cscroll::-webkit-scrollbar{display:none}
+.cbtn{padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,.15);background:transparent;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer;color:rgba(255,255,255,.7);transition:all .15s;font-family:inherit}
+.cbtn.on{background:#003478;color:#fff;border-color:#003478}
+.pcard{background:rgba(255,255,255,.06);border-radius:14px;padding:14px 16px;margin-bottom:10px;border:1px solid rgba(255,255,255,.07)}
+.p-jp{font-size:15px;font-weight:600;margin-bottom:6px;color:#fff}
+.p-kr{font-size:18px;font-weight:700;color:#7EB8FF;margin-bottom:4px}
+.p-ro{font-size:13px;color:rgba(255,255,255,.45);font-style:italic}
+
+/* ─── SPOTS TAB ─── */
+.cfil{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.city-btn{padding:7px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,.15);background:transparent;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit;color:rgba(255,255,255,.7)}
+.city-btn.on{background:#C60C30;color:#fff;border-color:#C60C30}
+.scard{background:rgba(255,255,255,.06);border-radius:18px;margin-bottom:12px;overflow:hidden;border:1px solid rgba(255,255,255,.07)}
+.s-banner{height:100px;display:flex;align-items:center;justify-content:center;font-size:52px}
+.s-body{padding:14px}
+.s-nmjp{font-size:16px;font-weight:700}
+.s-nmkr{font-size:13px;color:rgba(255,255,255,.5);margin-bottom:8px}
+.s-desc{font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:10px}
+.s-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.s-tag{background:rgba(255,255,255,.08);font-size:11px;padding:3px 8px;border-radius:6px;color:rgba(255,255,255,.5)}
+.mapbtn{display:inline-flex;align-items:center;gap:6px;background:#003478;color:#fff;text-decoration:none;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600}
+
+/* ─── HOSPITAL ─── */
+.hosp-search-row{display:flex;gap:8px;margin-bottom:14px}
+.hosp-gps-btn{flex:1;padding:13px;border:none;border-radius:14px;background:linear-gradient(135deg,#C60C30,#950A24);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:filter .12s}
+.hosp-gps-btn:active{filter:brightness(.85)}
+.hosp-city-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;padding-bottom:2px}
+.hosp-city-scroll::-webkit-scrollbar{display:none}
+.hcity-btn{padding:6px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,.15);background:transparent;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;color:rgba(255,255,255,.65);font-family:inherit;transition:all .15s;flex-shrink:0}
+.hcity-btn.on{background:#C60C30;color:#fff;border-color:#C60C30}
+.hcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px 16px;margin-bottom:10px}
+.hcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.hcard-name{font-size:15px;font-weight:700;line-height:1.3}
+.hcard-kr{font-size:12px;color:rgba(255,255,255,.5);margin-top:2px}
+.hcard-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.hbadge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6)}
+.hbadge-jp{background:rgba(0,52,120,.4);color:#7EB8FF}
+.hbadge-24{background:rgba(198,12,48,.3);color:#FF7070}
+.hcard-btns{display:flex;gap:8px}
+.hbtn{flex:1;padding:9px 6px;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:filter .12s;text-align:center}
+.hbtn:active{filter:brightness(.82)}
+.hbtn-call{background:linear-gradient(135deg,#C60C30,#950A24);color:#fff}
+.hbtn-map{background:#03C75A;color:#fff}
+.hbtn-gmap{background:rgba(255,255,255,.15);color:#fff}
+.hosp-note{background:rgba(198,12,48,.12);border:1px solid rgba(198,12,48,.25);border-radius:12px;padding:12px;font-size:12px;color:rgba(255,255,255,.7);line-height:1.6;margin-top:14px}
+.hosp-note strong{color:#FF7070}
+
+/* ─── SPECIAL SEARCH ─── */
+.sp-section{margin-bottom:16px}
+.sp-section-lbl{font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.sp-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.spbtn{padding:12px 8px;border:none;border-radius:13px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:filter .12s;display:flex;flex-direction:column;align-items:center;gap:4px;color:#fff;line-height:1.2}
+.spbtn em{font-style:normal;font-size:18px}
+.spbtn:active{filter:brightness(.82)}
+.spbtn-br{background:linear-gradient(135deg,#8B6914,#C8A84B)}
+.spbtn-brnav{background:linear-gradient(135deg,#035C34,#03C75A)}
+.spbtn-24n{background:linear-gradient(135deg,#0F2A50,#1A4880)}
+.spbtn-24g{background:linear-gradient(135deg,#1A56C4,#4285F4)}
+.spbtn-nearn{background:linear-gradient(135deg,#035C34,#03C75A)}
+.spbtn-nearg{background:linear-gradient(135deg,#1A4880,#4285F4)}
+.sp-hint{font-size:11px;color:rgba(255,255,255,.38);margin-top:-10px;margin-bottom:14px}
+.sp-divider{height:1px;background:rgba(255,255,255,.07);margin:14px 0}
+
+/* ─── RESTAURANT SEARCH ─── */
+.rest-row{display:flex;gap:8px;margin-bottom:10px}
+.rest-input{flex:1;padding:12px 14px;border:1.5px solid rgba(255,255,255,.12);border-radius:12px;font-size:15px;font-family:inherit;outline:none;background:rgba(255,255,255,.06);color:#fff;transition:border-color .15s}
+.rest-input:focus{border-color:rgba(255,255,255,.35)}
+.rest-input::placeholder{color:rgba(255,255,255,.3)}
+.loc-btn{width:48px;height:48px;border:none;border-radius:12px;background:rgba(255,255,255,.1);font-size:20px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.loc-btn:active{background:rgba(255,255,255,.2)}
+.loc-status{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:12px;min-height:16px}
+.chip-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;margin-bottom:14px}
+.chip-scroll::-webkit-scrollbar{display:none}
+.chip{padding:8px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,.15);background:transparent;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer;color:rgba(255,255,255,.75);font-family:inherit;transition:all .15s;flex-shrink:0}
+.chip:active,.chip.picked{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3)}
+.svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.svc-btn{padding:13px 10px;border:none;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:filter .12s}
+.svc-btn:active{filter:brightness(.82)}
+.svc-naver{background:#03C75A;color:#fff}
+.svc-gmap{background:#fff;color:#333}
+.svc-kakao{background:#FEE500;color:#3A1D1D}
+.svc-mango{background:#FF6B35;color:#fff}
+.svc-baemin{background:#2AC1BC;color:#fff}
+.svc-coupang{background:#C00D45;color:#fff}
+.food-guide-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;margin:20px 0 10px}
+
+/* ─── TRENDING ─── */
+.trend-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.trend-month{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#C60C30,#8B0820);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px}
+.trend-note{font-size:11px;color:rgba(255,255,255,.35)}
+.tcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;margin-bottom:10px;position:relative;overflow:hidden}
+.tcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#C60C30,#FF6B35)}
+.tcard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.tcard-names{flex:1}
+.tcard-name{font-size:16px;font-weight:800}
+.tcard-kr{font-size:13px;color:rgba(255,255,255,.5);margin-top:1px}
+.tcard-rank{width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:rgba(255,255,255,.5);flex-shrink:0}
+.tcard-rank.top{background:linear-gradient(135deg,#FFD700,#FFA500);color:#fff}
+.tcard-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tmeta{font-size:11px;padding:3px 9px;border-radius:8px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.65)}
+.tmeta-hot{background:rgba(198,12,48,.2);color:#FF7070}
+.tcard-why{font-size:13px;color:rgba(255,255,255,.7);line-height:1.6;margin-bottom:12px}
+.tcard-btns{display:flex;gap:8px}
+.tbtn{flex:1;padding:9px;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:filter .12s}
+.tbtn:active{filter:brightness(.82)}
+.tbtn-naver{background:#03C75A;color:#fff}
+.tbtn-kakao{background:#FEE500;color:#3A1D1D}
+.tbtn-insta{background:linear-gradient(135deg,#833AB4,#E1306C,#F77737);color:#fff}
+.no-trend{text-align:center;padding:30px;color:rgba(255,255,255,.3);font-size:14px}
+.tcity-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:16px;padding-bottom:2px}
+.tcity-scroll::-webkit-scrollbar{display:none}
+.tcity-btn{padding:7px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,.15);background:transparent;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;color:rgba(255,255,255,.65);font-family:inherit;transition:all .15s;flex-shrink:0}
+.tcity-btn.on{background:#C60C30;color:#fff;border-color:#C60C30}
+
+/* ─── FOOD TAB ─── */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fcard{background:rgba(255,255,255,.06);border-radius:16px;padding:14px;border:1px solid rgba(255,255,255,.07)}
+.f-em{font-size:34px;margin-bottom:8px}
+.f-jp{font-size:14px;font-weight:700}
+.f-kr{font-size:12px;color:rgba(255,255,255,.5)}
+.f-desc{font-size:12px;color:rgba(255,255,255,.5);line-height:1.5;margin-top:6px}
+.f-pr{display:inline-block;font-size:11px;font-weight:600;color:#FF9500;background:rgba(255,149,0,.15);padding:2px 7px;border-radius:6px;margin-top:6px}
+
+/* ─── TRANSIT ─── */
+.transit-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:18px 16px;margin-bottom:14px}
+.tr-inputs-wrap{display:flex;gap:10px;align-items:stretch;margin-bottom:12px}
+.tr-col{flex:1;display:flex;flex-direction:column;gap:8px}
+.transit-input{width:100%;padding:12px 14px;border:1.5px solid rgba(255,255,255,.12);border-radius:12px;font-size:14px;font-family:inherit;outline:none;background:rgba(255,255,255,.06);color:#fff;box-sizing:border-box;transition:border-color .15s}
+.transit-input:focus{border-color:rgba(255,255,255,.35)}
+.transit-input::placeholder{color:rgba(255,255,255,.28)}
+.tr-label{font-size:10px;font-weight:700;letter-spacing:.5px;color:rgba(255,255,255,.4)}
+.swap-col{display:flex;align-items:center;padding-top:18px}
+.swap-btn{width:38px;height:38px;border:1.5px solid rgba(255,255,255,.2);border-radius:50%;background:rgba(255,255,255,.06);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s}
+.swap-btn:active{background:rgba(255,255,255,.15)}
+.tr-target-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tr-target-lbl{font-size:11px;color:rgba(255,255,255,.4);white-space:nowrap}
+.tr-target-btn{padding:5px 12px;border-radius:14px;border:1.5px solid rgba(255,255,255,.15);background:transparent;font-size:12px;font-weight:600;color:rgba(255,255,255,.55);cursor:pointer;font-family:inherit;transition:all .15s}
+.tr-target-btn.on{background:#3A6FD8;color:#fff;border-color:#3A6FD8}
+.mc-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;padding-bottom:2px}
+.mc-scroll::-webkit-scrollbar{display:none}
+.mc-btn{padding:6px 13px;border-radius:16px;border:1.5px solid rgba(255,255,255,.13);background:transparent;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;color:rgba(255,255,255,.55);font-family:inherit;transition:all .15s;flex-shrink:0}
+.mc-btn.on{background:#3A6FD8;color:#fff;border-color:#3A6FD8}
+.tr-svc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+.tr-svc-btn{padding:11px 6px;border:none;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;transition:filter .12s;color:#fff}
+.tr-svc-btn:active{filter:brightness(.82)}
+.tr-svc-naver{background:#03C75A;color:#fff}
+.tr-svc-kakao{background:#FEE500;color:#3A1D1D}
+.tr-svc-google{background:#fff;color:#333}
+.subway-city-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px}
+.subway-city-scroll::-webkit-scrollbar{display:none}
+.subway-open-btn{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#1A3A6F,#3A6FD8);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:filter .12s}
+.subway-open-btn:active{filter:brightness(.82)}
+.t-tmoney{background:linear-gradient(145deg,#004B8D,#0066C0);color:#fff}
+.t-tmoney .tile-logo{background:#0090D4;color:#fff}
+.t-korail{background:linear-gradient(145deg,#003882,#00529B);color:#fff}
+.t-korail .tile-logo{background:#0052A5;color:#fff}
+.t-arex{background:linear-gradient(145deg,#1A1A4E,#2A2A8E);color:#fff}
+.t-arex .tile-logo{background:#3333AA;color:#fff}
+.t-subwayapp{background:linear-gradient(145deg,#1A3320,#1A5C30);color:#fff}
+.t-subwayapp .tile-logo{background:#28A745;color:#fff}
+
+/* ─── FLIGHT ─── */
+.fl-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:18px 16px;margin-bottom:14px}
+.fl-type-row{display:flex;gap:8px;margin-bottom:16px}
+.fl-type-btn{flex:1;padding:9px;border-radius:12px;border:1.5px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.55);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s}
+.fl-type-btn.on{background:#1A4DB8;color:#fff;border-color:#1A4DB8}
+.fl-route-row{display:flex;align-items:flex-end;gap:8px;margin-bottom:14px}
+.fl-port-col{flex:1}
+.fl-label{display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:.5px;margin-bottom:6px}
+.fl-select{width:100%;padding:11px 12px;border:1.5px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.07);color:#fff;font-size:13px;font-family:inherit;outline:none;-webkit-appearance:none;appearance:none;cursor:pointer}
+.fl-select option{background:#1A2B3C;color:#fff}
+.fl-swap-btn{width:36px;height:36px;border:1.5px solid rgba(255,255,255,.2);border-radius:50%;background:rgba(255,255,255,.06);color:#fff;font-size:16px;cursor:pointer;flex-shrink:0;margin-bottom:2px;transition:background .15s}
+.fl-swap-btn:active{background:rgba(255,255,255,.15)}
+.fl-dates-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.fl-date{width:100%;padding:11px 12px;border:1.5px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.07);color:#fff;font-size:13px;font-family:inherit;outline:none;box-sizing:border-box;-webkit-appearance:none}
+.fl-date::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.5)}
+.fl-opts-row{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center}
+.fl-counter-row{display:flex;align-items:center;gap:10px}
+.fl-counter-btn{width:32px;height:32px;border:1.5px solid rgba(255,255,255,.2);border-radius:50%;background:transparent;color:#fff;font-size:18px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.fl-counter-btn:active{background:rgba(255,255,255,.15)}
+.fl-counter-val{font-size:18px;font-weight:700;min-width:24px;text-align:center}
+.fl-site-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.fl-site-btn{padding:14px 12px;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;gap:4px;transition:filter .12s;text-align:left}
+.fl-site-btn:active{filter:brightness(.82)}
+.fl-site-ic{font-size:20px}
+.fl-site-nm{font-size:13px;font-weight:800;line-height:1}
+.fl-site-tag{font-size:10px;opacity:.75;font-weight:500}
+.fl-sky{background:linear-gradient(135deg,#00A9E0,#0070C0);color:#fff}
+.fl-google{background:linear-gradient(135deg,#fff,#F1F3F4);color:#333}
+.fl-google .fl-site-tag{color:#666}
+.fl-naver{background:linear-gradient(135deg,#035C34,#03C75A);color:#fff}
+.fl-trip{background:linear-gradient(135deg,#CC4400,#FF6B35);color:#fff}
+.fl-kayak{background:linear-gradient(135deg,#993300,#FF690F);color:#fff}
+.fl-exp{background:linear-gradient(135deg,#002357,#003B95);color:#fff}
+.fl-raku{background:linear-gradient(135deg,#800000,#BF0000);color:#fff}
+.fl-his{background:linear-gradient(135deg,#2D006E,#5B00C8);color:#fff}
+.fl-all-btn{width:100%;padding:15px;border:none;border-radius:16px;background:linear-gradient(135deg,#1A4DB8,#4A7FE0);color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;transition:filter .12s}
+.fl-all-btn:active{filter:brightness(.85)}
+.fl-note{font-size:11px;color:rgba(255,255,255,.35);text-align:center;margin-bottom:16px}
+
+/* ─── BOTTOM NAV ─── */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,25,35,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.08);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom,0)}
+.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 0;cursor:pointer;border:none;background:none;color:rgba(255,255,255,.3);gap:2px;font-family:inherit;transition:color .15s}
+.nbtn.on{color:#C60C30}
+.n-ic{font-size:22px}
+.n-lb{font-size:9px;font-weight:500}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-row">
+    <span class="hdr-flag">🇰🇷</span>
+    <div>
+      <div class="hdr-title">韓国旅行ツール</div>
+      <div class="hdr-sub">한국 여행 올인원</div>
+    </div>
+  </div>
+  <div class="rate-strip">
+    <div class="rate-chip"><div class="rate-label">🇯🇵 1 JPY</div><div class="rate-value" id="r-jpy">—</div></div>
+    <div class="rate-chip"><div class="rate-label">🇺🇸 1 USD</div><div class="rate-value" id="r-usd">—</div></div>
+    <div class="rate-chip"><div class="rate-label">🇪🇺 1 EUR</div><div class="rate-value" id="r-eur">—</div></div>
+    <div class="rate-chip"><div class="rate-label">🇨🇳 1 CNY</div><div class="rate-value" id="r-cny">—</div></div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════
+     LAUNCHER TAB
+══════════════════════════════ -->
+<section class="sec on" id="sec-home">
+
+  <div class="slabel">🚕 タクシー</div>
+  <div class="grid2">
+    <button class="tile t-kakaot" onclick="launch('kakaot')">
+      <div class="tile-logo">카T</div>
+      <div class="tile-name">카카오T</div>
+      <div class="tile-desc">韓国最大のタクシーアプリ</div>
+      <span class="tile-badge">韓国No.1</span>
+    </button>
+    <button class="tile t-uber" onclick="launch('uber')">
+      <div class="tile-logo">U</div>
+      <div class="tile-name">Uber</div>
+      <div class="tile-desc">ウーバータクシー</div>
+    </button>
+  </div>
+
+  <div class="slabel">🗺️ 地図・ナビ</div>
+  <div class="grid2">
+    <button class="tile t-naver" onclick="launch('navermap')">
+      <div class="tile-logo">N</div>
+      <div class="tile-name">Naver Map</div>
+      <div class="tile-desc">네이버지도 / 韓国最強マップ</div>
+      <span class="tile-badge">韓国No.1</span>
+    </button>
+    <button class="tile t-gmap" onclick="launch('googlemaps')">
+      <div class="tile-logo" style="font-size:30px">📍</div>
+      <div class="tile-name">Google Maps</div>
+      <div class="tile-desc">グーグルマップ</div>
+    </button>
+  </div>
+
+  <div class="slabel">📸 カメラ翻訳</div>
+  <div class="grid2">
+    <button class="tile t-papago" onclick="launch('papago')">
+      <div class="tile-logo">P</div>
+      <div class="tile-name">Papago</div>
+      <div class="tile-desc">カメラ・音声・テキスト翻訳</div>
+      <span class="tile-badge">★ おすすめ</span>
+    </button>
+    <button class="tile t-gtrans" onclick="launch('gtrans')">
+      <div class="tile-logo">A</div>
+      <div class="tile-name">Google翻訳</div>
+      <div class="tile-desc">カメラ・音声翻訳 日→韓</div>
+    </button>
+  </div>
+
+  <div class="slabel">🔧 その他</div>
+  <div class="grid2">
+    <button class="tile t-subway" onclick="launch('kakaomap')">
+      <div class="tile-logo" style="font-size:26px">🚇</div>
+      <div class="tile-name">KakaoMap</div>
+      <div class="tile-desc">地下鉄・乗換案内</div>
+    </button>
+    <button class="tile t-weather" onclick="launch('kweather')">
+      <div class="tile-logo" style="font-size:26px">🌤️</div>
+      <div class="tile-name">韓国天気</div>
+      <div class="tile-desc">気象庁 / 週間予報</div>
+    </button>
+  </div>
+
+  <div class="slabel">📞 緊急通報（タップで電話）</div>
+  <div class="emg-grid">
+    <button class="emg e-police" onclick="callNum('112')">
+      <span class="emg-em">🚨</span>
+      <span class="emg-num">112</span>
+      <span class="emg-lbl">警察</span>
+    </button>
+    <button class="emg e-fire" onclick="callNum('119')">
+      <span class="emg-em">🚑</span>
+      <span class="emg-num">119</span>
+      <span class="emg-lbl">救急・消防</span>
+    </button>
+    <button class="emg e-info" onclick="callNum('1330')">
+      <span class="emg-em">ℹ️</span>
+      <span class="emg-num">1330</span>
+      <span class="emg-lbl">観光案内<br>日本語対応</span>
+    </button>
+  </div>
+
+  <!-- ── HOSPITAL FINDER ── -->
+  <div class="slabel" style="margin-top:20px">🏥 近くの病院を探す</div>
+
+  <div class="hosp-search-row">
+    <button class="hosp-gps-btn" onclick="searchHospGPS('naver')">
+      <span>📍</span>現在地から探す（Naver）
+    </button>
+    <button class="hosp-gps-btn" onclick="searchHospGPS('google')" style="background:linear-gradient(135deg,#4285F4,#1A6AE8)">
+      <span>🗺️</span>Google
+    </button>
+  </div>
+
+  <div class="slabel" style="font-size:12px;margin-bottom:10px;color:rgba(255,255,255,.5)">主要病院リスト（日本語対応・国際診療センター）</div>
+  <div class="hosp-city-scroll" id="hcity-scroll">
+    <button class="hcity-btn on" onclick="setHCity('seoul',this)">🏙️ ソウル</button>
+    <button class="hcity-btn" onclick="setHCity('busan',this)">🌊 釜山</button>
+    <button class="hcity-btn" onclick="setHCity('jeju',this)">🌴 済州島</button>
+  </div>
+  <div id="hosp-list"></div>
+
+  <div class="hosp-note">
+    <strong>救急の場合 → まず119に電話！</strong><br>
+    「119」は24時間対応・英語可。住所がわからない場合は「GPS位置情報を送る」ボタンが使えます。重症の場合は自力で移動せず救急車を呼んでください。
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════
+     CURRENCY TAB
+══════════════════════════════ -->
+<section class="sec" id="sec-currency">
+  <div class="card">
+    <div class="ctitle">💱 為替電卓 <span class="rate-badge2" id="rbadge">取得中...</span></div>
+    <div class="cur-from">
+      <div class="cur-lb">入力金額</div>
+      <div class="cur-row">
+        <input class="cur-input" type="number" id="amt" value="1000" oninput="calcCur()">
+        <select class="cur-sel" id="csel" onchange="calcCur()">
+          <option value="JPY">JPY 🇯🇵</option>
+          <option value="USD">USD 🇺🇸</option>
+          <option value="EUR">EUR 🇪🇺</option>
+          <option value="CNY">CNY 🇨🇳</option>
+        </select>
+      </div>
+    </div>
+    <div class="swap-row">↓</div>
+    <div class="cur-res">
+      <div class="res-lb">韓国ウォン (KRW)</div>
+      <div class="res-val" id="rval">— ₩</div>
+      <div class="res-rt" id="rrate">レート取得中...</div>
+    </div>
+    <p class="note">⚠️ レートは参考値。実際のレートは変動します。</p>
+  </div>
+  <div class="card">
+    <div class="ctitle">⚙️ レート（自動取得・手動変更可）</div>
+    <div class="rate-row"><span class="rate-nm">🇯🇵 1 JPY =</span><input class="rate-in" type="number" id="rv-JPY" value="9.3" step="0.01" oninput="calcCur()"><span class="rate-u">KRW</span></div>
+    <div class="rate-row"><span class="rate-nm">🇺🇸 1 USD =</span><input class="rate-in" type="number" id="rv-USD" value="1370" step="1" oninput="calcCur()"><span class="rate-u">KRW</span></div>
+    <div class="rate-row"><span class="rate-nm">🇪🇺 1 EUR =</span><input class="rate-in" type="number" id="rv-EUR" value="1480" step="1" oninput="calcCur()"><span class="rate-u">KRW</span></div>
+    <div class="rate-row"><span class="rate-nm">🇨🇳 1 CNY =</span><input class="rate-in" type="number" id="rv-CNY" value="188" step="0.1" oninput="calcCur()"><span class="rate-u">KRW</span></div>
+  </div>
+  <div class="card">
+    <div class="ctitle">📊 物価目安</div>
+    <div class="pgrid">
+      <div class="pitem"><div class="pitem-nm">🍺 コンビニビール</div><div class="pitem-pr">2,500〜4,000₩</div></div>
+      <div class="pitem"><div class="pitem-nm">🍜 食堂ランチ</div><div class="pitem-pr">8,000〜15,000₩</div></div>
+      <div class="pitem"><div class="pitem-nm">☕ カフェ</div><div class="pitem-pr">4,500〜7,000₩</div></div>
+      <div class="pitem"><div class="pitem-nm">🚇 地下鉄1回</div><div class="pitem-pr">1,400〜2,000₩</div></div>
+      <div class="pitem"><div class="pitem-nm">🚕 タクシー初乗り</div><div class="pitem-pr">4,800₩〜</div></div>
+      <div class="pitem"><div class="pitem-nm">🐖 サムギョプサル</div><div class="pitem-pr">15,000〜22,000₩</div></div>
+      <div class="pitem"><div class="pitem-nm">🛍️ 明洞マスク10枚</div><div class="pitem-pr">5,000〜10,000₩</div></div>
+      <div class="pitem"><div class="pitem-nm">🏨 ゲストハウス</div><div class="pitem-pr">25,000〜50,000₩</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════
+     TRANSLATION TAB
+══════════════════════════════ -->
+<section class="sec" id="sec-phrases">
+  <div class="card" style="margin-bottom:14px">
+    <div class="ctitle">🌐 リアルタイム翻訳（日→韓）</div>
+    <textarea class="trans-in" id="trans-in" placeholder="翻訳したい日本語を入力..."></textarea>
+    <button class="trans-btn" id="tbtn" onclick="doTranslate()">翻訳する</button>
+    <div class="trans-res" id="trans-res">
+      <div class="trans-kr" id="trans-kr"></div>
+      <div class="trans-pw">Powered by MyMemory Translation API</div>
+    </div>
+  </div>
+
+  <input class="sbox" type="text" placeholder="🔍 フレーズを検索..." id="psearch" oninput="renderPhrases()">
+  <div class="cscroll" id="pcat-scroll">
+    <button class="cbtn on" onclick="setCat('all',this)">すべて</button>
+    <button class="cbtn" onclick="setCat('greeting',this)">👋 挨拶</button>
+    <button class="cbtn" onclick="setCat('shopping',this)">🛍️ 買い物</button>
+    <button class="cbtn" onclick="setCat('restaurant',this)">🍽️ 食事</button>
+    <button class="cbtn" onclick="setCat('transport',this)">🚇 交通</button>
+    <button class="cbtn" onclick="setCat('emergency',this)">🚨 緊急</button>
+  </div>
+  <div id="plist"></div>
+</section>
+
+<!-- ══════════════════════════════
+     SPOTS TAB
+══════════════════════════════ -->
+<section class="sec" id="sec-spots">
+  <div class="cfil">
+    <button class="city-btn on" onclick="setCity('all',this)">全地域</button>
+    <button class="city-btn" onclick="setCity('seoul',this)">ソウル</button>
+    <button class="city-btn" onclick="setCity('busan',this)">釜山</button>
+    <button class="city-btn" onclick="setCity('jeju',this)">済州島</button>
+  </div>
+  <div id="slist"></div>
+</section>
+
+<!-- ══════════════════════════════
+     FOOD TAB
+══════════════════════════════ -->
+<section class="sec" id="sec-food">
+
+  <!-- TRENDING RESTAURANTS -->
+  <div class="card" id="trend-card">
+    <div class="trend-hdr">
+      <div>
+        <div class="ctitle" style="margin-bottom:4px">🔥 今月のバズり飲食店 Best 10</div>
+        <div class="trend-note">毎月手動更新 · SNS・現地で話題の店をピックアップ</div>
+      </div>
+      <div class="trend-month" id="trend-month-badge">— 月</div>
+    </div>
+    <div class="tcity-scroll" id="tcity-scroll">
+      <button class="tcity-btn on" onclick="setTCity('all',this)">🌏 全都市</button>
+      <button class="tcity-btn" onclick="setTCity('seoul',this)">🏙️ ソウル</button>
+      <button class="tcity-btn" onclick="setTCity('busan',this)">🌊 釜山</button>
+      <button class="tcity-btn" onclick="setTCity('jeju',this)">🌴 済州島</button>
+      <button class="tcity-btn" onclick="setTCity('gyeongju',this)">🏛️ 慶州</button>
+      <button class="tcity-btn" onclick="setTCity('jeonju',this)">🍱 全州</button>
+    </div>
+    <div id="trend-list"></div>
+  </div>
+
+  <!-- RESTAURANT SEARCH -->
+  <div class="card">
+    <div class="ctitle">🔍 レストラン検索</div>
+
+    <div class="rest-row">
+      <input class="rest-input" id="rest-q" type="text" placeholder="例: 삼겹살、カフェ、焼肉、냉면...">
+      <button class="loc-btn" id="loc-btn" onclick="getLocation()" title="現在地を取得">📍</button>
+    </div>
+    <div class="loc-status" id="loc-status"></div>
+
+    <!-- SPECIAL SEARCH -->
+    <div class="sp-section">
+      <div class="sp-section-lbl" style="color:#C8A84B">🎀 ブルーリボン認定店</div>
+      <div class="sp-row">
+        <button class="spbtn spbtn-br" onclick="searchSpecial('br-site')">
+          <em>🌐</em>公式サイト
+        </button>
+        <button class="spbtn spbtn-brnav" onclick="searchSpecial('br-naver')">
+          <em>🟢</em>Naverで検索
+        </button>
+      </div>
+    </div>
+
+    <div class="sp-section">
+      <div class="sp-section-lbl" style="color:#6AAEE8">🌙 24時間営業</div>
+      <div class="sp-row">
+        <button class="spbtn spbtn-24n" onclick="searchSpecial('24h-naver')">
+          <em>🟢</em>Naverで検索
+        </button>
+        <button class="spbtn spbtn-24g" onclick="searchSpecial('24h-google')">
+          <em>📍</em>Googleで検索
+        </button>
+      </div>
+    </div>
+
+    <div class="sp-section">
+      <div class="sp-section-lbl" style="color:#5CDB95">📍 現在地周辺</div>
+      <div class="sp-row">
+        <button class="spbtn spbtn-nearn" onclick="searchSpecial('near-naver')">
+          <em>🟢</em>Naverで探す
+        </button>
+        <button class="spbtn spbtn-nearg" onclick="searchSpecial('near-google')">
+          <em>🗺️</em>Googleで探す
+        </button>
+      </div>
+    </div>
+    <div class="sp-hint">※ キーワードか料理チップを選んでから押すと絞り込めます</div>
+    <div class="sp-divider"></div>
+
+    <!-- Category quick picks -->
+    <div class="chip-scroll">
+      <button class="chip" onclick="pickChip('삼겹살',this)">🐖 삼겹살</button>
+      <button class="chip" onclick="pickChip('치킨',this)">🍗 치킨</button>
+      <button class="chip" onclick="pickChip('카페',this)">☕ カフェ</button>
+      <button class="chip" onclick="pickChip('냉면',this)">🍜 냉면</button>
+      <button class="chip" onclick="pickChip('갈비',this)">🥩 갈비</button>
+      <button class="chip" onclick="pickChip('비빔밥',this)">🍚 비빔밥</button>
+      <button class="chip" onclick="pickChip('순두부찌개',this)">🫕 순두부</button>
+      <button class="chip" onclick="pickChip('떡볶이',this)">🌶️ 떡볶이</button>
+      <button class="chip" onclick="pickChip('해물파전',this)">🥞 파전</button>
+      <button class="chip" onclick="pickChip('삼계탕',this)">🍲 삼계탕</button>
+      <button class="chip" onclick="pickChip('곱창',this)">🍖 곱창</button>
+      <button class="chip" onclick="pickChip('라멘',this)">🍜 ラーメン</button>
+      <button class="chip" onclick="pickChip('스시',this)">🍣 スシ</button>
+      <button class="chip" onclick="pickChip('디저트',this)">🍰 デザート</button>
+    </div>
+
+    <!-- Search service buttons -->
+    <div class="svc-grid">
+      <button class="svc-btn svc-naver" onclick="searchRest('naver')">
+        <span>🟢</span><span>Naver Mapで検索</span>
+      </button>
+      <button class="svc-btn svc-gmap" onclick="searchRest('google')">
+        <span>📍</span><span>Google Mapsで検索</span>
+      </button>
+      <button class="svc-btn svc-kakao" onclick="searchRest('kakao')">
+        <span>🟡</span><span>Kakao Mapで検索</span>
+      </button>
+      <button class="svc-btn svc-mango" onclick="searchRest('mango')">
+        <span>🍽️</span><span>망고플레이트</span>
+      </button>
+      <button class="svc-btn svc-baemin" onclick="searchRest('baemin')">
+        <span>🛵</span><span>배달의민족 (デリバリー)</span>
+      </button>
+      <button class="svc-btn svc-coupang" onclick="searchRest('coupang')">
+        <span>⚡</span><span>쿠팡이츠 (デリバリー)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- FOOD GUIDE -->
+  <div class="food-guide-label">料理ガイド</div>
+  <div class="cscroll" id="fcat-scroll">
+    <button class="cbtn on" onclick="setFood('all',this)">すべて</button>
+    <button class="cbtn" onclick="setFood('meat',this)">🥩 肉料理</button>
+    <button class="cbtn" onclick="setFood('rice',this)">🍚 麺・ご飯</button>
+    <button class="cbtn" onclick="setFood('street',this)">🍡 屋台</button>
+    <button class="cbtn" onclick="setFood('drink',this)">🍺 飲み物</button>
+  </div>
+  <div id="fgrid" class="fgrid"></div>
+
+</section>
+
+<!-- ══════════════════════════════
+     TRANSIT TAB
+══════════════════════════════ -->
+<section class="sec" id="sec-transit">
+
+  <!-- ROUTE SEARCH -->
+  <div class="transit-card">
+    <div class="ctitle" style="margin-bottom:14px">🚇 乗り換え経路検索</div>
+
+    <div class="tr-inputs-wrap">
+      <div class="tr-col">
+        <div class="tr-label">🟢 出発地</div>
+        <input class="transit-input" id="tr-from" type="text" placeholder="例: 明洞역、서울역">
+        <div class="tr-label" style="margin-top:4px">🔴 目的地</div>
+        <input class="transit-input" id="tr-to" type="text" placeholder="例: 弘大입구역、강남역">
+      </div>
+      <div class="swap-col">
+        <button class="swap-btn" onclick="swapStations()" title="出発・目的地を入れ替え">⇅</button>
+      </div>
+    </div>
+
+    <!-- Chip target toggle -->
+    <div class="tr-target-row">
+      <span class="tr-target-lbl">チップで入力:</span>
+      <button class="tr-target-btn on" id="trt-from" onclick="setTrTarget('from',this)">出発地</button>
+      <button class="tr-target-btn" id="trt-to" onclick="setTrTarget('to',this)">目的地</button>
+    </div>
+
+    <!-- City filter -->
+    <div class="mc-scroll" id="st-city-scroll">
+      <button class="mc-btn on" onclick="setStCity('seoul',this)">🏙️ ソウル</button>
+      <button class="mc-btn" onclick="setStCity('busan',this)">🌊 釜山</button>
+      <button class="mc-btn" onclick="setStCity('daegu',this)">🏔️ 大邱</button>
+      <button class="mc-btn" onclick="setStCity('daejeon',this)">🌿 大田</button>
+      <button class="mc-btn" onclick="setStCity('gwangju',this)">☀️ 光州</button>
+    </div>
+
+    <!-- Station chips -->
+    <div class="chip-scroll" id="st-chips"></div>
+
+    <!-- Service buttons -->
+    <div class="tr-svc-grid">
+      <button class="tr-svc-btn tr-svc-naver" onclick="searchTransit('naver')">
+        <span style="font-size:16px">🟢</span>Naver Map
+      </button>
+      <button class="tr-svc-btn tr-svc-kakao" onclick="searchTransit('kakao')">
+        <span style="font-size:16px">🟡</span>Kakao Map
+      </button>
+      <button class="tr-svc-btn tr-svc-google" onclick="searchTransit('google')">
+        <span style="font-size:16px">📍</span>Google Maps
+      </button>
+    </div>
+  </div>
+
+  <!-- SUBWAY MAP -->
+  <div class="transit-card">
+    <div class="ctitle" style="margin-bottom:14px">🗺️ 路線図</div>
+    <div class="mc-scroll" id="subway-city-scroll">
+      <button class="mc-btn on" onclick="setSubwayCity('seoul',this)">🏙️ ソウル首都圏</button>
+      <button class="mc-btn" onclick="setSubwayCity('busan',this)">🌊 釜山</button>
+      <button class="mc-btn" onclick="setSubwayCity('daegu',this)">🏔️ 大邱</button>
+      <button class="mc-btn" onclick="setSubwayCity('daejeon',this)">🌿 大田</button>
+      <button class="mc-btn" onclick="setSubwayCity('gwangju',this)">☀️ 光州</button>
+    </div>
+    <button class="subway-open-btn" id="subway-map-btn" onclick="openSubwayMap()">
+      🗺️ ソウル首都圏の路線図を開く（公式）
+    </button>
+  </div>
+
+  <!-- TRANSIT APPS -->
+  <div class="slabel">交通系アプリ・サービス</div>
+  <div class="grid2">
+    <button class="tile t-tmoney" onclick="launch('tmoney')">
+      <div class="tile-logo" style="font-size:18px;font-weight:900">T</div>
+      <div class="tile-name">T-money</div>
+      <div class="tile-sub">交通カード残高確認</div>
+    </button>
+    <button class="tile t-korail" onclick="launch('korail')">
+      <div class="tile-logo">🚄</div>
+      <div class="tile-name">KORAIL</div>
+      <div class="tile-sub">KTX・列車予約</div>
+    </button>
+    <button class="tile t-arex" onclick="launch('arex')">
+      <div class="tile-logo">✈️</div>
+      <div class="tile-name">AREX</div>
+      <div class="tile-sub">仁川空港鉄道</div>
+    </button>
+    <button class="tile t-subwayapp" onclick="launch('subwayapp')">
+      <div class="tile-logo">🚇</div>
+      <div class="tile-name">Subway Korea</div>
+      <div class="tile-sub">乗り換え案内アプリ</div>
+    </button>
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════
+     FLIGHT TAB
+══════════════════════════════ -->
+<section class="sec" id="sec-flight">
+
+  <!-- SEARCH FORM -->
+  <div class="fl-card">
+    <div class="ctitle" style="margin-bottom:14px">✈️ 航空券検索</div>
+
+    <!-- 片道 / 往復 -->
+    <div class="fl-type-row">
+      <button class="fl-type-btn on" onclick="setTripType('oneway',this)">片道</button>
+      <button class="fl-type-btn" onclick="setTripType('roundtrip',this)">往復</button>
+    </div>
+
+    <!-- 出発地 / 目的地 -->
+    <div class="fl-route-row">
+      <div class="fl-port-col">
+        <label class="fl-label">🛫 出発地（日本）</label>
+        <select class="fl-select" id="fl-from">
+          <option value="NRT">NRT 東京（成田）</option>
+          <option value="HND">HND 東京（羽田）</option>
+          <option value="KIX">KIX 大阪（関西）</option>
+          <option value="FUK">FUK 福岡</option>
+          <option value="NGO">NGO 名古屋（中部）</option>
+          <option value="OKA">OKA 那覇（沖縄）</option>
+          <option value="CTS">CTS 札幌（新千歳）</option>
+          <option value="SDJ">SDJ 仙台</option>
+          <option value="ITM">ITM 大阪（伊丹）</option>
+          <option value="KMQ">KMQ 小松（北陸）</option>
+          <option value="KOJ">KOJ 鹿児島</option>
+          <option value="OIT">OIT 大分</option>
+        </select>
+      </div>
+      <button class="fl-swap-btn" onclick="swapAirports()">⇄</button>
+      <div class="fl-port-col">
+        <label class="fl-label">🛬 目的地（韓国）</label>
+        <select class="fl-select" id="fl-to">
+          <option value="ICN">ICN ソウル（仁川）</option>
+          <option value="GMP">GMP ソウル（金浦）</option>
+          <option value="PUS">PUS 釜山（金海）</option>
+          <option value="CJU">CJU 済州島</option>
+          <option value="TAE">TAE 大邱</option>
+          <option value="CJJ">CJJ 清州</option>
+          <option value="KWJ">KWJ 光州</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 日付 -->
+    <div class="fl-dates-row">
+      <div>
+        <label class="fl-label">📅 出発日</label>
+        <input class="fl-date" type="date" id="fl-dep">
+      </div>
+      <div id="fl-ret-col" style="display:none">
+        <label class="fl-label">📅 帰国日</label>
+        <input class="fl-date" type="date" id="fl-ret">
+      </div>
+    </div>
+
+    <!-- 大人 / クラス -->
+    <div class="fl-opts-row">
+      <div>
+        <label class="fl-label">👤 大人</label>
+        <div class="fl-counter-row">
+          <button class="fl-counter-btn" onclick="changeAdults(-1)">−</button>
+          <span class="fl-counter-val" id="fl-adults-val">1</span>
+          <button class="fl-counter-btn" onclick="changeAdults(+1)">＋</button>
+        </div>
+      </div>
+      <div>
+        <label class="fl-label">💺 クラス</label>
+        <select class="fl-select" id="fl-cabin">
+          <option value="Y">エコノミー</option>
+          <option value="M">プレミアムエコノミー</option>
+          <option value="C">ビジネス</option>
+          <option value="F">ファースト</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH SITE BUTTONS -->
+  <div class="fl-site-grid">
+    <button class="fl-site-btn fl-sky" onclick="openFlight('skyscanner')">
+      <span class="fl-site-ic">🔵</span>
+      <span class="fl-site-nm">Skyscanner</span>
+      <span class="fl-site-tag">最安値検索の定番</span>
+    </button>
+    <button class="fl-site-btn fl-google" onclick="openFlight('google')">
+      <span class="fl-site-ic">🔴</span>
+      <span class="fl-site-nm">Google Flights</span>
+      <span class="fl-site-tag">価格追跡・通知あり</span>
+    </button>
+    <button class="fl-site-btn fl-naver" onclick="openFlight('naver')">
+      <span class="fl-site-ic">🟢</span>
+      <span class="fl-site-nm">Naver 항공</span>
+      <span class="fl-site-tag">日韓ルート特化</span>
+    </button>
+    <button class="fl-site-btn fl-trip" onclick="openFlight('trip')">
+      <span class="fl-site-ic">🟠</span>
+      <span class="fl-site-nm">Trip.com</span>
+      <span class="fl-site-tag">アジア系格安LCC</span>
+    </button>
+    <button class="fl-site-btn fl-kayak" onclick="openFlight('kayak')">
+      <span class="fl-site-ic">🟡</span>
+      <span class="fl-site-nm">Kayak</span>
+      <span class="fl-site-tag">複数社一括比較</span>
+    </button>
+    <button class="fl-site-btn fl-exp" onclick="openFlight('expedia')">
+      <span class="fl-site-ic">🔷</span>
+      <span class="fl-site-nm">Expedia JP</span>
+      <span class="fl-site-tag">ホテルセット割あり</span>
+    </button>
+    <button class="fl-site-btn fl-raku" onclick="openFlight('rakuten')">
+      <span class="fl-site-ic">❤️</span>
+      <span class="fl-site-nm">楽天トラベル</span>
+      <span class="fl-site-tag">楽天ポイント還元</span>
+    </button>
+    <button class="fl-site-btn fl-his" onclick="openFlight('his')">
+      <span class="fl-site-ic">🟣</span>
+      <span class="fl-site-nm">HIS</span>
+      <span class="fl-site-tag">格安パッケージ</span>
+    </button>
+  </div>
+
+  <button class="fl-all-btn" onclick="openAllFlights()">🚀 全8サイトで一括検索</button>
+  <div class="fl-note">※ 一括検索時はブラウザのポップアップ許可が必要です</div>
+
+</section>
+
+</div><!-- /main -->
+
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="nbtn on" onclick="goTo('home',this)"><span class="n-ic">🚀</span><span class="n-lb">ランチャー</span></button>
+  <button class="nbtn" onclick="goTo('currency',this)"><span class="n-ic">💱</span><span class="n-lb">為替</span></button>
+  <button class="nbtn" onclick="goTo('phrases',this)"><span class="n-ic">🌐</span><span class="n-lb">翻訳</span></button>
+  <button class="nbtn" onclick="goTo('spots',this)"><span class="n-ic">📍</span><span class="n-lb">観光</span></button>
+  <button class="nbtn" onclick="goTo('food',this)"><span class="n-ic">🍽️</span><span class="n-lb">グルメ</span></button>
+  <button class="nbtn" onclick="goTo('transit',this)"><span class="n-ic">🚇</span><span class="n-lb">電車</span></button>
+  <button class="nbtn" onclick="goTo('flight',this)"><span class="n-ic">✈️</span><span class="n-lb">航空券</span></button>
+</nav>
+
+<script>
+// ─── APP LAUNCH ───
+const APPS = {
+  kakaot:    { ios:'kakaotaxi://',              web:'https://t.kakao.com/' },
+  uber:      { ios:'uber://',                    web:'https://m.uber.com/' },
+  navermap:  { ios:'nmap://',                    web:'https://map.naver.com/' },
+  googlemaps:{ ios:'comgooglemaps://',           web:'https://maps.google.com/' },
+  papago:    { ios:'naverpapagoTranslator://',   web:'https://papago.naver.com/' },
+  gtrans:    { ios:'googletranslate://',         web:'https://translate.google.com/?sl=ja&tl=ko&op=translate' },
+  kakaomap:  { ios:'kakaomap://',                web:'https://map.kakao.com/' },
+  kweather:  { ios:null,                         web:'https://www.weather.go.kr/w/index.do' },
+  tmoney:    { ios:'tmoney://',                   web:'https://www.t-money.co.kr/' },
+  korail:    { ios:'korailkorea://',              web:'https://www.letskorail.com/' },
+  arex:      { ios:null,                          web:'https://www.arex.or.kr/' },
+  subwayapp: { ios:'subwaykorea://',              web:'https://www.metro.co.kr/' },
+};
+
+function launch(id) {
+  const app = APPS[id];
+  if (!app) return;
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  if (isIOS && app.ios) {
+    // Try deep link → fall back to web after 1.5s if app not installed
+    const timer = setTimeout(() => window.open(app.web, '_blank'), 1500);
+    const hide = () => { clearTimeout(timer); };
+    window.addEventListener('pagehide', hide, {once:true});
+    window.addEventListener('blur', hide, {once:true});
+    window.location.href = app.ios;
+  } else {
+    window.open(app.web, '_blank');
+  }
+}
+
+function callNum(n) {
+  if (confirm(n + ' に電話しますか？')) window.location.href = 'tel:' + n;
+}
+
+// ─── HOSPITAL ───
+const HOSPITALS = {
+  seoul: [
+    { name:'延世大セブランス病院', kr:'세브란스병원', area:'新村(신촌)', phone:'02-2228-5800',
+      badges:['🇯🇵 日本語通訳','国際診療センター','24H救急'],
+      naver:'https://map.naver.com/v5/search/세브란스병원',
+      gmaps:'https://www.google.com/maps/search/세브란스병원' },
+    { name:'サムスンソウル病院', kr:'삼성서울병원', area:'江南(강남)', phone:'02-3410-2114',
+      badges:['国際医療センター','日英対応','24H救急'],
+      naver:'https://map.naver.com/v5/search/삼성서울병원',
+      gmaps:'https://www.google.com/maps/search/삼성서울병원' },
+    { name:'峨山医療センター', kr:'서울아산병원', area:'松坡(송파)', phone:'02-3010-3114',
+      badges:['国際医療センター','24H救急'],
+      naver:'https://map.naver.com/v5/search/서울아산병원',
+      gmaps:'https://www.google.com/maps/search/서울아산병원' },
+    { name:'ソウル大学病院', kr:'서울대학교병원', area:'鍾路(종로)', phone:'02-2072-2114',
+      badges:['外国人診療室','国立病院'],
+      naver:'https://map.naver.com/v5/search/서울대학교병원',
+      gmaps:'https://www.google.com/maps/search/서울대학교병원' },
+    { name:'カトリック聖母病院', kr:'서울성모병원', area:'瑞草(서초)', phone:'02-2258-5745',
+      badges:['外国人診療','24H救急'],
+      naver:'https://map.naver.com/v5/search/서울성모병원',
+      gmaps:'https://www.google.com/maps/search/서울성모병원' },
+  ],
+  busan: [
+    { name:'釜山大学病院', kr:'부산대학교병원', area:'西区(서구)', phone:'051-240-7000',
+      badges:['外国人診療','24H救急'],
+      naver:'https://map.naver.com/v5/search/부산대학교병원',
+      gmaps:'https://www.google.com/maps/search/부산대학교병원' },
+    { name:'メリノール病院', kr:'메리놀병원', area:'中区(중구)', phone:'051-461-2000',
+      badges:['市内中心部','外国人対応'],
+      naver:'https://map.naver.com/v5/search/메리놀병원+부산',
+      gmaps:'https://www.google.com/maps/search/메리놀병원+부산' },
+    { name:'東亜大学病院', kr:'동아대학교병원', area:'西区(서구)', phone:'051-240-2400',
+      badges:['24H救急','外国人診療'],
+      naver:'https://map.naver.com/v5/search/동아대학교병원',
+      gmaps:'https://www.google.com/maps/search/동아대학교병원' },
+  ],
+  jeju: [
+    { name:'済州大学病院', kr:'제주대학교병원', area:'済州市(제주시)', phone:'064-717-1114',
+      badges:['島内最大','24H救急','外国人対応'],
+      naver:'https://map.naver.com/v5/search/제주대학교병원',
+      gmaps:'https://www.google.com/maps/search/제주대학교병원' },
+    { name:'済州漢拏病院', kr:'제주한라병원', area:'済州市(제주시)', phone:'064-740-5000',
+      badges:['観光客対応','外国人診療'],
+      naver:'https://map.naver.com/v5/search/제주한라병원',
+      gmaps:'https://www.google.com/maps/search/제주한라병원' },
+  ],
+};
+let curHCity = 'seoul';
+
+function setHCity(city, btn) {
+  curHCity = city;
+  document.querySelectorAll('.hcity-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderHospitals();
+}
+
+function renderHospitals() {
+  const list = document.getElementById('hosp-list');
+  if (!list) return;
+  const items = HOSPITALS[curHCity] || [];
+  list.innerHTML = items.map((h, i) => `
+    <div class="hcard">
+      <div class="hcard-top">
+        <div>
+          <div class="hcard-name">${i+1}. ${h.name}</div>
+          <div class="hcard-kr">${h.kr} · ${h.area}</div>
+        </div>
+      </div>
+      <div class="hcard-badges">
+        ${h.badges.map(b => {
+          let cls = 'hbadge';
+          if (b.includes('日本語') || b.includes('🇯🇵')) cls += ' hbadge-jp';
+          if (b.includes('24H')) cls += ' hbadge-24';
+          return `<span class="${cls}">${b}</span>`;
+        }).join('')}
+      </div>
+      <div class="hcard-btns">
+        <button class="hbtn hbtn-call" onclick="callNum('${h.phone}')">📞 ${h.phone}</button>
+        <button class="hbtn hbtn-map" onclick="window.open('${h.naver}','_blank')">Naver</button>
+        <button class="hbtn hbtn-gmap" onclick="window.open('${h.gmaps}','_blank')">Google</button>
+      </div>
+    </div>`).join('');
+}
+
+function searchHospGPS(svc) {
+  if (!navigator.geolocation) {
+    alert('位置情報が取得できません');
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(pos => {
+    const lat = pos.coords.latitude, lng = pos.coords.longitude;
+    if (svc === 'google') {
+      window.open(`https://www.google.com/maps/search/병원/@${lat},${lng},15z`, '_blank');
+    } else {
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      if (isIOS) {
+        const timer = setTimeout(() => window.open(`https://map.naver.com/v5/search/응급실`, '_blank'), 1500);
+        window.addEventListener('pagehide', () => clearTimeout(timer), {once:true});
+        window.addEventListener('blur', () => clearTimeout(timer), {once:true});
+        window.location.href = `nmap://search?query=응급실&appname=koreatravel`;
+      } else {
+        window.open(`https://map.naver.com/v5/search/응급실`, '_blank');
+      }
+    }
+  }, () => {
+    if (svc === 'google') {
+      window.open('https://www.google.com/maps/search/병원+응급실+korea', '_blank');
+    } else {
+      window.open('https://map.naver.com/v5/search/응급실', '_blank');
+    }
+  }, {timeout:8000});
+}
+
+// ─── NAVIGATION ───
+function goTo(name, btn) {
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('on'));
+  document.querySelectorAll('.nbtn').forEach(b => b.classList.remove('on'));
+  document.getElementById('sec-' + name).classList.add('on');
+  btn.classList.add('on');
+  window.scrollTo(0, 0);
+}
+
+// ─── LIVE RATES ───
+async function fetchRates() {
+  try {
+    const d = await fetch('https://open.er-api.com/v6/latest/JPY').then(r => r.json());
+    if (d.result !== 'success') throw 0;
+    const R = d.rates;
+    const jpy = R.KRW;
+    const usd = R.KRW / R.USD;
+    const eur = R.KRW / R.EUR;
+    const cny = R.KRW / R.CNY;
+    // Header strip
+    document.getElementById('r-jpy').textContent = jpy.toFixed(1) + ' ₩';
+    document.getElementById('r-usd').textContent = Math.round(usd).toLocaleString() + ' ₩';
+    document.getElementById('r-eur').textContent = Math.round(eur).toLocaleString() + ' ₩';
+    document.getElementById('r-cny').textContent = cny.toFixed(1) + ' ₩';
+    // Currency tab inputs
+    document.getElementById('rv-JPY').value = jpy.toFixed(2);
+    document.getElementById('rv-USD').value = Math.round(usd);
+    document.getElementById('rv-EUR').value = Math.round(eur);
+    document.getElementById('rv-CNY').value = cny.toFixed(1);
+    const b = document.getElementById('rbadge');
+    b.textContent = '✅ 最新レート';
+    b.className = 'rate-badge2 rate-ok';
+    calcCur();
+  } catch {
+    const b = document.getElementById('rbadge');
+    b.textContent = '手動設定';
+    calcCur();
+  }
+}
+
+// ─── CURRENCY CALC ───
+function calcCur() {
+  const a = parseFloat(document.getElementById('amt').value) || 0;
+  const c = document.getElementById('csel').value;
+  const r = parseFloat(document.getElementById('rv-' + c).value) || 0;
+  document.getElementById('rval').textContent = (a * r).toLocaleString('ja-JP', {maximumFractionDigits:0}) + ' ₩';
+  document.getElementById('rrate').textContent = '1 ' + c + ' ≈ ' + r.toLocaleString() + ' KRW';
+}
+
+// ─── TRANSLATION ───
+async function doTranslate() {
+  const text = document.getElementById('trans-in').value.trim();
+  if (!text) return;
+  const btn = document.getElementById('tbtn');
+  btn.textContent = '翻訳中...'; btn.disabled = true;
+  try {
+    const d = await fetch('https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=ja|ko').then(r => r.json());
+    if (d.responseStatus === 200) {
+      document.getElementById('trans-kr').textContent = d.responseData.translatedText;
+      document.getElementById('trans-res').style.display = 'block';
+    } else throw 0;
+  } catch {
+    document.getElementById('trans-kr').textContent = '翻訳に失敗しました。再度お試しください。';
+    document.getElementById('trans-res').style.display = 'block';
+  }
+  btn.textContent = '翻訳する'; btn.disabled = false;
+}
+
+// ─── DATA ───
+const PHRASES = [
+  {c:'greeting',jp:'こんにちは',kr:'안녕하세요',ro:'Annyeonghaseyo'},
+  {c:'greeting',jp:'ありがとうございます',kr:'감사합니다',ro:'Gamsahamnida'},
+  {c:'greeting',jp:'すみません',kr:'저기요',ro:'Jeogiyo'},
+  {c:'greeting',jp:'はい / いいえ',kr:'네 / 아니요',ro:'Ne / Aniyo'},
+  {c:'greeting',jp:'さようなら',kr:'안녕히 가세요',ro:'Annyeonghi gaseyo'},
+  {c:'greeting',jp:'わかりません',kr:'모르겠어요',ro:'Moreugesseoyo'},
+  {c:'greeting',jp:'日本語わかりますか？',kr:'일본어 하세요?',ro:'Ilboneo haseyo?'},
+  {c:'greeting',jp:'もう一度お願いします',kr:'다시 한번 말씀해 주세요',ro:'Dasi hanbeon malsseum hae juseyo'},
+  {c:'shopping',jp:'いくらですか？',kr:'얼마예요?',ro:'Eolmayeyo?'},
+  {c:'shopping',jp:'高すぎます',kr:'너무 비싸요',ro:'Neomu bissayo'},
+  {c:'shopping',jp:'安くしてください',kr:'깎아주세요',ro:'Kkakka juseyo'},
+  {c:'shopping',jp:'これをください',kr:'이거 주세요',ro:'Igeo juseyo'},
+  {c:'shopping',jp:'試着してもいいですか？',kr:'입어봐도 돼요?',ro:'Ibeoswado dwaeyo?'},
+  {c:'shopping',jp:'カードで払えますか？',kr:'카드 돼요?',ro:'Kadeu dwaeyo?'},
+  {c:'shopping',jp:'袋をください',kr:'봉투 주세요',ro:'Bongtu juseyo'},
+  {c:'restaurant',jp:'メニューをください',kr:'메뉴 주세요',ro:'Menyu juseyo'},
+  {c:'restaurant',jp:'辛くないものはありますか？',kr:'안 매운 거 있어요?',ro:'An maeun geo isseoyo?'},
+  {c:'restaurant',jp:'おいしいです！',kr:'맛있어요!',ro:'Massisseoyo!'},
+  {c:'restaurant',jp:'お会計をお願いします',kr:'계산해 주세요',ro:'Gyesan hae juseyo'},
+  {c:'restaurant',jp:'お水をください',kr:'물 주세요',ro:'Mul juseyo'},
+  {c:'restaurant',jp:'辛いですか？',kr:'매워요?',ro:'Maewoyo?'},
+  {c:'restaurant',jp:'ビールをください',kr:'맥주 주세요',ro:'Maekju juseyo'},
+  {c:'restaurant',jp:'おかわりをください',kr:'더 주세요',ro:'Deo juseyo'},
+  {c:'transport',jp:'ここに行きたいです',kr:'여기 가고 싶어요',ro:'Yeogi gago sipeoyo'},
+  {c:'transport',jp:'ここで止めてください',kr:'여기서 세워주세요',ro:'Yeogiseo seweo juseyo'},
+  {c:'transport',jp:'どこですか？',kr:'어디예요?',ro:'Eodiyeyo?'},
+  {c:'transport',jp:'トイレはどこですか？',kr:'화장실이 어디예요?',ro:'Hwajangsiri eodiyeyo?'},
+  {c:'transport',jp:'カードで払えますか？',kr:'카드 돼요?',ro:'Kadeu dwaeyo?'},
+  {c:'emergency',jp:'助けてください！',kr:'도와주세요!',ro:'Dowa juseyo!'},
+  {c:'emergency',jp:'病院に行きたいです',kr:'병원에 가고 싶어요',ro:'Byeongwone gago sipeoyo'},
+  {c:'emergency',jp:'警察を呼んでください',kr:'경찰을 불러주세요',ro:'Gyeongchal bulleo juseyo'},
+  {c:'emergency',jp:'財布を盗まれました',kr:'지갑을 도둑맞았어요',ro:'Jigabeul dodungmajeosseoyo'},
+  {c:'emergency',jp:'気分が悪いです',kr:'몸이 안 좋아요',ro:'Momi an joayo'},
+];
+
+const SPOTS = [
+  {city:'seoul',name:'景福宮',kr:'경복궁',em:'🏯',bg:'#1a6b3a',desc:'朝鮮王朝の正宮。韓服レンタルで入場無料。守門将交代式も必見。',tags:['歴史','韓服体験','無料'],map:'https://www.google.com/maps/search/?q=경복궁'},
+  {city:'seoul',name:'明洞',kr:'명동',em:'🛍️',bg:'#c60c30',desc:'ソウル最大のショッピング＆グルメエリア。コスメ・屋台が集結。',tags:['ショッピング','屋台','コスメ'],map:'https://www.google.com/maps/search/?q=명동'},
+  {city:'seoul',name:'弘大',kr:'홍대',em:'🎵',bg:'#7c3aed',desc:'若者の街。クラブ、個性的カフェ、古着屋、ストリートアート。',tags:['ナイトライフ','カフェ','アート'],map:'https://www.google.com/maps/search/?q=홍대'},
+  {city:'seoul',name:'Nソウルタワー',kr:'남산타워',em:'🗼',bg:'#be6c21',desc:'南山の頂上のソウルのシンボル。展望台からの夜景が絶景。',tags:['夜景','展望台'],map:'https://www.google.com/maps/search/?q=남산타워'},
+  {city:'seoul',name:'北村韓屋村',kr:'북촌한옥마을',em:'🏘️',bg:'#6b7c00',desc:'伝統的な韓屋が並ぶ風情ある街並み。朝鮮時代の雰囲気を体感。',tags:['伝統建築','フォトスポット'],map:'https://www.google.com/maps/search/?q=북촌한옥마을'},
+  {city:'seoul',name:'東大門DDP',kr:'동대문디자인플라자',em:'🏟️',bg:'#1e40af',desc:'ザハ・ハディド設計の異形建築。24時間ショッピングと夜景。',tags:['建築','ショッピング','夜景'],map:'https://www.google.com/maps/search/?q=동대문디자인플라자'},
+  {city:'seoul',name:'仁寺洞',kr:'인사동',em:'🎨',bg:'#854d0e',desc:'伝統工芸品・ギャラリーが集まる文化の街。伝統茶房も多い。',tags:['伝統文化','お土産'],map:'https://www.google.com/maps/search/?q=인사동'},
+  {city:'seoul',name:'漢江公園',kr:'한강공원',em:'🌊',bg:'#0369a1',desc:'漢江沿いの広大な公園。チキンデリバリーでピクニックが定番。',tags:['公園','チキン','夜景'],map:'https://www.google.com/maps/search/?q=한강공원'},
+  {city:'busan',name:'海雲台ビーチ',kr:'해운대해수욕장',em:'🏖️',bg:'#0ea5e9',desc:'釜山最大のビーチリゾート。海水浴・海鮮・高層ホテル。',tags:['ビーチ','リゾート'],map:'https://www.google.com/maps/search/?q=해운대해수욕장'},
+  {city:'busan',name:'甘川文化村',kr:'감천문화마을',em:'🌈',bg:'#ea580c',desc:'「韓国のマチュピチュ」。カラフルな壁画の村。',tags:['壁画','フォトスポット'],map:'https://www.google.com/maps/search/?q=감천문화마을'},
+  {city:'busan',name:'広安里ビーチ',kr:'광안리해수욕장',em:'🌉',bg:'#7c3aed',desc:'広安大橋のライトアップ夜景が絶景。地元民に人気。',tags:['夜景','ビーチ'],map:'https://www.google.com/maps/search/?q=광안리해수욕장'},
+  {city:'jeju',name:'城山日出峰',kr:'성산일출봉',em:'🌋',bg:'#16a34a',desc:'ユネスコ世界遺産。火山地形と日の出の名所。',tags:['世界遺産','ハイキング'],map:'https://www.google.com/maps/search/?q=성산일출봉'},
+  {city:'jeju',name:'漢拏山',kr:'한라산',em:'⛰️',bg:'#166534',desc:'韓国最高峰（1,950m）。四季折々のトレッキング。',tags:['世界遺産','トレッキング'],map:'https://www.google.com/maps/search/?q=한라산'},
+  {city:'jeju',name:'牛島（ウド）',kr:'우도',em:'🏝️',bg:'#0891b2',desc:'エメラルドの海と白砂浜の離島。自転車で周遊。',tags:['離島','ビーチ'],map:'https://www.google.com/maps/search/?q=우도'},
+];
+
+const FOODS = [
+  {c:'meat',em:'🐖',jp:'サムギョプサル',kr:'삼겹살',desc:'豚バラの炭火BBQ。定番の韓国グルメ',pr:'15,000〜22,000₩/人前'},
+  {c:'meat',em:'🥩',jp:'カルビ',kr:'갈비',desc:'牛カルビの炭火焼き。甘醤油タレが人気',pr:'20,000〜40,000₩/人前'},
+  {c:'meat',em:'🍖',jp:'プルゴギ',kr:'불고기',desc:'甘辛タレ漬け牛肉の炒め焼き',pr:'12,000〜18,000₩'},
+  {c:'meat',em:'🍗',jp:'タッカルビ',kr:'닭갈비',desc:'鶏肉のコチュジャン辛味炒め',pr:'12,000〜15,000₩'},
+  {c:'rice',em:'🍚',jp:'ビビンバ',kr:'비빔밥',desc:'野菜・肉・コチュジャンの混ぜご飯',pr:'10,000〜15,000₩'},
+  {c:'rice',em:'🍜',jp:'ネンミョン',kr:'냉면',desc:'そば粉の冷麺。水冷麺・混ぜ冷麺',pr:'10,000〜14,000₩'},
+  {c:'rice',em:'🫕',jp:'スンドゥブチゲ',kr:'순두부찌개',desc:'柔らかい豆腐の辛いチゲ',pr:'8,000〜12,000₩'},
+  {c:'rice',em:'🍲',jp:'サムゲタン',kr:'삼계탕',desc:'丸鶏を高麗人参・もち米で煮込んだ滋養スープ',pr:'15,000〜20,000₩'},
+  {c:'street',em:'🌶️',jp:'トッポッキ',kr:'떡볶이',desc:'辛甘ソースの餅炒め。屋台の王道',pr:'3,000〜5,000₩'},
+  {c:'street',em:'🍗',jp:'韓国チキン',kr:'치킨',desc:'二度揚げのサクサクフライドチキン',pr:'18,000〜25,000₩/羽'},
+  {c:'street',em:'🥞',jp:'ホットク',kr:'호떡',desc:'黒糖・ナッツ入りのもちもちパンケーキ',pr:'1,000〜2,000₩'},
+  {c:'street',em:'🐟',jp:'プンオパン',kr:'붕어빵',desc:'鯉型のたい焼き。あんこ・クリームなど',pr:'1,000〜2,000₩'},
+  {c:'drink',em:'🍧',jp:'パッピンス',kr:'빙수',desc:'牛乳かき氷にあんこ・フルーツ・モチ',pr:'10,000〜18,000₩'},
+  {c:'drink',em:'🥃',jp:'ソジュ',kr:'소주',desc:'韓国の国民的焼酎。度数16〜25%',pr:'1,500〜3,000₩/本'},
+  {c:'drink',em:'🍶',jp:'マッコリ',kr:'막걸리',desc:'米の伝統醸造酒。甘酸っぱい',pr:'3,000〜5,000₩/本'},
+];
+
+// ─── PHRASES ───
+let curCat = 'all';
+function setCat(cat, btn) {
+  curCat = cat;
+  document.querySelectorAll('#pcat-scroll .cbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderPhrases();
+}
+function renderPhrases() {
+  const q = (document.getElementById('psearch').value || '').toLowerCase();
+  const items = PHRASES.filter(p =>
+    (curCat === 'all' || p.c === curCat) &&
+    (!q || p.jp.includes(q) || p.kr.includes(q) || p.ro.toLowerCase().includes(q))
+  );
+  document.getElementById('plist').innerHTML = items.length
+    ? items.map(p => `<div class="pcard"><div class="p-jp">${p.jp}</div><div class="p-kr">${p.kr}</div><div class="p-ro">${p.ro}</div></div>`).join('')
+    : '<div style="text-align:center;color:rgba(255,255,255,.3);padding:40px 0">フレーズが見つかりません</div>';
+}
+
+// ─── SPOTS ───
+let curCity = 'all';
+function setCity(city, btn) {
+  curCity = city;
+  document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderSpots();
+}
+function renderSpots() {
+  const items = curCity === 'all' ? SPOTS : SPOTS.filter(s => s.city === curCity);
+  document.getElementById('slist').innerHTML = items.map(s => `
+    <div class="scard">
+      <div class="s-banner" style="background:linear-gradient(135deg,${s.bg},${s.bg}88)">${s.em}</div>
+      <div class="s-body">
+        <div class="s-nmjp">${s.name}</div>
+        <div class="s-nmkr">${s.kr}</div>
+        <div class="s-desc">${s.desc}</div>
+        <div class="s-tags">${s.tags.map(t => `<span class="s-tag">${t}</span>`).join('')}</div>
+        <a href="${s.map}" target="_blank" rel="noopener" class="mapbtn">🗺️ Google Mapsで見る</a>
+      </div>
+    </div>`).join('');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🔥 毎月ここだけ更新してください！
+//    month: 表示する月（例 '2026年7月'）
+//    items: バズり飲食店リスト（増減OK・順番がランキング順）
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const TRENDING = {
+  month: '2026年6月',
+  // ──────────────────────────────────────────────
+  // city キー: seoul / busan / jeju / gyeongju / jeonju
+  // 各都市10店まで。順番 = ランキング順
+  // ──────────────────────────────────────────────
+  items: [
+    // ── ソウル ──────────────────────────────────
+    { city:'seoul', name:'ウルチロポチャ',    kr:'을지로포차',    area:'을지로',    cat:'🍺 포장마차',  sns:['Instagram','TikTok'],    why:'레트로감성 골목 포차가 인스타에서 폭발적 拡散。昭和感漂う路地のポジャンマチャが外国人観光客にも大ブーム。',              price:'15,000〜25,000₩', naver:'https://map.naver.com/v5/search/을지로+포차', kakao:'https://map.kakao.com/?q=을지로+포차', instagram:'https://www.instagram.com/explore/tags/을지로포차/' },
+    { city:'seoul', name:'聖水洞カフェ通り',  kr:'성수동카페거리',  area:'성수동',    cat:'☕ カフェ',    sns:['Instagram','YouTube'],   why:'팝업스토어와 감각적인 카페가 밀집。ポップアップ＆フォトジェニックカフェが集結するソウルの最旬エリア。',              price:'6,000〜14,000₩', naver:'https://map.naver.com/v5/search/성수동+카페', kakao:'https://map.kakao.com/?q=성수동카페', instagram:'https://www.instagram.com/explore/tags/성수동카페/' },
+    { city:'seoul', name:'マンウォン곱창',   kr:'망원동곱창',    area:'망원동',    cat:'🍖 곱창',     sns:['TikTok','Naver Blog'],   why:'TikTokで「ソウルで必ず食べるべき」と紹介され一気に人気店に。濃厚タレのホルモン焼きが中毒性ありと話題。',                price:'18,000〜28,000₩', naver:'https://map.naver.com/v5/search/망원동+곱창', kakao:'https://map.kakao.com/?q=망원동곱창', instagram:'https://www.instagram.com/explore/tags/망원동맛집/' },
+    { city:'seoul', name:'益善洞韓菓カフェ', kr:'익선동한과카페',  area:'익선동',    cat:'🍡 伝統菓子',  sns:['Instagram'],             why:'韓屋をリノベしたカフェで伝統菓子とラテのセットがInstagram映え。外国人観光客のリールが100万再生超え。',              price:'12,000〜18,000₩', naver:'https://map.naver.com/v5/search/익선동+카페', kakao:'https://map.kakao.com/?q=익선동카페', instagram:'https://www.instagram.com/explore/tags/익선동카페/' },
+    { city:'seoul', name:'延南洞ブランチ',   kr:'연남동브런치',   area:'연남동',    cat:'🥗 ブランチ',  sns:['Instagram','TikTok'],    why:'공항철도 폐선부지 경의선숲길 옆의 브런치 카페거리가 급부상。緑道沿いのブランチ通りが口コミで大拡散。',             price:'14,000〜22,000₩', naver:'https://map.naver.com/v5/search/연남동+브런치', kakao:'https://map.kakao.com/?q=연남동+브런치', instagram:'https://www.instagram.com/explore/tags/연남동맛집/' },
+    { city:'seoul', name:'広蔵市場ピンデトッ',kr:'광장시장빈대떡', area:'광장시장',  cat:'🥞 빈대떡',   sns:['YouTube','TikTok'],      why:'넷플릭스 다큐 방영 후 외국인 관광객 폭증。Netflixドキュメンタリー放映後、外国人観光客が殺到する屋台の聖地。',          price:'5,000〜8,000₩',  naver:'https://map.naver.com/v5/search/광장시장+빈대떡', kakao:'https://map.kakao.com/?q=광장시장', instagram:'https://www.instagram.com/explore/tags/광장시장/' },
+    { city:'seoul', name:'江南オマカセ',     kr:'강남오마카세',   area:'강남',      cat:'🍣 オマカセ',  sns:['Instagram'],             why:'가성비 오마카세 붐。1인 6만원대의 합리적인 오마카세가 인스타에서 화제。コスパ重視の新世代オマカセとして急注目。', price:'60,000〜90,000₩', naver:'https://map.naver.com/v5/search/강남+오마카세', kakao:'https://map.kakao.com/?q=강남+오마카세', instagram:'https://www.instagram.com/explore/tags/강남오마카세/' },
+    { city:'seoul', name:'麻浦あしたの足',   kr:'마포족발',      area:'마포',      cat:'🐷 족발',     sns:['Naver Blog','YouTube'],  why:'블로거 리뷰 후 예약이 꽉 찬 족발 맛집。コラーゲンたっぷりの豚足が女性客に大人気。ブロガー紹介後は予約困難に。',         price:'35,000〜55,000₩', naver:'https://map.naver.com/v5/search/마포+족발', kakao:'https://map.kakao.com/?q=마포+족발', instagram:'https://www.instagram.com/explore/tags/족발맛집/' },
+    { city:'seoul', name:'弘大屋台ゾーン',   kr:'홍대포장마차',   area:'홍대',      cat:'🌃 포장마차',  sns:['TikTok','Instagram'],    why:'밤 11시 이후 홍대 골목에 펼쳐지는 포차거리。深夜に一斉ライトアップする屋台通りがTikTokで拡散中。',                    price:'8,000〜20,000₩', naver:'https://map.naver.com/v5/search/홍대+포장마차', kakao:'https://map.kakao.com/?q=홍대포장마차', instagram:'https://www.instagram.com/explore/tags/홍대포차/' },
+    { city:'seoul', name:'三清洞ボッサム',   kr:'삼청동보쌈',    area:'삼청동',    cat:'🥬 보쌈',     sns:['Naver Blog'],            why:'경복궁 관람 후 들르는 현지인 단골 맛집。景福宮散策後に訪れる地元民の愛店。創業30年以上の老舗が今SNSで再注目。',           price:'28,000〜45,000₩', naver:'https://map.naver.com/v5/search/삼청동+보쌈', kakao:'https://map.kakao.com/?q=삼청동+보쌈', instagram:'https://www.instagram.com/explore/tags/삼청동맛집/' },
+    // ── 釜山 ────────────────────────────────────
+    { city:'busan', name:'海雲台生ウニ丼',   kr:'해운대성게덮밥',  area:'해운대',    cat:'🦔 성게덮밥', sns:['Instagram','TikTok'],    why:'신선한 성게알을 아낌없이 올린 덮밥이 인스타 핫플로 등극。採れたてのウニを豪快に乗せた丼がリール映えで一躍有名店に。', price:'25,000〜38,000₩', naver:'https://map.naver.com/v5/search/해운대+성게덮밥', kakao:'https://map.kakao.com/?q=해운대+성게덮밥', instagram:'https://www.instagram.com/explore/tags/해운대맛집/' },
+    { city:'busan', name:'南浦洞シアッホトク',kr:'남포동씨앗호떡',  area:'남포동',    cat:'🥞 씨앗호떡', sns:['YouTube','TikTok'],      why:'부산의 상징 씨앗호떡을 Shorts로 소개 후 줄이 2배로 늘었다。YouTubeショートで紹介され行列が2倍に。釜山名物の種ホトク。', price:'1,500〜2,000₩',  naver:'https://map.naver.com/v5/search/남포동+씨앗호떡', kakao:'https://map.kakao.com/?q=남포동+씨앗호떡', instagram:'https://www.instagram.com/explore/tags/씨앗호떡/' },
+    { city:'busan', name:'釜山豚クッパ横丁', kr:'돼지국밥골목',   area:'서면',      cat:'🍲 돼지국밥', sns:['Naver Blog','Instagram'],why:'부산 여행의 필수 코스로 자리잡은 돼지국밥 골목。釜山B級グルメの王道、豚骨スープのクッパ横丁が観光客必訪スポットに。',   price:'9,000〜12,000₩', naver:'https://map.naver.com/v5/search/서면+돼지국밥', kakao:'https://map.kakao.com/?q=서면+돼지국밥', instagram:'https://www.instagram.com/explore/tags/돼지국밥/' },
+    { city:'busan', name:'機張カニ市場',     kr:'기장대게시장',   area:'기장',      cat:'🦀 대게',     sns:['YouTube','TikTok'],      why:'산지 직송 대게를 저렴하게 먹을 수 있는 시장이 SNS 입소문으로 急부상。産地直送のカニが市場価格で食べられると大拡散。',       price:'50,000〜100,000₩',naver:'https://map.naver.com/v5/search/기장+대게', kakao:'https://map.kakao.com/?q=기장대게', instagram:'https://www.instagram.com/explore/tags/기장대게/' },
+    { city:'busan', name:'広安里ビールバー',  kr:'광안리맥주바',   area:'광안리',    cat:'🍺 수제맥주', sns:['Instagram','TikTok'],    why:'광안대교 야경을 바라보며 마시는 크래프트 맥주。広安大橋の夜景を眺めながらクラフトビール。夜景リールが200万回再生超え。', price:'8,000〜20,000₩', naver:'https://map.naver.com/v5/search/광안리+수제맥주', kakao:'https://map.kakao.com/?q=광안리+맥주', instagram:'https://www.instagram.com/explore/tags/광안리맛집/' },
+    { city:'busan', name:'チャガルチ朝市場',  kr:'자갈치아침시장',  area:'자갈치',    cat:'🐟 횟감',     sns:['YouTube','Naver Blog'],  why:'이른 아침 어부들이 올리는 싱싱한 활어회를 저렴하게 맛볼 수 있다。早朝の漁師直売活魚市場がグルメYouTuberに取り上げられ話題。', price:'20,000〜40,000₩', naver:'https://map.naver.com/v5/search/자갈치시장', kakao:'https://map.kakao.com/?q=자갈치시장', instagram:'https://www.instagram.com/explore/tags/자갈치시장/' },
+    { city:'busan', name:'センタムシティ高島屋',kr:'센텀시티신세계',area:'센텀시티',  cat:'🛍️ フードホール',sns:['Instagram'],            why:'세계 최대 백화점의 식품관이 글로벌 SNS에 소개。世界最大のデパートのフードホールが海外メディアに取り上げられ観光地化。', price:'各店舗により異なる', naver:'https://map.naver.com/v5/search/센텀시티+신세계백화점', kakao:'https://map.kakao.com/?q=센텀시티신세계', instagram:'https://www.instagram.com/explore/tags/신세계백화점/' },
+    { city:'busan', name:'甘川문화마을カフェ', kr:'감천문화마을카페',area:'감천',      cat:'☕ 뷰카페',   sns:['Instagram','TikTok'],    why:'마을을 한눈에 내려다보는 루프탑 카페가 최고의 포토스팟으로 인기。村を見下ろすルーフトップカフェが絶景写真スポットとして大拡散。', price:'7,000〜13,000₩', naver:'https://map.naver.com/v5/search/감천문화마을+카페', kakao:'https://map.kakao.com/?q=감천문화마을', instagram:'https://www.instagram.com/explore/tags/감천문화마을/' },
+    { city:'busan', name:'西面ヤンニョムチキン',kr:'서면양념치킨',  area:'서면',      cat:'🍗 양념치킨', sns:['TikTok','YouTube'],      why:'30년 전통 양념치킨 가게가 TikTok 바이럴로 재조명。創業30年の老舗ヤンニョムチキンがTikTokで再発見され行列必至の名店に。', price:'18,000〜28,000₩', naver:'https://map.naver.com/v5/search/서면+양념치킨', kakao:'https://map.kakao.com/?q=서면+치킨', instagram:'https://www.instagram.com/explore/tags/부산치킨/' },
+    { city:'busan', name:'釜山ミルミョン元祖', kr:'부산밀면원조',   area:'부산진',    cat:'🍜 밀면',     sns:['Naver Blog','Instagram'],why:'부산의 독자적인 냉면인 밀면의 원조집。釜山独自の小麦冷麺「밀면」発祥の店が、観光客向けグルメブログで一斉紹介。',          price:'8,000〜11,000₩', naver:'https://map.naver.com/v5/search/부산+밀면', kakao:'https://map.kakao.com/?q=부산+밀면', instagram:'https://www.instagram.com/explore/tags/밀면/' },
+    // ── 済州島 ──────────────────────────────────
+    { city:'jeju', name:'ヨンドン（とんかつ）',kr:'연돈',         area:'서귀포',    cat:'🍖 돈가스',   sns:['Instagram','TikTok','YouTube'], why:'오픈 1시간 전부터 줄이 늘어서는 전설의 돈가스집。開店1時間前から行列必至の伝説のとんかつ店。分厚い肉と秘伝ソースが中毒性抜群。', price:'9,000〜13,000₩', naver:'https://map.naver.com/v5/search/연돈', kakao:'https://map.kakao.com/?q=연돈', instagram:'https://www.instagram.com/explore/tags/연돈/' },
+    { city:'jeju', name:'黒豚三枚肉',        kr:'제주흑돼지구이',  area:'제주시내',  cat:'🐷 흑돼지',   sns:['YouTube','Instagram'],   why:'제주도 특산 흑돼지를 다루는 집이 유튜브 먹방으로 해외까지 拡散。済州黒豚専門店が海外グルメYouTuberにも紹介され一躍有名に。',  price:'17,000〜25,000₩', naver:'https://map.naver.com/v5/search/제주+흑돼지', kakao:'https://map.kakao.com/?q=제주+흑돼지', instagram:'https://www.instagram.com/explore/tags/제주흑돼지/' },
+    { city:'jeju', name:'牛島ピーナッツソフト',kr:'우도땅콩아이스크림',area:'우도',  cat:'🍦 아이스크림',sns:['TikTok','Instagram'],    why:'우도의 명물 땅콩 소프트아이스크림이 틱톡에서 바이럴。牛島名物のピーナッツソフトクリームがTikTokで100万回再生超え。',        price:'3,000〜4,000₩',  naver:'https://map.naver.com/v5/search/우도+땅콩아이스크림', kakao:'https://map.kakao.com/?q=우도+아이스크림', instagram:'https://www.instagram.com/explore/tags/우도/' },
+    { city:'jeju', name:'ボマルカルグクス',   kr:'보말칼국수',    area:'구좌읍',    cat:'🍜 칼국수',   sns:['Naver Blog','Instagram'],why:'바다 보말(고동)로 낸 진한 국물이 현지인도 줄 서는 맛집。海のバイ貝の濃厚スープが地元民も通う名店。旅行者ブログで一斉拡散。',   price:'12,000〜16,000₩', naver:'https://map.naver.com/v5/search/제주+보말칼국수', kakao:'https://map.kakao.com/?q=보말칼국수', instagram:'https://www.instagram.com/explore/tags/보말칼국수/' },
+    { city:'jeju', name:'愛月カフェ通り',     kr:'애월카페거리',   area:'애월읍',    cat:'☕ 뷰카페',   sns:['Instagram','TikTok'],    why:'바다 전망 카페가 즐비한 제주 카페 성지。海を見渡すオーシャンビューカフェが立ち並ぶ済州のカフェ聖地。',                    price:'8,000〜15,000₩', naver:'https://map.naver.com/v5/search/애월+카페', kakao:'https://map.kakao.com/?q=애월카페', instagram:'https://www.instagram.com/explore/tags/애월카페/' },
+    { city:'jeju', name:'漢致（スルメ）フェ',  kr:'한치물회',     area:'제주시',    cat:'🦑 한치물회', sns:['YouTube','TikTok'],      why:'제주 특산 한치(살오징어)로 만든 물회가 먹방 유튜버에게 소개되며 일약 스타 메뉴로。済州特産のスルメイカの冷汁が一躍人気グルメに。', price:'13,000〜18,000₩', naver:'https://map.naver.com/v5/search/제주+한치물회', kakao:'https://map.kakao.com/?q=한치물회', instagram:'https://www.instagram.com/explore/tags/한치물회/' },
+    { city:'jeju', name:'タンゲルデザート',   kr:'감귤디저트카페',  area:'서귀포',    cat:'🍊 감귤디저트',sns:['Instagram'],             why:'제주 감귤을 활용한 귤 케이크·귤 에이드가 인스타 핫플로 등극。済州みかんを使ったケーキ＆エードがInstagramで爆発的人気。',       price:'7,000〜14,000₩', naver:'https://map.naver.com/v5/search/서귀포+감귤+카페', kakao:'https://map.kakao.com/?q=서귀포+감귤카페', instagram:'https://www.instagram.com/explore/tags/감귤카페/' },
+    { city:'jeju', name:'城山日出峰ヘニョ国',  kr:'성산해녀국',    area:'성산읍',    cat:'🍲 해녀음식', sns:['Naver Blog','YouTube'],  why:'일출봉 앞 해녀가 직접 잡은 해산물로 차린 밥상이 유튜브 감동 영상으로 화제。海女さん直採りの海鮮御膳がYouTubeで泣ける動画として拡散。', price:'15,000〜25,000₩', naver:'https://map.naver.com/v5/search/성산+해녀국', kakao:'https://map.kakao.com/?q=성산+해녀', instagram:'https://www.instagram.com/explore/tags/해녀/' },
+    { city:'jeju', name:'挟才ビーチカフェ',   kr:'협재카페',      area:'협재',      cat:'☕ 오션뷰카페',sns:['Instagram','TikTok'],    why:'에메랄드빛 협재 바다를 정면으로 바라보는 카페에서 찍은 사진이 200만 좋아요。エメラルドの海を望む絶景カフェ写真が200万いいね超え。', price:'8,000〜16,000₩', naver:'https://map.naver.com/v5/search/협재+카페', kakao:'https://map.kakao.com/?q=협재카페', instagram:'https://www.instagram.com/explore/tags/협재카페/' },
+    { city:'jeju', name:'済州高基肉国水',     kr:'제주고기국수',   area:'제주시내',  cat:'🍜 고기국수', sns:['Naver Blog','Instagram'],why:'돼지 뼈를 오래 끓인 육수에 면을 더한 제주식 라멘이 현지 맛집 리스트 상위 독주。豚骨スープの済州式ラーメンが地元グルメランキング首位に。', price:'9,000〜13,000₩', naver:'https://map.naver.com/v5/search/제주+고기국수', kakao:'https://map.kakao.com/?q=제주+고기국수', instagram:'https://www.instagram.com/explore/tags/제주고기국수/' },
+    // ── 慶州 ────────────────────────────────────
+    { city:'gyeongju', name:'皇南パン元祖',      kr:'황남빵원조',     area:'황남동',    cat:'🍞 황남빵',   sns:['TikTok','YouTube'],      why:'경주의 명물 황남빵이 틱톡에서 바이럴되며 전국에서 관광객이 몰리는 중。慶州銘菓ファンナムパンがTikTokで全国区の人気になり行列必至。', price:'1,200₩/個',      naver:'https://map.naver.com/v5/search/황남빵', kakao:'https://map.kakao.com/?q=황남빵', instagram:'https://www.instagram.com/explore/tags/황남빵/' },
+    { city:'gyeongju', name:'ポジョン校洞法酒',   kr:'교동법주',       area:'교동',      cat:'🍶 전통주',   sns:['Instagram','Naver Blog'],why:'신라시대부터 내려온 궁중 비법주가 SNS 전통문화 붐과 맞물려 주목。新羅時代から続く宮中秘伝酒が伝統文化ブームで大きく注目される。', price:'20,000〜40,000₩', naver:'https://map.naver.com/v5/search/경주+교동법주', kakao:'https://map.kakao.com/?q=교동법주', instagram:'https://www.instagram.com/explore/tags/경주맛집/' },
+    { city:'gyeongju', name:'大陵苑チキン聖地',   kr:'대릉원치킨',     area:'대릉원',    cat:'🍗 치킨',     sns:['TikTok'],                why:'천년 고도의 고분 앞에서 먹는 치킨이 "힐링푸드"로 틱톡에서 화제。千年古都の古墳を眺めながら食べるチキンが「癒しグルメ」としてTikTokで話題。', price:'20,000〜28,000₩', naver:'https://map.naver.com/v5/search/경주+대릉원+치킨', kakao:'https://map.kakao.com/?q=대릉원+치킨', instagram:'https://www.instagram.com/explore/tags/경주치킨/' },
+    // ── 全州 ────────────────────────────────────
+    { city:'jeonju', name:'全州ビビンバ元祖',  kr:'전주비빔밥원조',  area:'한옥마을',  cat:'🍚 비빔밥',   sns:['YouTube','Instagram','TikTok'], why:'전주 한옥마을의 원조 비빔밥집이 해외 유튜버 방문으로 다시 부각。全州韓屋村の元祖ビビンバ店が海外YouTuberの訪問で再び大注目。', price:'13,000〜18,000₩', naver:'https://map.naver.com/v5/search/전주+비빔밥', kakao:'https://map.kakao.com/?q=전주비빔밥', instagram:'https://www.instagram.com/explore/tags/전주비빔밥/' },
+    { city:'jeonju', name:'全州韓屋村屋台',   kr:'한옥마을야시장', area:'한옥마을',  cat:'🌃 야시장',   sns:['TikTok','Instagram'],    why:'야경과 먹거리가 결합된 한옥마을 야시장이 국내외 SNS에서 동시 바이럴。夜景と屋台が融合した韓屋村夜市が国内外SNSで同時拡散。',       price:'2,000〜8,000₩',  naver:'https://map.naver.com/v5/search/전주+한옥마을+야시장', kakao:'https://map.kakao.com/?q=전주한옥마을', instagram:'https://www.instagram.com/explore/tags/전주한옥마을/' },
+    { city:'jeonju', name:'全州コンナムルクッパ',kr:'전주콩나물국밥', area:'중앙동',    cat:'🍲 콩나물국밥',sns:['Naver Blog','YouTube'],  why:'해장국으로 유명한 전주 콩나물국밥이 아침 해장 문화와 함께 SNS에서 재조명。解宿文化と共に全州のもやし解宿スープが全国で再評価。',  price:'8,000〜11,000₩', naver:'https://map.naver.com/v5/search/전주+콩나물국밥', kakao:'https://map.kakao.com/?q=전주+콩나물국밥', instagram:'https://www.instagram.com/explore/tags/전주맛집/' },
+  ],
+};
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+let curTCity = 'all';
+function setTCity(city, btn) {
+  curTCity = city;
+  document.querySelectorAll('#tcity-scroll .tcity-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderTrending();
+}
+
+function renderTrending() {
+  document.getElementById('trend-month-badge').textContent = TRENDING.month;
+  const el = document.getElementById('trend-list');
+  const all = TRENDING.items;
+  const filtered = curTCity === 'all' ? all : all.filter(r => r.city === curTCity);
+  const items = filtered.slice(0, 10);
+
+  if (!items.length) {
+    el.innerHTML = '<div class="no-trend">この都市のデータはまだ準備中です</div>';
+    return;
+  }
+  el.innerHTML = items.map((r, i) => {
+    const rankLabel = ['🥇','🥈','🥉'][i] || (i + 1);
+    const rankClass = i < 3 ? 'top' : '';
+    const snsBadges = r.sns.map(s => `<span class="tmeta tmeta-hot">${s}</span>`).join('');
+    return `
+      <div class="tcard">
+        <div class="tcard-top">
+          <div class="tcard-names">
+            <div class="tcard-name">${r.name}</div>
+            <div class="tcard-kr">${r.kr} · ${r.area}</div>
+          </div>
+          <div class="tcard-rank ${rankClass}">${rankLabel}</div>
+        </div>
+        <div class="tcard-meta">
+          <span class="tmeta">${r.cat}</span>
+          ${snsBadges}
+          <span class="tmeta">${r.price}</span>
+        </div>
+        <div class="tcard-why">${r.why}</div>
+        <div class="tcard-btns">
+          <button class="tbtn tbtn-naver" onclick="window.open('${r.naver}','_blank')">🟢 Naver</button>
+          <button class="tbtn tbtn-kakao" onclick="window.open('${r.kakao}','_blank')">🟡 Kakao</button>
+          ${r.instagram ? `<button class="tbtn tbtn-insta" onclick="window.open('${r.instagram}','_blank')">📸 Instagram</button>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ─── RESTAURANT SEARCH ───
+let userLat = null, userLng = null;
+
+function getLocation() {
+  const btn = document.getElementById('loc-btn');
+  const status = document.getElementById('loc-status');
+  if (!navigator.geolocation) { status.textContent = '位置情報はこのブラウザで非対応です'; return; }
+  btn.textContent = '⏳'; btn.disabled = true;
+  status.textContent = '現在地を取得中...';
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      btn.textContent = '✅'; btn.disabled = false;
+      status.textContent = `📍 現在地を取得しました（${userLat.toFixed(4)}, ${userLng.toFixed(4)}）`;
+    },
+    () => {
+      btn.textContent = '📍'; btn.disabled = false;
+      status.textContent = '❌ 取得失敗。位置情報の許可を確認してください。';
+    },
+    { timeout: 8000 }
+  );
+}
+
+function pickChip(query, btn) {
+  document.getElementById('rest-q').value = query;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('picked'));
+  btn.classList.add('picked');
+}
+
+function searchSpecial(mode) {
+  const raw = document.getElementById('rest-q').value.trim();
+  const kw = raw || '맛집';
+  const enc = encodeURIComponent(kw);
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+  function openIOS(iosUrl, webUrl) {
+    const t = setTimeout(() => window.open(webUrl, '_blank'), 1500);
+    const h = () => clearTimeout(t);
+    window.addEventListener('pagehide', h, {once:true});
+    window.addEventListener('blur', h, {once:true});
+    window.location.href = iosUrl;
+  }
+
+  if (mode === 'br-site') {
+    window.open(`https://www.blueribbon.co.kr/brs/restaurant/list.php?${raw ? 'query=' + enc : ''}`, '_blank');
+    return;
+  }
+  if (mode === 'br-naver') {
+    const q = encodeURIComponent('블루리본 ' + kw);
+    if (isIOS) openIOS(`nmap://search?query=${q}&appname=kr.travel`, `https://map.naver.com/v5/search/${q}`);
+    else window.open(`https://map.naver.com/v5/search/${q}`, '_blank');
+    return;
+  }
+
+  if (mode === '24h-naver') {
+    const q = encodeURIComponent('24시간 ' + kw);
+    if (isIOS) openIOS(`nmap://search?query=${q}&appname=kr.travel`, `https://map.naver.com/v5/search/${q}`);
+    else window.open(`https://map.naver.com/v5/search/${q}`, '_blank');
+    return;
+  }
+  if (mode === '24h-google') {
+    const q = encodeURIComponent('24시간 ' + kw);
+    const web = userLat
+      ? `https://www.google.com/maps/search/${q}/@${userLat},${userLng},15z`
+      : `https://www.google.com/maps/search/${q}+한국`;
+    if (isIOS) openIOS(`comgooglemaps://?q=${q}`, web);
+    else window.open(web, '_blank');
+    return;
+  }
+
+  // near-* : requires GPS
+  const doNear = (svc) => {
+    if (svc === 'naver') {
+      if (isIOS) openIOS(`nmap://search?query=${enc}&appname=kr.travel`, `https://map.naver.com/v5/search/${enc}`);
+      else window.open(`https://map.naver.com/v5/search/${enc}`, '_blank');
+    } else {
+      const web = `https://www.google.com/maps/search/${enc}/@${userLat},${userLng},15z`;
+      if (isIOS) openIOS(`comgooglemaps://?q=${enc}&center=${userLat},${userLng}`, web);
+      else window.open(web, '_blank');
+    }
+  };
+
+  const svc = mode === 'near-naver' ? 'naver' : 'google';
+  if (userLat) {
+    doNear(svc);
+  } else {
+    const st = document.getElementById('loc-status');
+    if (st) { st.textContent = '📡 位置情報を取得中…'; }
+    navigator.geolocation.getCurrentPosition(pos => {
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+      if (st) { st.textContent = `📍 現在地を取得しました（${userLat.toFixed(4)}, ${userLng.toFixed(4)}）`; }
+      doNear(svc);
+    }, () => {
+      if (st) { st.textContent = '⚠️ 位置情報の取得に失敗しました'; }
+      if (svc === 'naver') window.open(`https://map.naver.com/v5/search/${enc}`, '_blank');
+      else window.open(`https://www.google.com/maps/search/${enc}+한국`, '_blank');
+    }, {timeout: 8000});
+  }
+}
+
+function searchRest(svc) {
+  const raw = document.getElementById('rest-q').value.trim();
+  const q = raw || 'レストラン';
+  const enc = encodeURIComponent(q);
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+  const urls = {
+    naver:   { ios: `nmap://search?query=${enc}&appname=kr.travel`, web: `https://map.naver.com/v5/search/${enc}` },
+    google:  { ios: `comgooglemaps://?q=${enc}${userLat?`&center=${userLat},${userLng}`:''}`, web: userLat ? `https://www.google.com/maps/search/${enc}/@${userLat},${userLng},15z` : `https://www.google.com/maps/search/${enc}+한국` },
+    kakao:   { ios: `kakaomap://search?q=${enc}`, web: `https://map.kakao.com/?q=${enc}` },
+    mango:   { ios: null, web: `https://www.mangoplate.com/search_results?keyword=${enc}` },
+    baemin:  { ios: 'baemin://', web: 'https://www.baemin.com/' },
+    coupang: { ios: 'coupangeats://', web: 'https://m.coupangeats.com/' },
+  };
+
+  const s = urls[svc];
+  if (!s) return;
+  if (isIOS && s.ios) {
+    const t = setTimeout(() => window.open(s.web, '_blank'), 1500);
+    const h = () => clearTimeout(t);
+    window.addEventListener('pagehide', h, {once:true});
+    window.addEventListener('blur', h, {once:true});
+    window.location.href = s.ios;
+  } else {
+    window.open(s.web, '_blank');
+  }
+}
+
+// ─── FOOD ───
+let curFood = 'all';
+function setFood(cat, btn) {
+  curFood = cat;
+  document.querySelectorAll('#fcat-scroll .cbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderFood();
+}
+function renderFood() {
+  const items = curFood === 'all' ? FOODS : FOODS.filter(f => f.c === curFood);
+  document.getElementById('fgrid').innerHTML = items.map(f => `
+    <div class="fcard">
+      <div class="f-em">${f.em}</div>
+      <div class="f-jp">${f.jp}</div>
+      <div class="f-kr">${f.kr}</div>
+      <div class="f-desc">${f.desc}</div>
+      <span class="f-pr">${f.pr}</span>
+    </div>`).join('');
+}
+
+// ─── TRANSIT ───
+const STATIONS = {
+  seoul: [
+    { jp:'仁川空港1T', kr:'인천공항1터미널역' },
+    { jp:'ソウル駅',   kr:'서울역' },
+    { jp:'明洞',      kr:'명동역' },
+    { jp:'弘大入口',   kr:'홍대입구역' },
+    { jp:'江南',      kr:'강남역' },
+    { jp:'梨泰院',    kr:'이태원역' },
+    { jp:'景福宮',    kr:'경복궁역' },
+    { jp:'東大門DDP', kr:'동대문역사문화공원역' },
+    { jp:'蚕室',      kr:'잠실역' },
+    { jp:'光化門',    kr:'광화문역' },
+    { jp:'鍾路3街',   kr:'종로3가역' },
+    { jp:'新村',      kr:'신촌역' },
+    { jp:'汝矣島',    kr:'여의도역' },
+    { jp:'龍山',      kr:'용산역' },
+  ],
+  busan: [
+    { jp:'釜山駅',    kr:'부산역' },
+    { jp:'西面',      kr:'서면역' },
+    { jp:'海雲台',    kr:'해운대역' },
+    { jp:'南浦',      kr:'남포역' },
+    { jp:'広安',      kr:'광안역' },
+    { jp:'センタムシティ', kr:'센텀시티역' },
+    { jp:'金海空港',  kr:'공항역' },
+  ],
+  daegu: [
+    { jp:'東大邱駅',  kr:'동대구역' },
+    { jp:'半月堂',    kr:'반월당역' },
+    { jp:'中央路',    kr:'중앙로역' },
+    { jp:'大邱駅',    kr:'대구역' },
+    { jp:'西大邱駅',  kr:'서대구역' },
+  ],
+  daejeon: [
+    { jp:'大田駅',    kr:'대전역' },
+    { jp:'中区庁',    kr:'중구청역' },
+    { jp:'政府庁舎',  kr:'정부청사역' },
+    { jp:'儒城温泉',  kr:'유성온천역' },
+  ],
+  gwangju: [
+    { jp:'光州松汀空港', kr:'공항역' },
+    { jp:'錦南路4街', kr:'금남로4가역' },
+    { jp:'光州駅',    kr:'광주역' },
+    { jp:'尚武',      kr:'상무역' },
+  ],
+};
+
+const SUBWAY_MAPS = {
+  seoul:   { name:'ソウル首都圏', url:'https://www.seoulmetro.co.kr/kr/board.do?menuIdx=548' },
+  busan:   { name:'釜山',        url:'https://www.bmetro.busan.kr/sub/Map/lineMap' },
+  daegu:   { name:'大邱',        url:'https://www.dtro.or.kr/hom/user/subwayMap.do' },
+  daejeon: { name:'大田',        url:'https://www.djet.co.kr/board/network_map' },
+  gwangju: { name:'光州',        url:'https://www.gwangjusubway.co.kr/information/routemap' },
+};
+
+let trTarget = 'from';
+let stCity = 'seoul';
+let subwayCity = 'seoul';
+
+function setTrTarget(t, btn) {
+  trTarget = t;
+  document.querySelectorAll('.tr-target-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function setStCity(city, btn) {
+  stCity = city;
+  document.querySelectorAll('#st-city-scroll .mc-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderStChips();
+}
+
+function renderStChips() {
+  const el = document.getElementById('st-chips');
+  if (!el) return;
+  el.innerHTML = (STATIONS[stCity] || []).map(s =>
+    `<button class="chip" onclick="pickStation('${s.kr}')">${s.jp}<span style="font-size:10px;opacity:.55;margin-left:3px">${s.kr.replace('역','')}</span></button>`
+  ).join('');
+}
+
+function pickStation(name) {
+  const field = trTarget === 'from' ? 'tr-from' : 'tr-to';
+  document.getElementById(field).value = name;
+}
+
+function swapStations() {
+  const a = document.getElementById('tr-from');
+  const b = document.getElementById('tr-to');
+  [a.value, b.value] = [b.value, a.value];
+}
+
+function searchTransit(svc) {
+  const from = document.getElementById('tr-from').value.trim();
+  const to   = document.getElementById('tr-to').value.trim();
+  if (!from || !to) { alert('出発地と目的地を入力してください'); return; }
+  const ef = encodeURIComponent(from);
+  const et = encodeURIComponent(to);
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+  function openIOS(iosUrl, webUrl) {
+    const t = setTimeout(() => window.open(webUrl, '_blank'), 1500);
+    const h = () => clearTimeout(t);
+    window.addEventListener('pagehide', h, {once:true});
+    window.addEventListener('blur', h, {once:true});
+    window.location.href = iosUrl;
+  }
+
+  if (svc === 'naver') {
+    const web = `https://map.naver.com/v5/directions/${ef}/${et}/transit`;
+    if (isIOS) openIOS(`nmap://route/transit?sname=${ef}&dname=${et}&appname=kr.travel`, web);
+    else window.open(web, '_blank');
+  } else if (svc === 'kakao') {
+    const web = `https://map.kakao.com/?sName=${ef}&eName=${et}&mode=transit`;
+    if (isIOS) openIOS(`kakaomap://route?sp=${ef}&ep=${et}&by=PUBLICTRANSIT`, web);
+    else window.open(web, '_blank');
+  } else if (svc === 'google') {
+    const web = `https://www.google.com/maps/dir/?api=1&origin=${ef}&destination=${et}&travelmode=transit`;
+    if (isIOS) openIOS(`comgooglemaps://?saddr=${ef}&daddr=${et}&directionsmode=transit`, web);
+    else window.open(web, '_blank');
+  }
+}
+
+function setSubwayCity(city, btn) {
+  subwayCity = city;
+  document.querySelectorAll('#subway-city-scroll .mc-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  const btn2 = document.getElementById('subway-map-btn');
+  if (btn2) btn2.textContent = `🗺️ ${SUBWAY_MAPS[city].name}の路線図を開く（公式）`;
+}
+
+function openSubwayMap() {
+  window.open(SUBWAY_MAPS[subwayCity].url, '_blank');
+}
+
+// ─── FLIGHT ───
+let flAdults = 1;
+let flTripType = 'oneway';
+
+function setTripType(type, btn) {
+  flTripType = type;
+  document.querySelectorAll('.fl-type-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('fl-ret-col').style.display = type === 'roundtrip' ? '' : 'none';
+}
+
+function changeAdults(d) {
+  flAdults = Math.max(1, Math.min(9, flAdults + d));
+  document.getElementById('fl-adults-val').textContent = flAdults;
+}
+
+function swapAirports() {
+  const a = document.getElementById('fl-from');
+  const b = document.getElementById('fl-to');
+  [a.value, b.value] = [b.value, a.value];
+}
+
+function buildFlightUrl(svc) {
+  const from   = document.getElementById('fl-from').value;
+  const to     = document.getElementById('fl-to').value;
+  const dep    = document.getElementById('fl-dep').value;
+  const ret    = document.getElementById('fl-ret').value;
+  const cabin  = document.getElementById('fl-cabin').value;
+  const n      = flAdults;
+  const isRT   = flTripType === 'roundtrip';
+  const cabinNames = { Y:'economy', M:'premiumeconomy', C:'business', F:'first' };
+  const cabinName  = cabinNames[cabin] || 'economy';
+  const depND  = dep.replace(/-/g,'');          // YYYYMMDD
+  const retND  = ret ? ret.replace(/-/g,'') : '';
+  const depYY  = dep.slice(2).replace(/-/g,''); // YYMMDD
+  const retYY  = ret ? ret.slice(2).replace(/-/g,'') : '';
+  const fl = from.toLowerCase(), tl = to.toLowerCase();
+
+  switch (svc) {
+    case 'skyscanner': {
+      const rt = isRT && retYY ? retYY + '/' : '';
+      return `https://www.skyscanner.net/transport/flights/${fl}/${tl}/${depYY}/${rt}?adults=${n}&cabinclass=${cabinName}&children=0&infants=0`;
+    }
+    case 'google': {
+      const eMap = { Y:'1', M:'2', C:'3', F:'4' };
+      const legs = isRT && ret
+        ? `${from}.${to}.${dep}*${to}.${from}.${ret}`
+        : `${from}.${to}.${dep}`;
+      return `https://www.google.com/flights?hl=ja#flt=${legs};c:JPY;e:${eMap[cabin]||'1'};s:0*${n};sd:1;t:${isRT ? 'r' : 'f'}`;
+    }
+    case 'naver': {
+      if (isRT && retND) {
+        return `https://flight.naver.com/flights/international/${from}-${to}-${depND}/${to}-${from}-${retND}?adult=${n}&fareType=${cabin}`;
+      }
+      return `https://flight.naver.com/flights/international/${from}-${to}-${depND}?adult=${n}&fareType=${cabin}`;
+    }
+    case 'trip': {
+      const tt = isRT ? 'roundtrip' : 'oneway';
+      let url = `https://www.trip.com/flights/${tt}/japan-to-korea/?dcity=${from}&acity=${to}&ddate=${dep}&adult=${n}&child=0&infant=0&cabin=${cabin}&curr=JPY&locale=ja-JP`;
+      if (isRT && ret) url += `&rdate=${ret}`;
+      return url;
+    }
+    case 'kayak': {
+      const rt = isRT && ret ? `/${ret}` : '';
+      return `https://www.kayak.com/flights/${from}/${to}/${dep}${rt}?adults=${n}&cabin=${cabinName}`;
+    }
+    case 'expedia': {
+      const [y,m,d] = dep.split('-');
+      const df = encodeURIComponent(`${m}/${d}/${y}TANYT`);
+      let url = `https://www.expedia.co.jp/Flights-Search?trip=${isRT ? 'roundtrip' : 'oneway'}&leg1=from%3A${from}%2Cto%3A${to}%2Cdeparture%3A${df}&passengers=adults%3A${n}&options=cabinclass%3A${cabinName}`;
+      if (isRT && ret) {
+        const [ry,rm,rd] = ret.split('-');
+        url += `&leg2=from%3A${to}%2Cto%3A${from}%2Cdeparture%3A${encodeURIComponent(`${rm}/${rd}/${ry}TANYT`)}`;
+      }
+      return url;
+    }
+    case 'rakuten':
+      return `https://travel.rakuten.co.jp/air/search/?DepartureDate=${dep}&OriginAirportCode=${from}&DestinationAirportCode=${to}&AdultNum=${n}&ChildNum=0&InfantNum=0&CabinClass=${cabin}`;
+    case 'his': {
+      const ds = dep.replace(/-/g,'/');
+      const tt = isRT ? 'RT' : 'OW';
+      let url = `https://air.his-j.com/bin/his_search.exe?type=${tt}&dep=${from}&arr=${to}&ddate=${ds}&adt=${n}&cld=0&inf=0`;
+      if (isRT && ret) url += `&rdate=${ret.replace(/-/g,'/')}`;
+      return url;
+    }
+    default: return '#';
+  }
+}
+
+function openFlight(svc) {
+  const dep = document.getElementById('fl-dep').value;
+  if (!dep) { alert('出発日を選択してください'); return; }
+  window.open(buildFlightUrl(svc), '_blank');
+}
+
+function openAllFlights() {
+  const dep = document.getElementById('fl-dep').value;
+  if (!dep) { alert('出発日を選択してください'); return; }
+  ['skyscanner','google','naver','trip','kayak','expedia','rakuten','his'].forEach((s, i) => {
+    setTimeout(() => window.open(buildFlightUrl(s), '_blank'), i * 400);
+  });
+}
+
+function initFlightDates() {
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  const fmt = d.toISOString().slice(0,10);
+  document.getElementById('fl-dep').value = fmt;
+  const r = new Date(d);
+  r.setDate(r.getDate() + 5);
+  document.getElementById('fl-ret').value = r.toISOString().slice(0,10);
+}
+
+// ─── SERVICE WORKER ───
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+// ─── INIT ───
+fetchRates();
+calcCur();
+renderPhrases();
+renderSpots();
+renderFood();
+renderTrending();
+renderHospitals();
+renderStChips();
+initFlightDates();
+</script>
+</body>
+</html>

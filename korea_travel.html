@@ -151,16 +151,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .trans-res{background:linear-gradient(135deg,#FFF0F2,#FFE8EC);border-radius:14px;padding:16px;margin-top:12px;display:none;border:1px solid #FFCCD4}
 .trans-kr{font-size:22px;font-weight:700;color:#C04858;line-height:1.5}
 .trans-pw{font-size:11px;color:#A8AFBF;margin-top:8px}
-.cam-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:4px}
-.cam-btn{border:none;border-radius:16px;padding:16px 8px 14px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:7px;transition:filter .12s;-webkit-tap-highlight-color:transparent}
-.cam-btn:active{filter:brightness(.88)}
-.cam-btn-ic{font-size:28px;line-height:1}
-.cam-btn-nm{font-size:12px;font-weight:700;line-height:1.2;text-align:center}
-.cam-btn-tag{font-size:9px;font-weight:500;opacity:.8;text-align:center;line-height:1.2}
-.cam-papago{background:linear-gradient(145deg,#005E59,#00A89E);color:#fff}
-.cam-gtrans{background:linear-gradient(145deg,#1558D6,#4285F4);color:#fff}
-.cam-lens{background:linear-gradient(145deg,#1A1A1A,#333);color:#fff}
-.cam-hint{font-size:11px;color:#A8AFBF;text-align:center;margin-top:10px;line-height:1.6}
+.cam-shoot-btn{width:100%;padding:15px;border:none;border-radius:14px;background:linear-gradient(135deg,#1A1825,#3A3550);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:filter .12s}
+.cam-shoot-btn:active{filter:brightness(.85)}
+.cam-preview-wrap{margin-top:12px;border-radius:14px;overflow:hidden;display:none;position:relative}
+.cam-preview-wrap img{width:100%;max-height:220px;object-fit:cover;display:block}
+.cam-status{text-align:center;padding:14px 0 4px;font-size:13px;color:#6B7080;display:none}
+.cam-progress{height:4px;border-radius:2px;background:#F0EFF5;margin-top:8px;overflow:hidden;display:none}
+.cam-progress-bar{height:100%;background:linear-gradient(90deg,#E8627A,#F77737);border-radius:2px;width:0%;transition:width .3s}
+.cam-ocr-raw{font-size:12px;color:#9395A5;background:#F7F6FA;border-radius:10px;padding:10px 12px;margin-top:10px;line-height:1.6;display:none;word-break:break-all}
+.cam-hint{font-size:11px;color:#A8AFBF;text-align:center;margin-top:10px;line-height:1.7}
 .sbox{width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid #E0DFE8;font-size:15px;background:#F7F6FA;color:#1A1825;outline:none;margin-bottom:14px;font-family:inherit}
 .sbox:focus{border-color:#E8627A}
 .sbox::placeholder{color:#B0B4C2}
@@ -654,24 +653,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
   </div>
   <div class="card" style="margin-bottom:14px">
     <div class="ctitle">📷 カメラ翻訳</div>
-    <div class="cam-grid">
-      <button class="cam-btn cam-papago" onclick="launchCamera('papago')">
-        <span class="cam-btn-ic">🟢</span>
-        <span class="cam-btn-nm">Papago</span>
-        <span class="cam-btn-tag">カメラ翻訳</span>
-      </button>
-      <button class="cam-btn cam-gtrans" onclick="launchCamera('gtrans')">
-        <span class="cam-btn-ic">🔵</span>
-        <span class="cam-btn-nm">Google翻訳</span>
-        <span class="cam-btn-tag">カメラ翻訳</span>
-      </button>
-      <button class="cam-btn cam-lens" onclick="launchCamera('lens')">
-        <span class="cam-btn-ic">🔍</span>
-        <span class="cam-btn-nm">Google Lens</span>
-        <span class="cam-btn-tag">即時認識</span>
-      </button>
+    <input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none" onchange="handleCamCapture(this)">
+    <button class="cam-shoot-btn" onclick="document.getElementById('cam-input').click()">
+      <span style="font-size:20px">📷</span> カメラで撮って翻訳
+    </button>
+    <div class="cam-preview-wrap" id="cam-preview-wrap">
+      <img id="cam-preview" src="" alt="">
     </div>
-    <div class="cam-hint">メニュー・看板をカメラで写すだけで翻訳。<br>各アプリが起動します（未インストールはWebへ）</div>
+    <div class="cam-progress" id="cam-progress"><div class="cam-progress-bar" id="cam-progress-bar"></div></div>
+    <div class="cam-status" id="cam-status"></div>
+    <div class="cam-ocr-raw" id="cam-ocr-raw"></div>
+    <div class="trans-res" id="cam-result">
+      <div class="trans-kr" id="cam-trans-text"></div>
+    </div>
+    <div class="cam-hint">アプリ不要・インストール不要。<br>メニュー・看板・案内板を撮るだけで日本語に翻訳します。<br>初回のみ言語データ読込（約10秒・以降はキャッシュ）</div>
   </div>
 
   <div class="card" style="margin-bottom:14px">
@@ -1270,38 +1265,85 @@ function callNum(n) {
   if (confirm(n + ' に電話しますか？')) window.location.href = 'tel:' + n;
 }
 
-function launchCamera(type) {
-  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-  const isAndroid = /Android/.test(navigator.userAgent);
-  const map = {
-    papago: {
-      ios: 'naverpapagoTranslator://camera',
-      android: 'intent://camera#Intent;scheme=naverpapagoTranslator;package=isa.mj.ms.word;end',
-      web: 'https://papago.naver.com/'
-    },
-    gtrans: {
-      ios: 'googletranslate://?sl=ko&tl=ja&mode=camera',
-      android: 'intent://translate#Intent;scheme=googletranslate;package=com.google.android.apps.translate;end',
-      web: 'https://translate.google.com/?sl=ko&tl=ja&op=images'
-    },
-    lens: {
-      ios: 'googlelens://',
-      android: 'intent://lens#Intent;scheme=googlelens;package=com.google.ar.lens;end',
-      web: 'https://lens.google.com/'
+let _tesseractReady = false;
+function _loadTesseract() {
+  return new Promise((resolve, reject) => {
+    if (window.Tesseract) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://unpkg.com/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Tesseract load failed'));
+    document.head.appendChild(s);
+  });
+}
+
+async function handleCamCapture(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const preview = document.getElementById('cam-preview');
+  const previewWrap = document.getElementById('cam-preview-wrap');
+  const status = document.getElementById('cam-status');
+  const progress = document.getElementById('cam-progress');
+  const progressBar = document.getElementById('cam-progress-bar');
+  const ocrRaw = document.getElementById('cam-ocr-raw');
+  const result = document.getElementById('cam-result');
+  const transText = document.getElementById('cam-trans-text');
+
+  // プレビュー表示
+  preview.src = URL.createObjectURL(file);
+  previewWrap.style.display = 'block';
+  result.style.display = 'none';
+  ocrRaw.style.display = 'none';
+  status.style.display = 'block';
+  progress.style.display = 'block';
+  progressBar.style.width = '0%';
+  status.textContent = '⏳ ライブラリを読み込み中...';
+
+  try {
+    await _loadTesseract();
+    status.textContent = '🔍 テキストを認識中...';
+    progressBar.style.width = '20%';
+
+    const { data: { text } } = await Tesseract.recognize(file, 'kor+eng', {
+      logger: m => {
+        if (m.status === 'recognizing text') {
+          progressBar.style.width = (20 + m.progress * 60) + '%';
+        }
+      }
+    });
+
+    const ocrText = text.replace(/\s+/g, ' ').trim();
+    progressBar.style.width = '80%';
+
+    if (!ocrText) {
+      status.textContent = '❌ テキストを検出できませんでした。明るい場所で再撮影してください。';
+      progress.style.display = 'none';
+      return;
     }
-  };
-  const t = map[type];
-  if (!t) return;
-  const deeplink = isIOS ? t.ios : isAndroid ? t.android : null;
-  if (deeplink) {
-    const timer = setTimeout(() => window.open(t.web, '_blank'), 1500);
-    const hide = () => clearTimeout(timer);
-    window.addEventListener('pagehide', hide, {once:true});
-    window.addEventListener('blur', hide, {once:true});
-    window.location.href = deeplink;
-  } else {
-    window.open(t.web, '_blank');
+
+    ocrRaw.textContent = '認識テキスト：' + ocrText.slice(0, 300);
+    ocrRaw.style.display = 'block';
+    status.textContent = '🌐 翻訳中...';
+
+    const enc = encodeURIComponent(ocrText.slice(0, 500));
+    const res = await fetch(`https://api.mymemory.translated.net/get?q=${enc}&langpair=ko|ja`);
+    const json = await res.json();
+    const translated = json.responseData?.translatedText || '翻訳に失敗しました';
+
+    progressBar.style.width = '100%';
+    setTimeout(() => { progress.style.display = 'none'; }, 400);
+    status.style.display = 'none';
+    transText.textContent = translated;
+    result.style.display = 'block';
+
+  } catch (e) {
+    status.textContent = '❌ エラーが発生しました。再度お試しください。';
+    progress.style.display = 'none';
   }
+
+  // input リセット（同じ写真を再撮影できるように）
+  input.value = '';
 }
 
 // ─── HOSPITAL ───

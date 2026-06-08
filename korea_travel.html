@@ -151,6 +151,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .trans-res{background:linear-gradient(135deg,#FFF0F2,#FFE8EC);border-radius:14px;padding:16px;margin-top:12px;display:none;border:1px solid #FFCCD4}
 .trans-kr{font-size:22px;font-weight:700;color:#C04858;line-height:1.5}
 .trans-pw{font-size:11px;color:#A8AFBF;margin-top:8px}
+.cam-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:4px}
+.cam-btn{border:none;border-radius:16px;padding:16px 8px 14px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:7px;transition:filter .12s;-webkit-tap-highlight-color:transparent}
+.cam-btn:active{filter:brightness(.88)}
+.cam-btn-ic{font-size:28px;line-height:1}
+.cam-btn-nm{font-size:12px;font-weight:700;line-height:1.2;text-align:center}
+.cam-btn-tag{font-size:9px;font-weight:500;opacity:.8;text-align:center;line-height:1.2}
+.cam-papago{background:linear-gradient(145deg,#005E59,#00A89E);color:#fff}
+.cam-gtrans{background:linear-gradient(145deg,#1558D6,#4285F4);color:#fff}
+.cam-lens{background:linear-gradient(145deg,#1A1A1A,#333);color:#fff}
+.cam-hint{font-size:11px;color:#A8AFBF;text-align:center;margin-top:10px;line-height:1.6}
 .sbox{width:100%;padding:12px 16px;border-radius:12px;border:1.5px solid #E0DFE8;font-size:15px;background:#F7F6FA;color:#1A1825;outline:none;margin-bottom:14px;font-family:inherit}
 .sbox:focus{border-color:#E8627A}
 .sbox::placeholder{color:#B0B4C2}
@@ -643,7 +653,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
     <span class="sec-hdr-title">翻訳・フレーズ</span>
   </div>
   <div class="card" style="margin-bottom:14px">
-    <div class="ctitle">🌐 リアルタイム翻訳（日→韓）</div>
+    <div class="ctitle">📷 カメラ翻訳</div>
+    <div class="cam-grid">
+      <button class="cam-btn cam-papago" onclick="launchCamera('papago')">
+        <span class="cam-btn-ic">🟢</span>
+        <span class="cam-btn-nm">Papago</span>
+        <span class="cam-btn-tag">カメラ翻訳</span>
+      </button>
+      <button class="cam-btn cam-gtrans" onclick="launchCamera('gtrans')">
+        <span class="cam-btn-ic">🔵</span>
+        <span class="cam-btn-nm">Google翻訳</span>
+        <span class="cam-btn-tag">カメラ翻訳</span>
+      </button>
+      <button class="cam-btn cam-lens" onclick="launchCamera('lens')">
+        <span class="cam-btn-ic">🔍</span>
+        <span class="cam-btn-nm">Google Lens</span>
+        <span class="cam-btn-tag">即時認識</span>
+      </button>
+    </div>
+    <div class="cam-hint">メニュー・看板をカメラで写すだけで翻訳。<br>各アプリが起動します（未インストールはWebへ）</div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="ctitle">🌐 テキスト翻訳（日→韓）</div>
     <textarea class="trans-in" id="trans-in" placeholder="翻訳したい日本語を入力..."></textarea>
     <button class="trans-btn" id="tbtn" onclick="doTranslate()">翻訳する</button>
     <div class="trans-res" id="trans-res">
@@ -1236,6 +1268,40 @@ function launch(id) {
 
 function callNum(n) {
   if (confirm(n + ' に電話しますか？')) window.location.href = 'tel:' + n;
+}
+
+function launchCamera(type) {
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const isAndroid = /Android/.test(navigator.userAgent);
+  const map = {
+    papago: {
+      ios: 'naverpapagoTranslator://camera',
+      android: 'intent://camera#Intent;scheme=naverpapagoTranslator;package=isa.mj.ms.word;end',
+      web: 'https://papago.naver.com/'
+    },
+    gtrans: {
+      ios: 'googletranslate://?sl=ko&tl=ja&mode=camera',
+      android: 'intent://translate#Intent;scheme=googletranslate;package=com.google.android.apps.translate;end',
+      web: 'https://translate.google.com/?sl=ko&tl=ja&op=images'
+    },
+    lens: {
+      ios: 'googlelens://',
+      android: 'intent://lens#Intent;scheme=googlelens;package=com.google.ar.lens;end',
+      web: 'https://lens.google.com/'
+    }
+  };
+  const t = map[type];
+  if (!t) return;
+  const deeplink = isIOS ? t.ios : isAndroid ? t.android : null;
+  if (deeplink) {
+    const timer = setTimeout(() => window.open(t.web, '_blank'), 1500);
+    const hide = () => clearTimeout(timer);
+    window.addEventListener('pagehide', hide, {once:true});
+    window.addEventListener('blur', hide, {once:true});
+    window.location.href = deeplink;
+  } else {
+    window.open(t.web, '_blank');
+  }
 }
 
 // ─── HOSPITAL ───

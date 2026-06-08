@@ -2288,7 +2288,12 @@ function searchBeauty(svc) {
 
 // ─── SERVICE WORKER ───
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').catch(() => {});
+  navigator.serviceWorker.register('./sw.js?v=3').then(reg => {
+    reg.update();
+  }).catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  });
 }
 
 // ─── INIT ───

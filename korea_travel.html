@@ -235,7 +235,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .svc-btn:active{filter:brightness(.9)}
 .svc-naver{background:#03C75A;color:#fff}
 .svc-gmap{background:#F7F6FA;color:#333;border:1.5px solid #E0DFE8}
-.svc-kakao{background:#FEE500;color:#3A1D1D}
+.svc-catchtable{background:linear-gradient(135deg,#FF6B6B,#E84393);color:#fff}
 .svc-mango{background:#FF6B35;color:#fff}
 .svc-baemin{background:#2AC1BC;color:#fff}
 .svc-coupang{background:#C00D45;color:#fff}
@@ -274,7 +274,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .tbtn{flex:1;padding:9px;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:filter .12s}
 .tbtn:active{filter:brightness(.9)}
 .tbtn-naver{background:#03C75A;color:#fff}
-.tbtn-kakao{background:#FEE500;color:#3A1D1D}
+.tbtn-catchtable{background:linear-gradient(135deg,#FF6B6B,#E84393);color:#fff}
 .tbtn-insta{background:linear-gradient(135deg,#833AB4,#E1306C,#F77737);color:#fff}
 .no-trend{text-align:center;padding:30px;color:#A8AFBF;font-size:14px}
 .tcity-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:16px;padding-bottom:2px}
@@ -814,8 +814,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
       <button class="svc-btn svc-gmap" onclick="searchRest('google')">
         <span>📍</span><span>Google Mapsで検索</span>
       </button>
-      <button class="svc-btn svc-kakao" onclick="searchRest('kakao')">
-        <span>🟡</span><span>Kakao Mapで検索</span>
+      <button class="svc-btn svc-catchtable" onclick="searchRest('catchtable')">
+        <span>🍽️</span><span>CatchTableで予約</span>
       </button>
       <button class="svc-btn svc-mango" onclick="searchRest('mango')">
         <span>🍽️</span><span>망고플레이트</span>
@@ -1722,7 +1722,6 @@ function renderTrendingSpots() {
       <div class="tcard-why">${s.why}</div>
       <div class="tcard-btns">
         <button class="tbtn tbtn-naver"  onclick="window.open('${s.naver}','_blank')">🟢 Naver</button>
-        <button class="tbtn tbtn-kakao"  onclick="window.open('${s.kakao}','_blank')">🟡 Kakao</button>
         <button class="tbtn tbtn-insta"  onclick="window.open('${s.instagram}','_blank')">📸 Insta</button>
       </div>
     </div>`;
@@ -1836,7 +1835,7 @@ function renderTrending() {
         <div class="tcard-why">${r.why}</div>
         <div class="tcard-btns">
           <button class="tbtn tbtn-naver" onclick="window.open('${r.naver}','_blank')">🟢 Naver</button>
-          <button class="tbtn tbtn-kakao" onclick="window.open('${r.kakao}','_blank')">🟡 Kakao</button>
+          <button class="tbtn tbtn-catchtable" onclick="window.open('https://catchtable.co.kr/catch?keyword=${encodeURIComponent(r.jp)}','_blank')">🍽️ CatchTable</button>
           ${r.instagram ? `<button class="tbtn tbtn-insta" onclick="window.open('${r.instagram}','_blank')">📸 Instagram</button>` : ''}
         </div>
       </div>`;
@@ -1954,7 +1953,7 @@ function searchRest(svc) {
   const urls = {
     naver:   { ios: `nmap://search?query=${enc}&appname=kr.travel`, web: `https://map.naver.com/v5/search/${enc}` },
     google:  { ios: `comgooglemaps://?q=${enc}${userLat?`&center=${userLat},${userLng}`:''}`, web: userLat ? `https://www.google.com/maps/search/${enc}/@${userLat},${userLng},15z` : `https://www.google.com/maps/search/${enc}+한국` },
-    kakao:   { ios: `kakaomap://search?q=${enc}`, web: `https://map.kakao.com/?q=${enc}` },
+    catchtable: { ios: 'catchtable://', web: `https://catchtable.co.kr/catch?keyword=${enc}` },
     mango:   { ios: null, web: `https://www.mangoplate.com/search_results?keyword=${enc}` },
     baemin:  { ios: 'baemin://', web: 'https://www.baemin.com/' },
     coupang: { ios: 'coupangeats://', web: 'https://m.coupangeats.com/' },

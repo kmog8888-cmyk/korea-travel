@@ -1,4 +1,4 @@
-const CACHE = 'chogiyо-v2';
+const CACHE = 'chogiyо-v3';
 const ASSETS = [
   './korea_travel.html',
   './manifest.json',

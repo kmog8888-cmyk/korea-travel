@@ -5,8 +5,8 @@
   "start_url": "./korea_travel.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0F1923",
-  "theme_color": "#0F1923",
+  "background_color": "#FAF9F7",
+  "theme_color": "#FAF9F7",
   "lang": "ja",
   "icons": [
     {

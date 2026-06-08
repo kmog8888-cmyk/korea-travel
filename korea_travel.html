@@ -368,6 +368,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .fl-all-btn:active{filter:brightness(.9)}
 .fl-note{font-size:11px;color:#A8AFBF;text-align:center;margin-bottom:16px}
 
+/* ─── HOTEL ─── */
+.hcb-hotel{background:linear-gradient(140deg,#D4F5E8,#A0E8C8);color:#0A5438}
+.ht-booking{background:linear-gradient(135deg,#00308B,#003B95);color:#fff}
+.ht-agoda{background:linear-gradient(135deg,#002B5E,#004DA8);color:#fff}
+.ht-hotels{background:linear-gradient(135deg,#A80000,#D4001F);color:#fff}
+.ht-exp{background:linear-gradient(135deg,#002357,#003B95);color:#fff}
+.ht-naver{background:linear-gradient(135deg,#024824,#03A852);color:#fff}
+.ht-raku{background:linear-gradient(135deg,#800000,#BF0000);color:#fff}
+.ht-trip{background:linear-gradient(135deg,#006E7C,#009FAD);color:#fff}
+.ht-google{background:#F7F6FA;color:#333;border:1.5px solid #E0DFE8}
+.ht-google .fl-site-tag{color:#666}
+.ht-all-btn{width:100%;padding:15px;border:none;border-radius:16px;background:linear-gradient(135deg,#0A7A52,#0A5438);color:#fff;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;transition:filter .12s}
+.ht-all-btn:active{filter:brightness(.9)}
+
 /* ─── BEAUTY ─── */
 .beauty-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .beauty-cat-btn{padding:13px 6px;border:1.5px solid #E0DFE8;border-radius:14px;background:#F7F6FA;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .15s}
@@ -462,6 +476,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
       <span class="hcb-icon">✈️</span>
       <span class="hcb-title">航空券</span>
       <span class="hcb-sub">最安値を比較</span>
+    </button>
+    <button class="hcb hcb-hotel" onclick="goTo('hotel')" style="grid-column:span 2">
+      <span class="hcb-icon">🏨</span>
+      <span class="hcb-title">ホテル予約</span>
+      <span class="hcb-sub">8サイトで最安値比較</span>
     </button>
   </div>
 
@@ -1096,6 +1115,114 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 </section>
 
 <!-- ══════════════════════════════
+     HOTEL TAB
+══════════════════════════════ -->
+<section class="sec" id="sec-hotel">
+  <div class="sec-hdr">
+    <button class="sec-back" onclick="goTo('home')">‹</button>
+    <span class="sec-hdr-title">🏨 ホテル予約</span>
+  </div>
+
+  <!-- SEARCH FORM -->
+  <div class="fl-card">
+    <div class="ctitle" style="margin-bottom:14px">🏨 ホテル検索</div>
+
+    <!-- エリア -->
+    <div>
+      <label class="fl-label">📍 エリア・都市</label>
+      <select class="fl-select" id="ht-city" style="margin-bottom:14px">
+        <option value="seoul">ソウル（서울）</option>
+        <option value="busan">釜山（부산）</option>
+        <option value="jeju">済州島（제주도）</option>
+        <option value="gyeongju">慶州（경주）</option>
+        <option value="incheon">仁川（인천）</option>
+        <option value="daegu">大邱（대구）</option>
+        <option value="jeonju">全州（전주）</option>
+      </select>
+    </div>
+
+    <!-- チェックイン / チェックアウト -->
+    <div class="fl-dates-row" style="margin-bottom:14px">
+      <div>
+        <label class="fl-label">📅 チェックイン</label>
+        <input class="fl-date" type="date" id="ht-checkin">
+      </div>
+      <div>
+        <label class="fl-label">📅 チェックアウト</label>
+        <input class="fl-date" type="date" id="ht-checkout">
+      </div>
+    </div>
+
+    <!-- 大人 / 部屋数 -->
+    <div class="fl-dates-row">
+      <div>
+        <label class="fl-label">👤 大人</label>
+        <div class="fl-counter-row">
+          <button class="fl-counter-btn" onclick="changeHtGuests(-1)">−</button>
+          <span class="fl-counter-val" id="ht-guests-val">2</span>
+          <button class="fl-counter-btn" onclick="changeHtGuests(+1)">＋</button>
+        </div>
+      </div>
+      <div>
+        <label class="fl-label">🛏 部屋数</label>
+        <div class="fl-counter-row">
+          <button class="fl-counter-btn" onclick="changeHtRooms(-1)">−</button>
+          <span class="fl-counter-val" id="ht-rooms-val">1</span>
+          <button class="fl-counter-btn" onclick="changeHtRooms(+1)">＋</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKING SITE BUTTONS -->
+  <div class="fl-site-grid">
+    <button class="fl-site-btn ht-booking" onclick="openHotel('booking')">
+      <span class="fl-site-ic">🔵</span>
+      <span class="fl-site-nm">Booking.com</span>
+      <span class="fl-site-tag">世界最大・口コミ豊富</span>
+    </button>
+    <button class="fl-site-btn ht-agoda" onclick="openHotel('agoda')">
+      <span class="fl-site-ic">🟠</span>
+      <span class="fl-site-nm">Agoda</span>
+      <span class="fl-site-tag">アジア特化・格安</span>
+    </button>
+    <button class="fl-site-btn ht-hotels" onclick="openHotel('hotels')">
+      <span class="fl-site-ic">🔴</span>
+      <span class="fl-site-nm">Hotels.com</span>
+      <span class="fl-site-tag">10泊で1泊無料</span>
+    </button>
+    <button class="fl-site-btn ht-exp" onclick="openHotel('expedia')">
+      <span class="fl-site-ic">🔷</span>
+      <span class="fl-site-nm">Expedia JP</span>
+      <span class="fl-site-tag">航空券セット割あり</span>
+    </button>
+    <button class="fl-site-btn ht-naver" onclick="openHotel('naver')">
+      <span class="fl-site-ic">🟢</span>
+      <span class="fl-site-nm">Naver ホテル</span>
+      <span class="fl-site-tag">韓国ローカル最安値</span>
+    </button>
+    <button class="fl-site-btn ht-raku" onclick="openHotel('rakuten')">
+      <span class="fl-site-ic">❤️</span>
+      <span class="fl-site-nm">楽天トラベル</span>
+      <span class="fl-site-tag">楽天ポイント還元</span>
+    </button>
+    <button class="fl-site-btn ht-trip" onclick="openHotel('trip')">
+      <span class="fl-site-ic">🟤</span>
+      <span class="fl-site-nm">Trip.com</span>
+      <span class="fl-site-tag">格安ホテル多数</span>
+    </button>
+    <button class="fl-site-btn ht-google" onclick="openHotel('google')">
+      <span class="fl-site-ic">🔍</span>
+      <span class="fl-site-nm">Google ホテル</span>
+      <span class="fl-site-tag">比較に最適・無料</span>
+    </button>
+  </div>
+
+  <button class="ht-all-btn" onclick="openAllHotels()">🏨 全8サイトで一括検索</button>
+  <div class="fl-note">※ 一括検索時はブラウザのポップアップ許可が必要です</div>
+</section>
+
+<!-- ══════════════════════════════
      BEAUTY TAB
 ══════════════════════════════ -->
 <section class="sec" id="sec-beauty">
@@ -1221,6 +1348,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
   <button class="nbtn" onclick="goTo('food',this)"><span class="n-ic">🍽️</span><span class="n-lb">グルメ</span></button>
   <button class="nbtn" onclick="goTo('transit',this)"><span class="n-ic">🚇</span><span class="n-lb">電車</span></button>
   <button class="nbtn" onclick="goTo('flight',this)"><span class="n-ic">✈️</span><span class="n-lb">航空券</span></button>
+  <button class="nbtn" onclick="goTo('hotel',this)"><span class="n-ic">🏨</span><span class="n-lb">ホテル</span></button>
   <button class="nbtn" onclick="goTo('beauty',this)"><span class="n-ic">💅</span><span class="n-lb">ビューティー</span></button>
 </nav>
 
@@ -2497,6 +2625,80 @@ function initFlightDates() {
   document.getElementById('fl-ret').value = r.toISOString().slice(0,10);
 }
 
+// ─── HOTEL ───
+let htGuests = 2, htRooms = 1;
+
+function changeHtGuests(d) {
+  htGuests = Math.max(1, Math.min(9, htGuests + d));
+  document.getElementById('ht-guests-val').textContent = htGuests;
+}
+function changeHtRooms(d) {
+  htRooms = Math.max(1, Math.min(9, htRooms + d));
+  document.getElementById('ht-rooms-val').textContent = htRooms;
+}
+
+function buildHotelUrl(svc) {
+  const city = document.getElementById('ht-city').value;
+  const cin  = document.getElementById('ht-checkin').value;
+  const cout = document.getElementById('ht-checkout').value;
+  const g = htGuests, r = htRooms;
+  const CITIES = {
+    seoul:    { en:'Seoul, South Korea',       kr:'서울',  ja:'ソウル' },
+    busan:    { en:'Busan, South Korea',        kr:'부산',  ja:'釜山'   },
+    jeju:     { en:'Jeju Island, South Korea',  kr:'제주',  ja:'済州島'  },
+    gyeongju: { en:'Gyeongju, South Korea',     kr:'경주',  ja:'慶州'   },
+    incheon:  { en:'Incheon, South Korea',      kr:'인천',  ja:'仁川'   },
+    daegu:    { en:'Daegu, South Korea',        kr:'대구',  ja:'大邱'   },
+    jeonju:   { en:'Jeonju, South Korea',       kr:'전주',  ja:'全州'   },
+  };
+  const c = CITIES[city] || CITIES.seoul;
+  const E = encodeURIComponent;
+  switch(svc) {
+    case 'booking':
+      return `https://www.booking.com/searchresults.ja.html?ss=${E(c.en)}&checkin=${cin}&checkout=${cout}&group_adults=${g}&no_rooms=${r}&lang=ja`;
+    case 'agoda':
+      return `https://www.agoda.com/ja-jp/search?city=${E(c.en)}&checkIn=${cin}&checkOut=${cout}&rooms=${r}&adults=${g}`;
+    case 'hotels':
+      return `https://jp.hotels.com/search.do?q-destination=${E(c.en)}&q-check-in=${cin}&q-check-out=${cout}&q-rooms=${r}&q-room-0-adults=${g}`;
+    case 'expedia': {
+      const [cy,cm,cd] = cin.split('-');
+      const [oy,om,od] = cout.split('-');
+      return `https://www.expedia.co.jp/Hotel-Search?destination=${E(c.en)}&startDate=${E(`${cm}/${cd}/${cy}TANYT`)}&endDate=${E(`${om}/${od}/${oy}TANYT`)}&adults=${g}&rooms=${r}`;
+    }
+    case 'naver':
+      return `https://hotels.naver.com/hotels?check-in=${cin}&check-out=${cout}&adult-count=${g}&room-count=${r}&destination=${E(c.kr)}`;
+    case 'rakuten':
+      return `https://travel.rakuten.co.jp/OverseaHotel/kr/?f_checkin=${cin.replace(/-/g,'')}&f_checkout=${cout.replace(/-/g,'')}&f_people_num=${g}&f_room_num=${r}&keyword=${E(c.ja)}`;
+    case 'trip':
+      return `https://www.trip.com/hotels/list/?city=${E(c.en)}&startDate=${cin}&endDate=${cout}&adultCount=${g}&roomCount=${r}&curr=JPY&locale=ja-JP`;
+    case 'google':
+      return `https://www.google.com/travel/hotels/${E(c.en.split(',')[0])}?hl=ja&ap=aAEAAQEBAQFSAQAAAAA~&rp=CAEQARIECAEQARoHQ0pQSklCMA~~&ictx=1&dates=${cin.replace(/-/g,'')}%2C${cout.replace(/-/g,'')}`;
+    default: return '#';
+  }
+}
+
+function openHotel(svc) {
+  const cin = document.getElementById('ht-checkin').value;
+  if (!cin) { alert('チェックイン日を選択してください'); return; }
+  window.open(buildHotelUrl(svc), '_blank');
+}
+
+function openAllHotels() {
+  const cin = document.getElementById('ht-checkin').value;
+  if (!cin) { alert('チェックイン日を選択してください'); return; }
+  ['booking','agoda','hotels','expedia','naver','rakuten','trip','google'].forEach((s, i) => {
+    setTimeout(() => window.open(buildHotelUrl(s), '_blank'), i * 400);
+  });
+}
+
+function initHotelDates() {
+  const d = new Date();
+  d.setDate(d.getDate() + 30);
+  document.getElementById('ht-checkin').value = d.toISOString().slice(0,10);
+  d.setDate(d.getDate() + 3);
+  document.getElementById('ht-checkout').value = d.toISOString().slice(0,10);
+}
+
 // ─── BEAUTY ───
 const BEAUTY_CATS = {
   clinic:   { kr: '성형외과 미용성형', ig: '성형후기',    color: '#C60C30' },
@@ -2587,6 +2789,7 @@ renderTrending();
 renderHospitals();
 renderStChips();
 initFlightDates();
+initHotelDates();
 </script>
 </body>
 </html>

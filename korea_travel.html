@@ -787,6 +787,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
     </div>
     <!-- エリアフィルター（都市選択時に動的生成） -->
     <div class="sarea-scroll" id="tarea-scroll" style="display:none"></div>
+    <!-- ジャンルフィルター -->
+    <div class="food-genre-scroll" id="tgenre-scroll">
+      <button class="food-genre-btn on" onclick="setTGenre('all',this)">🍽️ すべて</button>
+      <button class="food-genre-btn" onclick="setTGenre('bbq',this)">🔥 焼肉・肉</button>
+      <button class="food-genre-btn" onclick="setTGenre('noodle',this)">🍜 麺・スープ</button>
+      <button class="food-genre-btn" onclick="setTGenre('rice',this)">🍚 ご飯</button>
+      <button class="food-genre-btn" onclick="setTGenre('cafe',this)">☕ カフェ</button>
+      <button class="food-genre-btn" onclick="setTGenre('seafood',this)">🌊 海鮮</button>
+      <button class="food-genre-btn" onclick="setTGenre('street',this)">🌶️ 屋台</button>
+      <button class="food-genre-btn" onclick="setTGenre('bar',this)">🍷 バー</button>
+    </div>
     <div id="trend-list"></div>
   </div>
 
@@ -2191,6 +2202,28 @@ const TRENDING = {
 
 let curTCity = 'all';
 let curTArea = 'all';
+let curTGenre = 'all';
+
+function matchTrendGenre(cat) {
+  switch(curTGenre) {
+    case 'bbq':     return /갈비|곱창|고기구이|스테이크|보쌈|족발|흑돼지|바베큐|닭갈비|치킨|돈가스|불고기/.test(cat);
+    case 'noodle':  return /고기국수|라멘|밀면|칼국수|돼지국밥|순대국|콩나물국밥|냉면/.test(cat);
+    case 'rice':    return /비빔밥|한식|한정식/.test(cat);
+    case 'cafe':    return /카페|カフェ|베이커리|커피|에스프레소|아이스크림|감귤|황남빵|伝統|브런치|ブランチ|샐러드|에그샌드|크레페|베이글|와플|소프트/.test(cat);
+    case 'seafood': return /횟감|게장|대게|한치|성게|오마카세|オマカセ|스시|해녀/.test(cat);
+    case 'street':  return /야시장|포장마차|타코|케밥|어묵|빈대떡|호떡/.test(cat);
+    case 'bar':     return /이자카야|전통주|와인바|수제맥주/.test(cat);
+    default:        return true;
+  }
+}
+
+function setTGenre(genre, btn) {
+  curTGenre = genre;
+  document.querySelectorAll('#tgenre-scroll .food-genre-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderTrending();
+}
+
 function setTCity(city, btn) {
   curTCity = city;
   curTArea = 'all';
@@ -2212,10 +2245,14 @@ function renderTrending() {
   let filtered = TRENDING.items;
   if (curTCity !== 'all') filtered = filtered.filter(r => r.city === curTCity);
   if (curTArea !== 'all') filtered = filtered.filter(r => r.area === curTArea);
+  if (curTGenre !== 'all') filtered = filtered.filter(r => matchTrendGenre(r.cat));
   const items = filtered.slice(0, 10);
 
   if (!items.length) {
-    el.innerHTML = '<div class="no-trend">この都市のデータはまだ準備中です</div>';
+    const msg = curTGenre !== 'all'
+      ? 'このジャンルの店舗データはありません'
+      : 'この都市のデータはまだ準備中です';
+    el.innerHTML = `<div class="no-trend">${msg}</div>`;
     return;
   }
   el.innerHTML = items.map((r, i) => {

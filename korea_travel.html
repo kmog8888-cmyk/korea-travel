@@ -2287,11 +2287,17 @@ function searchBeauty(svc) {
 
 // ─── SERVICE WORKER ───
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js?v=3').then(reg => {
-    reg.update();
-  }).catch(() => {});
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
+  // 古いSWを全て削除してから新しいSWを登録
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    const old = regs.filter(r => r.active && !r.active.scriptURL.includes('v=4'));
+    if (old.length) {
+      Promise.all(old.map(r => r.unregister())).then(() => {
+        navigator.serviceWorker.register('./sw.js?v=4').catch(() => {});
+        window.location.reload();
+      });
+    } else {
+      navigator.serviceWorker.register('./sw.js?v=4').then(reg => reg.update()).catch(() => {});
+    }
   });
 }
 

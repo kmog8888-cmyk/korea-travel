@@ -1,6 +1,5 @@
-const CACHE = 'chogiyо-v3';
+const CACHE = 'chogiyо-v4';
 const ASSETS = [
-  './korea_travel.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -16,20 +15,30 @@ self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    ).then(() => self.clients.claim()).then(() => {
-      self.clients.matchAll({ type: 'window' }).then(clients => {
-        clients.forEach(c => c.navigate(c.url));
-      });
-    })
+    ).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', e => {
-  // Pass through non-GET and external requests
   if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
   if (url.origin !== location.origin) return;
 
+  // HTMLは常にネットワークから取得（最新版を確実に表示）
+  if (url.pathname.endsWith('.html') || url.pathname.endsWith('/') || url.pathname === '/korea-travel') {
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // アイコン等はキャッシュ優先
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
@@ -39,7 +48,7 @@ self.addEventListener('fetch', e => {
           caches.open(CACHE).then(c => c.put(e.request, clone));
         }
         return res;
-      }).catch(() => caches.match('./korea_travel.html'));
+      });
     })
   );
 });

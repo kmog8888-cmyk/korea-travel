@@ -352,11 +352,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .fl-all-btn:active{filter:brightness(.85)}
 .fl-note{font-size:11px;color:rgba(255,255,255,.35);text-align:center;margin-bottom:16px}
 
+/* ─── BEAUTY ─── */
+.beauty-cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.beauty-cat-btn{padding:13px 6px;border:1.5px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(255,255,255,.04);cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .15s}
+.beauty-cat-btn:active{filter:brightness(.85)}
+.beauty-cat-btn.on{border-color:transparent}
+.bcat-ic{font-size:26px;line-height:1}
+.bcat-jp{font-size:11px;font-weight:700;color:#fff;line-height:1.2;text-align:center}
+.bcat-kr{font-size:10px;color:rgba(255,255,255,.45);line-height:1}
+.beauty-area-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-bottom:12px;padding-bottom:2px}
+.beauty-area-scroll::-webkit-scrollbar{display:none}
+.barea-btn{padding:6px 13px;border-radius:16px;border:1.5px solid rgba(255,255,255,.13);background:transparent;font-size:12px;font-weight:600;white-space:nowrap;cursor:pointer;color:rgba(255,255,255,.55);font-family:inherit;transition:all .15s;flex-shrink:0}
+.barea-btn.on{background:#C60C30;color:#fff;border-color:#C60C30}
+.beauty-svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.beauty-svc-btn{padding:13px 10px;border:none;border-radius:14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:filter .12s;color:#fff}
+.beauty-svc-btn:active{filter:brightness(.82)}
+.bsvc-naver{background:#03C75A}
+.bsvc-kakao{background:#FEE500;color:#3A1D1D}
+.bsvc-google{background:#fff;color:#333}
+.bsvc-ig{background:linear-gradient(135deg,#833AB4,#FD1D1D,#F77737)}
+.beauty-app-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.beauty-app-btn{padding:14px 12px;border:none;border-radius:16px;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;gap:4px;transition:filter .12s;text-align:left}
+.beauty-app-btn:active{filter:brightness(.82)}
+.bapp-ic{font-size:20px}
+.bapp-nm{font-size:13px;font-weight:800;color:#fff;line-height:1}
+.bapp-tag{font-size:10px;font-weight:500;opacity:.75;color:#fff}
+.bapp-gangnam{background:linear-gradient(135deg,#8B0045,#D4006A)}
+.bapp-babitalk{background:linear-gradient(135deg,#004B99,#0070E0)}
+.bapp-kakaohair{background:linear-gradient(135deg,#3A1D1D,#7A3B00)}
+.bapp-olive{background:linear-gradient(135deg,#1A4D1A,#2E8B2E)}
+.beauty-tip{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;font-size:12px;color:rgba(255,255,255,.6);line-height:1.7}
+.beauty-tip strong{color:#FF9FC8}
+
 /* ─── BOTTOM NAV ─── */
-.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,25,35,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.08);display:flex;z-index:200;padding-bottom:env(safe-area-inset-bottom,0)}
-.nbtn{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 0;cursor:pointer;border:none;background:none;color:rgba(255,255,255,.3);gap:2px;font-family:inherit;transition:color .15s}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(15,25,35,.95);backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,.08);display:flex;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;z-index:200;padding-bottom:env(safe-area-inset-bottom,0)}
+.bnav::-webkit-scrollbar{display:none}
+.nbtn{flex:1;min-width:56px;display:flex;flex-direction:column;align-items:center;padding:9px 0;cursor:pointer;border:none;background:none;color:rgba(255,255,255,.3);gap:2px;font-family:inherit;transition:color .15s;flex-shrink:0}
 .nbtn.on{color:#C60C30}
-.n-ic{font-size:22px}
+.n-ic{font-size:21px}
 .n-lb{font-size:9px;font-weight:500}
 </style>
 </head>
@@ -934,6 +967,117 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 
 </section>
 
+<!-- ══════════════════════════════
+     BEAUTY TAB
+══════════════════════════════ -->
+<section class="sec" id="sec-beauty">
+
+  <!-- CATEGORY & SEARCH -->
+  <div class="transit-card">
+    <div class="ctitle" style="margin-bottom:14px">💅 ビューティー検索</div>
+
+    <!-- Category grid -->
+    <div class="beauty-cat-grid" id="beauty-cat-grid">
+      <button class="beauty-cat-btn on" data-cat="clinic" onclick="setBCat(this)"
+        style="background:linear-gradient(135deg,rgba(198,12,48,.25),rgba(198,12,48,.1));border-color:#C60C30">
+        <span class="bcat-ic">💉</span>
+        <span class="bcat-jp">美容クリニック</span>
+        <span class="bcat-kr">성형외과</span>
+      </button>
+      <button class="beauty-cat-btn" data-cat="skin" onclick="setBCat(this)">
+        <span class="bcat-ic">🔬</span>
+        <span class="bcat-jp">皮膚科</span>
+        <span class="bcat-kr">피부과</span>
+      </button>
+      <button class="beauty-cat-btn" data-cat="nail" onclick="setBCat(this)">
+        <span class="bcat-ic">💅</span>
+        <span class="bcat-jp">ネイルサロン</span>
+        <span class="bcat-kr">네일샵</span>
+      </button>
+      <button class="beauty-cat-btn" data-cat="hair" onclick="setBCat(this)">
+        <span class="bcat-ic">✂️</span>
+        <span class="bcat-jp">ヘアサロン</span>
+        <span class="bcat-kr">미용실</span>
+      </button>
+      <button class="beauty-cat-btn" data-cat="esthetic" onclick="setBCat(this)">
+        <span class="bcat-ic">💆</span>
+        <span class="bcat-jp">エステ・スパ</span>
+        <span class="bcat-kr">에스테틱</span>
+      </button>
+      <button class="beauty-cat-btn" data-cat="makeup" onclick="setBCat(this)">
+        <span class="bcat-ic">💄</span>
+        <span class="bcat-jp">メイク・カラー</span>
+        <span class="bcat-kr">메이크업</span>
+      </button>
+    </div>
+
+    <!-- Area filter -->
+    <div class="beauty-area-scroll" id="beauty-area-scroll">
+      <button class="barea-btn on" onclick="setBAArea('강남',this)">💎 江南</button>
+      <button class="barea-btn" onclick="setBAArea('청담',this)">✨ 清潭洞</button>
+      <button class="barea-btn" onclick="setBAArea('신사 가로수길',this)">🌳 新沙</button>
+      <button class="barea-btn" onclick="setBAArea('명동',this)">🛍️ 明洞</button>
+      <button class="barea-btn" onclick="setBAArea('홍대',this)">🎨 弘大</button>
+      <button class="barea-btn" onclick="setBAArea('이태원',this)">🌍 梨泰院</button>
+      <button class="barea-btn" onclick="setBAArea('해운대',this)">🌊 海雲台</button>
+      <button class="barea-btn" onclick="setBAArea('제주',this)">🌴 済州</button>
+    </div>
+
+    <!-- Keyword input -->
+    <div class="rest-row" style="margin-bottom:14px">
+      <input class="rest-input" id="beauty-q" type="text" placeholder="キーワード（省略可）例: 二重、ヘアカラー…">
+    </div>
+
+    <!-- Search buttons -->
+    <div class="beauty-svc-grid">
+      <button class="beauty-svc-btn bsvc-naver" onclick="searchBeauty('naver')">
+        🟢 Naver Mapで検索
+      </button>
+      <button class="beauty-svc-btn bsvc-kakao" onclick="searchBeauty('kakao')">
+        🟡 Kakao Mapで検索
+      </button>
+      <button class="beauty-svc-btn bsvc-google" onclick="searchBeauty('google')">
+        📍 Google Mapsで検索
+      </button>
+      <button class="beauty-svc-btn bsvc-ig" onclick="searchBeauty('instagram')">
+        📸 Instagramで検索
+      </button>
+    </div>
+  </div>
+
+  <!-- BEAUTY APP LAUNCHERS -->
+  <div class="slabel">予約・口コミアプリ</div>
+  <div class="beauty-app-grid">
+    <button class="beauty-app-btn bapp-gangnam" onclick="launch('gangnamunni')">
+      <span class="bapp-ic">💉</span>
+      <span class="bapp-nm">강남언니</span>
+      <span class="bapp-tag">韓国No.1 美容クリニック口コミ</span>
+    </button>
+    <button class="beauty-app-btn bapp-babitalk" onclick="launch('babitalk')">
+      <span class="bapp-ic">🔬</span>
+      <span class="bapp-nm">바비톡</span>
+      <span class="bapp-tag">美容整形・皮膚科レビュー</span>
+    </button>
+    <button class="beauty-app-btn bapp-kakaohair" onclick="launch('kakaohair')">
+      <span class="bapp-ic">✂️</span>
+      <span class="bapp-nm">카카오헤어샵</span>
+      <span class="bapp-tag">ヘアサロン予約</span>
+    </button>
+    <button class="beauty-app-btn bapp-olive" onclick="launch('oliveyoung')">
+      <span class="bapp-ic">🛒</span>
+      <span class="bapp-nm">올리브영</span>
+      <span class="bapp-tag">韓国コスメ購入</span>
+    </button>
+  </div>
+
+  <!-- TIPS -->
+  <div class="beauty-tip">
+    <strong>💡 韓国ビューティー旅のヒント</strong><br>
+    美容クリニックは<strong>江南・清潭洞エリア</strong>に集中。「강남언니」では日本語対応クリニックを絞り込めます。ヘアカラー・ネイルは「홍대」「명동」エリアが比較的リーズナブル。施術前は必ず口コミアプリで確認を。
+  </div>
+
+</section>
+
 </div><!-- /main -->
 
 <!-- BOTTOM NAV -->
@@ -945,6 +1089,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
   <button class="nbtn" onclick="goTo('food',this)"><span class="n-ic">🍽️</span><span class="n-lb">グルメ</span></button>
   <button class="nbtn" onclick="goTo('transit',this)"><span class="n-ic">🚇</span><span class="n-lb">電車</span></button>
   <button class="nbtn" onclick="goTo('flight',this)"><span class="n-ic">✈️</span><span class="n-lb">航空券</span></button>
+  <button class="nbtn" onclick="goTo('beauty',this)"><span class="n-ic">💅</span><span class="n-lb">ビューティー</span></button>
 </nav>
 
 <script>
@@ -961,7 +1106,11 @@ const APPS = {
   tmoney:    { ios:'tmoney://',                   web:'https://www.t-money.co.kr/' },
   korail:    { ios:'korailkorea://',              web:'https://www.letskorail.com/' },
   arex:      { ios:null,                          web:'https://www.arex.or.kr/' },
-  subwayapp: { ios:'subwaykorea://',              web:'https://www.metro.co.kr/' },
+  subwayapp:    { ios:'subwaykorea://',             web:'https://www.metro.co.kr/' },
+  gangnamunni:  { ios:'gangnamunni://',             web:'https://www.gangnamunni.com/' },
+  babitalk:     { ios:'babitalk://',                web:'https://www.babitalk.com/' },
+  kakaohair:    { ios:'kakaohair://',               web:'https://hairshop.kakao.com/' },
+  oliveyoung:   { ios:'oliveyoung://',              web:'https://www.oliveyoung.co.kr/' },
 };
 
 function launch(id) {
@@ -1781,6 +1930,70 @@ function initFlightDates() {
   const r = new Date(d);
   r.setDate(r.getDate() + 5);
   document.getElementById('fl-ret').value = r.toISOString().slice(0,10);
+}
+
+// ─── BEAUTY ───
+const BEAUTY_CATS = {
+  clinic:   { kr: '성형외과 미용성형', ig: '성형후기',    color: '#C60C30' },
+  skin:     { kr: '피부과 피부관리',   ig: '피부관리',    color: '#6B4FA0' },
+  nail:     { kr: '네일아트 네일샵',   ig: '네일아트',    color: '#D4006A' },
+  hair:     { kr: '미용실 헤어샵',     ig: '헤어스타일',  color: '#804000' },
+  esthetic: { kr: '에스테틱 마사지',   ig: '에스테틱',    color: '#007A6A' },
+  makeup:   { kr: '메이크업 뷰티',     ig: '메이크업',    color: '#8B0080' },
+};
+let curBCat = 'clinic';
+let curBArea = '강남';
+
+function setBCat(btn) {
+  curBCat = btn.dataset.cat;
+  const cat = BEAUTY_CATS[curBCat];
+  document.querySelectorAll('.beauty-cat-btn').forEach(b => {
+    b.classList.remove('on');
+    b.style.background = '';
+    b.style.borderColor = '';
+  });
+  btn.classList.add('on');
+  btn.style.background = `linear-gradient(135deg,${cat.color}44,${cat.color}1A)`;
+  btn.style.borderColor = cat.color;
+}
+
+function setBAArea(area, btn) {
+  curBArea = area;
+  document.querySelectorAll('#beauty-area-scroll .barea-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function searchBeauty(svc) {
+  const cat = BEAUTY_CATS[curBCat];
+  const kw = document.getElementById('beauty-q').value.trim();
+  const base = kw ? `${curBArea} ${kw}` : `${curBArea} ${cat.kr.split(' ')[0]}`;
+  const enc = encodeURIComponent(base);
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+
+  function openIOS(ios, web) {
+    const t = setTimeout(() => window.open(web, '_blank'), 1500);
+    const h = () => clearTimeout(t);
+    window.addEventListener('pagehide', h, {once:true});
+    window.addEventListener('blur', h, {once:true});
+    window.location.href = ios;
+  }
+
+  if (svc === 'naver') {
+    if (isIOS) openIOS(`nmap://search?query=${enc}&appname=kr.travel`, `https://map.naver.com/v5/search/${enc}`);
+    else window.open(`https://map.naver.com/v5/search/${enc}`, '_blank');
+  } else if (svc === 'kakao') {
+    if (isIOS) openIOS(`kakaomap://search?q=${enc}`, `https://map.kakao.com/?q=${enc}`);
+    else window.open(`https://map.kakao.com/?q=${enc}`, '_blank');
+  } else if (svc === 'google') {
+    const q = encodeURIComponent(base);
+    const web = userLat
+      ? `https://www.google.com/maps/search/${q}/@${userLat},${userLng},15z`
+      : `https://www.google.com/maps/search/${q}+한국`;
+    window.open(web, '_blank');
+  } else if (svc === 'instagram') {
+    const tag = encodeURIComponent(kw || cat.ig);
+    window.open(`https://www.instagram.com/explore/tags/${tag}/`, '_blank');
+  }
 }
 
 // ─── SERVICE WORKER ───

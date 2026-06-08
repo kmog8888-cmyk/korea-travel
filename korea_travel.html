@@ -238,6 +238,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .svc-coupang{background:#C00D45;color:#fff}
 .food-guide-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;margin:20px 0 10px}
 
+/* ─── SPOT TRENDING ─── */
+.scat-scroll{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;padding-bottom:2px}
+.scat-scroll::-webkit-scrollbar{display:none}
+.scat-btn{padding:5px 12px;border-radius:14px;border:1.5px solid rgba(255,255,255,.13);background:transparent;font-size:11px;font-weight:700;white-space:nowrap;cursor:pointer;color:rgba(255,255,255,.55);font-family:inherit;transition:all .15s;flex-shrink:0}
+.scat-btn.on{background:#0891B2;color:#fff;border-color:#0891B2}
+.tcard.spot::before{background:linear-gradient(90deg,#0891B2,#7C3AED)}
+.spot-entry{font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:rgba(8,145,178,.2);color:#7FD4F5}
+.spot-free{background:rgba(34,197,94,.2);color:#86EFAC}
+
 /* ─── TRENDING ─── */
 .trend-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .trend-month{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#C60C30,#8B0820);color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px}
@@ -602,13 +611,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
      SPOTS TAB
 ══════════════════════════════ -->
 <section class="sec" id="sec-spots">
-  <div class="cfil">
-    <button class="city-btn on" onclick="setCity('all',this)">全地域</button>
-    <button class="city-btn" onclick="setCity('seoul',this)">ソウル</button>
-    <button class="city-btn" onclick="setCity('busan',this)">釜山</button>
-    <button class="city-btn" onclick="setCity('jeju',this)">済州島</button>
+  <div class="card" id="spots-trend-card">
+    <div class="trend-hdr">
+      <div>
+        <div class="ctitle" style="margin-bottom:4px">🔥 SNSバズりスポット</div>
+        <div class="trend-note">毎月手動更新 · TikTok・Instagram・YouTubeで話題</div>
+      </div>
+      <div class="trend-month" id="spots-month-badge">— 月</div>
+    </div>
+
+    <!-- 都市フィルター -->
+    <div class="tcity-scroll" id="scity-scroll">
+      <button class="tcity-btn on" onclick="setSCity('all',this)">🌏 全都市</button>
+      <button class="tcity-btn" onclick="setSCity('seoul',this)">🏙️ ソウル</button>
+      <button class="tcity-btn" onclick="setSCity('busan',this)">🌊 釜山</button>
+      <button class="tcity-btn" onclick="setSCity('jeju',this)">🌴 済州島</button>
+      <button class="tcity-btn" onclick="setSCity('gyeongju',this)">🏛️ 慶州</button>
+      <button class="tcity-btn" onclick="setSCity('jeonju',this)">🏘️ 全州</button>
+    </div>
+
+    <!-- カテゴリフィルター -->
+    <div class="scat-scroll" id="scat-scroll">
+      <button class="scat-btn on" onclick="setSCat('all',this)">すべて</button>
+      <button class="scat-btn" onclick="setSCat('photo',this)">📸 映えスポット</button>
+      <button class="scat-btn" onclick="setSCat('cafe',this)">☕ カフェ</button>
+      <button class="scat-btn" onclick="setSCat('nature',this)">🌿 自然</button>
+      <button class="scat-btn" onclick="setSCat('history',this)">🏛️ 歴史</button>
+      <button class="scat-btn" onclick="setSCat('night',this)">🌙 夜景</button>
+      <button class="scat-btn" onclick="setSCat('art',this)">🎨 アート</button>
+    </div>
+
+    <div id="spots-list"></div>
   </div>
-  <div id="slist"></div>
 </section>
 
 <!-- ══════════════════════════════
@@ -1353,22 +1387,163 @@ const PHRASES = [
   {c:'emergency',jp:'気分が悪いです',kr:'몸이 안 좋아요',ro:'Momi an joayo'},
 ];
 
-const SPOTS = [
-  {city:'seoul',name:'景福宮',kr:'경복궁',em:'🏯',bg:'#1a6b3a',desc:'朝鮮王朝の正宮。韓服レンタルで入場無料。守門将交代式も必見。',tags:['歴史','韓服体験','無料'],map:'https://www.google.com/maps/search/?q=경복궁'},
-  {city:'seoul',name:'明洞',kr:'명동',em:'🛍️',bg:'#c60c30',desc:'ソウル最大のショッピング＆グルメエリア。コスメ・屋台が集結。',tags:['ショッピング','屋台','コスメ'],map:'https://www.google.com/maps/search/?q=명동'},
-  {city:'seoul',name:'弘大',kr:'홍대',em:'🎵',bg:'#7c3aed',desc:'若者の街。クラブ、個性的カフェ、古着屋、ストリートアート。',tags:['ナイトライフ','カフェ','アート'],map:'https://www.google.com/maps/search/?q=홍대'},
-  {city:'seoul',name:'Nソウルタワー',kr:'남산타워',em:'🗼',bg:'#be6c21',desc:'南山の頂上のソウルのシンボル。展望台からの夜景が絶景。',tags:['夜景','展望台'],map:'https://www.google.com/maps/search/?q=남산타워'},
-  {city:'seoul',name:'北村韓屋村',kr:'북촌한옥마을',em:'🏘️',bg:'#6b7c00',desc:'伝統的な韓屋が並ぶ風情ある街並み。朝鮮時代の雰囲気を体感。',tags:['伝統建築','フォトスポット'],map:'https://www.google.com/maps/search/?q=북촌한옥마을'},
-  {city:'seoul',name:'東大門DDP',kr:'동대문디자인플라자',em:'🏟️',bg:'#1e40af',desc:'ザハ・ハディド設計の異形建築。24時間ショッピングと夜景。',tags:['建築','ショッピング','夜景'],map:'https://www.google.com/maps/search/?q=동대문디자인플라자'},
-  {city:'seoul',name:'仁寺洞',kr:'인사동',em:'🎨',bg:'#854d0e',desc:'伝統工芸品・ギャラリーが集まる文化の街。伝統茶房も多い。',tags:['伝統文化','お土産'],map:'https://www.google.com/maps/search/?q=인사동'},
-  {city:'seoul',name:'漢江公園',kr:'한강공원',em:'🌊',bg:'#0369a1',desc:'漢江沿いの広大な公園。チキンデリバリーでピクニックが定番。',tags:['公園','チキン','夜景'],map:'https://www.google.com/maps/search/?q=한강공원'},
-  {city:'busan',name:'海雲台ビーチ',kr:'해운대해수욕장',em:'🏖️',bg:'#0ea5e9',desc:'釜山最大のビーチリゾート。海水浴・海鮮・高層ホテル。',tags:['ビーチ','リゾート'],map:'https://www.google.com/maps/search/?q=해운대해수욕장'},
-  {city:'busan',name:'甘川文化村',kr:'감천문화마을',em:'🌈',bg:'#ea580c',desc:'「韓国のマチュピチュ」。カラフルな壁画の村。',tags:['壁画','フォトスポット'],map:'https://www.google.com/maps/search/?q=감천문화마을'},
-  {city:'busan',name:'広安里ビーチ',kr:'광안리해수욕장',em:'🌉',bg:'#7c3aed',desc:'広安大橋のライトアップ夜景が絶景。地元民に人気。',tags:['夜景','ビーチ'],map:'https://www.google.com/maps/search/?q=광안리해수욕장'},
-  {city:'jeju',name:'城山日出峰',kr:'성산일출봉',em:'🌋',bg:'#16a34a',desc:'ユネスコ世界遺産。火山地形と日の出の名所。',tags:['世界遺産','ハイキング'],map:'https://www.google.com/maps/search/?q=성산일출봉'},
-  {city:'jeju',name:'漢拏山',kr:'한라산',em:'⛰️',bg:'#166534',desc:'韓国最高峰（1,950m）。四季折々のトレッキング。',tags:['世界遺産','トレッキング'],map:'https://www.google.com/maps/search/?q=한라산'},
-  {city:'jeju',name:'牛島（ウド）',kr:'우도',em:'🏝️',bg:'#0891b2',desc:'エメラルドの海と白砂浜の離島。自転車で周遊。',tags:['離島','ビーチ'],map:'https://www.google.com/maps/search/?q=우도'},
-];
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🔥 毎月ここだけ更新してください！（観光スポット）
+//    month: 表示する月 / items: スポットリスト
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const TRENDING_SPOTS = {
+  month: '2026年6月',
+  items: [
+    // ── ソウル ──────────────────────────────
+    { city:'seoul', name:'聖水洞ポップアップ通り',    kr:'성수동 팝업스토어',     area:'성수동',   cat:'art',     sns:['TikTok','Instagram'],
+      why:'廃工場がリノベされたインダストリアル空間に毎週新ブランドのポップアップが出現。「ソウルで一番動きが速い街」としてTikTokで国内外に拡散中。',
+      entry:'無料（店舗により異なる）', naver:'https://map.naver.com/v5/search/성수동+팝업스토어', kakao:'https://map.kakao.com/?q=성수동+팝업', instagram:'https://www.instagram.com/explore/tags/성수동팝업/' },
+
+    { city:'seoul', name:'乙支路レトロ路地（ヒップ地路）', kr:'힙지로 을지로',         area:'을지로',   cat:'photo',   sns:['Instagram','Naver Blog'],
+      why:'昭和レトロな印刷工場街が「힙지로」として再評価。ネオンサインと古びた居酒屋が混在する深夜の路地映像がInstagramで毎月バズり続ける。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/을지로+힙지로', kakao:'https://map.kakao.com/?q=힙지로', instagram:'https://www.instagram.com/explore/tags/힙지로/' },
+
+    { city:'seoul', name:'延南洞 緑道カフェ通り',       kr:'연남동 경의선숲길',     area:'연남동',   cat:'cafe',    sns:['Instagram','TikTok'],
+      why:'廃線跡の緑道沿いに個性的カフェが集結。「ソウルの小さなヨーロッパ」と呼ばれ春・秋に写真映え投稿が爆増。パリ感のある街並みが日本人にも人気急上昇。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/연남동+카페', kakao:'https://map.kakao.com/?q=연남동+카페', instagram:'https://www.instagram.com/explore/tags/연남동카페/' },
+
+    { city:'seoul', name:'昌徳宮 月の夜散策',           kr:'창덕궁 달빛기행',       area:'종로',     cat:'history', sns:['Instagram','YouTube'],
+      why:'世界遺産の昌徳宮の夜間特別公開。漢服姿で歩く幻想的な夜が海外メディアにも取り上げられ「韓国で一番美しい夜の体験」として世界的話題に。要予約。',
+      entry:'15,000₩', naver:'https://map.naver.com/v5/search/창덕궁달빛기행', kakao:'https://map.kakao.com/?q=창덕궁', instagram:'https://www.instagram.com/explore/tags/창덕궁달빛기행/' },
+
+    { city:'seoul', name:'益善洞 韓屋カフェ路地',        kr:'익선동 한옥카페골목',   area:'종로',     cat:'cafe',    sns:['TikTok','Instagram'],
+      why:'築100年の韓屋が並ぶ狭い路地がカフェ街に変貌。「タイムスリップしたみたい」という投稿がTikTokで1,000万再生超え。フォトブースのような路地が特に人気。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/익선동+한옥카페', kakao:'https://map.kakao.com/?q=익선동', instagram:'https://www.instagram.com/explore/tags/익선동카페/' },
+
+    { city:'seoul', name:'鷺梁島 ルーフトップカフェ',    kr:'노들섬 루프탑카페',     area:'노들섬',   cat:'cafe',    sns:['Instagram','TikTok'],
+      why:'漢江に浮かぶ島のルーフトップカフェから見える夕暮れと橋の眺望が「ソウル絶景ベスト5」に常連。ゴールデンアワーの映像が毎日SNSに大量投稿。',
+      entry:'無料（ドリンク注文）', naver:'https://map.naver.com/v5/search/노들섬+카페', kakao:'https://map.kakao.com/?q=노들섬', instagram:'https://www.instagram.com/explore/tags/노들섬카페/' },
+
+    { city:'seoul', name:'DDP 没入型メディアアート',      kr:'DDP 빛의정원',           area:'동대문',   cat:'art',     sns:['Instagram','TikTok'],
+      why:'国際賞を受賞したザハ設計の曲線建築×没入型プロジェクションマッピングが圧巻。「SFっぽい」「地球じゃない」というキャプションとともに定期的にバズる。',
+      entry:'展示により異なる', naver:'https://map.naver.com/v5/search/DDP+전시', kakao:'https://map.kakao.com/?q=동대문디자인플라자', instagram:'https://www.instagram.com/explore/tags/DDP전시/' },
+
+    { city:'seoul', name:'廣場市場 夜の屋台食べ歩き',    kr:'광장시장 야간 길거리',   area:'종로',     cat:'photo',   sns:['YouTube','TikTok'],
+      why:'外国人YouTuberが「韓国リアルグルメ」として頻繁に取り上げ世界的認知度が急上昇。빈대떡（チヂミ）・마약김밥（麻薬キンパ）が特に映える。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/광장시장', kakao:'https://map.kakao.com/?q=광장시장', instagram:'https://www.instagram.com/explore/tags/광장시장/' },
+
+    { city:'seoul', name:'望遠漢江 치맥ピクニック',       kr:'망원한강공원 치맥',     area:'망원',     cat:'nature',  sns:['TikTok','YouTube'],
+      why:'치킨＋맥주（チキン＆ビール）を漢江沿いで楽しむ「치맥文화」がTikTokで海外にも波及。ローカル感あふれる望遠エリアが「観光地じゃない韓国」として人気。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/망원한강공원', kakao:'https://map.kakao.com/?q=망원한강공원', instagram:'https://www.instagram.com/explore/tags/망원한강/' },
+
+    { city:'seoul', name:'北村 早朝フォトスポット',       kr:'북촌한옥마을 새벽',     area:'북촌',     cat:'photo',   sns:['Instagram','Naver Blog'],
+      why:'「早朝6時前の北村は観光客ゼロ」という口コミが広がり、静寂の韓屋村を独占撮影できると早起き旅行者が急増。「人生フォト」を求めて世界から来訪。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/북촌한옥마을', kakao:'https://map.kakao.com/?q=북촌한옥마을', instagram:'https://www.instagram.com/explore/tags/북촌한옥마을/' },
+
+    // ── 釜山 ──────────────────────────────
+    { city:'busan', name:'白如鬱文化村',                  kr:'흰여울문화마을',         area:'영도',     cat:'photo',   sns:['Instagram','TikTok'],
+      why:'断崖に張り付く白い家と碧い海が「韓国版アマルフィ」と欧米旅行者のSNSで拡散。映画ロケ地でもあり日本の旅行雑誌でも頻繁に特集される。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/흰여울문화마을', kakao:'https://map.kakao.com/?q=흰여울문화마을', instagram:'https://www.instagram.com/explore/tags/흰여울문화마을/' },
+
+    { city:'busan', name:'解里丹路（ヘリダンギル）',      kr:'해리단길',               area:'해운대',   cat:'cafe',    sns:['Instagram','TikTok'],
+      why:'海雲台ビーチ裏手の横丁にインディーズカフェとビンテージショップが集結。「釜山の弘大」として急成長中。壁アートと映えカフェが密集。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/해리단길', kakao:'https://map.kakao.com/?q=해리단길', instagram:'https://www.instagram.com/explore/tags/해리단길/' },
+
+    { city:'busan', name:'淸沙浦 漁港レトロカフェ',       kr:'청사포 포구',             area:'청사포',   cat:'photo',   sns:['TikTok','Instagram'],
+      why:'小さな漁港に古びた木造カフェが立ち並ぶ「時が止まったような」風景。TikTokの短尺映像系旅行クリエイターに人気爆発中のニッチスポット。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/청사포', kakao:'https://map.kakao.com/?q=청사포', instagram:'https://www.instagram.com/explore/tags/청사포/' },
+
+    { city:'busan', name:'機張 竹城里ドリーム礼拝堂',     kr:'기장 죽성드림성당',      area:'기장',     cat:'photo',   sns:['Instagram','YouTube'],
+      why:'海岸断崖に建つ小さな礼拝堂の構図がドラマ的すぎると世界的話題。ドローン映像がYouTubeで大量拡散しソウルから日帰り訪問者が殺到。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/죽성드림성당', kakao:'https://map.kakao.com/?q=죽성드림성당', instagram:'https://www.instagram.com/explore/tags/죽성드림성당/' },
+
+    { city:'busan', name:'F1963 旧工場文化スペース',       kr:'F1963',                   area:'수영구',   cat:'art',     sns:['Instagram','YouTube'],
+      why:'旧鉄線工場を改装した高さ15mの巨大空間。壁面を覆う緑のプランターウォールとカフェのコントラストがInstagramのインテリア投稿で人気沸騰。',
+      entry:'無料（一部展示有料）', naver:'https://map.naver.com/v5/search/F1963', kakao:'https://map.kakao.com/?q=F1963', instagram:'https://www.instagram.com/explore/tags/F1963부산/' },
+
+    { city:'busan', name:'松島 海上ケーブルカー',          kr:'송도 해상케이블카',      area:'서구',     cat:'nature',  sns:['TikTok','Instagram'],
+      why:'韓国初の海上ケーブルカー。透明ゴンドラから見える釜山港と海峡の絶景がTikTokで度々トレンド入り。日没前後の便が特に絵になると口コミ。',
+      entry:'往復 15,000₩', naver:'https://map.naver.com/v5/search/송도해상케이블카', kakao:'https://map.kakao.com/?q=송도케이블카', instagram:'https://www.instagram.com/explore/tags/송도케이블카/' },
+
+    { city:'busan', name:'草梁 168段 イバグ道',            kr:'초량 이바구길 168계단',  area:'초량',     cat:'history', sns:['YouTube','Instagram'],
+      why:'急斜面の168段階段と昭和期の下町風景が「奇跡の階段」として旅行系YouTuberに頻繁に紹介。老若男女が昔話を語る地域密着の文化遺産ルート。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/초량이바구길', kakao:'https://map.kakao.com/?q=초량이바구길', instagram:'https://www.instagram.com/explore/tags/이바구길/' },
+
+    { city:'busan', name:'廣安里 ドローンライトショー',    kr:'광안리 드론라이트쇼',   area:'광안리',   cat:'night',   sns:['TikTok','YouTube'],
+      why:'年数回開催の1,000機ドローンショーが「世界レベルの美しさ」と毎回TikTokトレンドにランクイン。広安大橋との組み合わせが最高の映像になると話題。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/광안리드론쇼', kakao:'https://map.kakao.com/?q=광안리', instagram:'https://www.instagram.com/explore/tags/광안리드론쇼/' },
+
+    { city:'busan', name:'甘川文化村 早朝の穴場',          kr:'감천문화마을 새벽',     area:'사하구',   cat:'photo',   sns:['Instagram','Naver Blog'],
+      why:'観光地化した甘川も早朝6時前は地元民だけの静寂。青い道と朝靄のコントラストが「甘川の別の顔」として再発見され早起き旅行者のInstagramに続々登場。',
+      entry:'入村料 2,000₩', naver:'https://map.naver.com/v5/search/감천문화마을', kakao:'https://map.kakao.com/?q=감천문화마을', instagram:'https://www.instagram.com/explore/tags/감천문화마을새벽/' },
+
+    { city:'busan', name:'자갈치市場 早朝 活魚市場',       kr:'자갈치시장 새벽',       area:'중구',     cat:'photo',   sns:['YouTube','TikTok'],
+      why:'早朝4時から始まる漁師直売市場。「韓国の早起きルーティン」系YouTubeで外国人視聴者に衝撃を与え話題化。活魚の競りと朝ごはん文化が見どころ。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/자갈치시장', kakao:'https://map.kakao.com/?q=자갈치시장', instagram:'https://www.instagram.com/explore/tags/자갈치시장/' },
+
+    // ── 済州島 ────────────────────────────
+    { city:'jeju', name:'挾才 エメラルド海岸',             kr:'협재해변',               area:'제주시',   cat:'nature',  sns:['TikTok','Instagram'],
+      why:'カリブ海のような透明度のエメラルドグリーンの海。夕日と合わせた映像がTikTokの「韓国旅行」タグで最多拡散スポット。季節を問わず映える。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/협재해변', kakao:'https://map.kakao.com/?q=협재해변', instagram:'https://www.instagram.com/explore/tags/협재해변/' },
+
+    { city:'jeju', name:'思麗尼 霧の森道',                  kr:'사려니숲길',             area:'제주시',   cat:'nature',  sns:['Instagram','YouTube'],
+      why:'濃霧が立ち込める幻想的な原生林。映画のワンシーンのような映像が「地球の穴場」として欧米SNSにも拡散。フィトンチッド効果でヒーリング旅行者に大人気。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/사려니숲길', kakao:'https://map.kakao.com/?q=사려니숲길', instagram:'https://www.instagram.com/explore/tags/사려니숲길/' },
+
+    { city:'jeju', name:'涉地可支 ドラマ聖地',              kr:'섭지코지',               area:'서귀포',   cat:'history', sns:['Instagram','YouTube'],
+      why:'「トッケビ」「ウ・ヨンウ弁護士は天才肌」などのロケ地。K-drama聖地巡礼として中・日・東南アジアから来訪急増。断崖と灯台の景観も絶景。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/섭지코지', kakao:'https://map.kakao.com/?q=섭지코지', instagram:'https://www.instagram.com/explore/tags/섭지코지/' },
+
+    { city:'jeju', name:'異湖 赤い灯台の夕暮れ',           kr:'이호테우해변 빨간등대', area:'제주시',   cat:'photo',   sns:['TikTok','Instagram'],
+      why:'夕暮れに赤い灯台と海がオレンジ色に染まる瞬間が「済州で一番映えるシーン」としてTikTok毎季バズり。背景が完璧すぎると話題の撮影スポット。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/이호테우해변', kakao:'https://map.kakao.com/?q=이호테우해변', instagram:'https://www.instagram.com/explore/tags/이호테우해변/' },
+
+    { city:'jeju', name:'オソルロク 緑茶畑',                kr:'오설록 티뮤지엄',        area:'서귀포',   cat:'nature',  sns:['Instagram','TikTok'],
+      why:'抹茶色の絨毯のような緑茶畑が韓国「힐링 여행지」1位常連。映えアイス抹茶ドリンクも定番。VisitKorea公式でも繰り返し特集される済州の顔。',
+      entry:'無料（館内ショップあり）', naver:'https://map.naver.com/v5/search/오설록티뮤지엄', kakao:'https://map.kakao.com/?q=오설록', instagram:'https://www.instagram.com/explore/tags/오설록티뮤지엄/' },
+
+    { city:'jeju', name:'새별岳 ススキ原',                   kr:'새별오름 억새',          area:'제주시',   cat:'nature',  sns:['Instagram','YouTube'],
+      why:'秋の夕暮れにススキが黄金色に輝く光景が「済州の秘境」として国内外で注目。日の出・日没登山がトレンドで、朝靄の中のシルエット写真が毎秋バズる。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/새별오름', kakao:'https://map.kakao.com/?q=새별오름', instagram:'https://www.instagram.com/explore/tags/새별오름억새/' },
+
+    { city:'jeju', name:'榧子林 千年の森',                   kr:'비자림',                 area:'제주시',   cat:'nature',  sns:['Instagram','TikTok'],
+      why:'樹齢500〜800年のビャクシン林。神秘的な「森の霊気」がYouTubeのヒーリングASMR動画で人気爆発。朝露に濡れた朝の映像が特に幻想的と話題。',
+      entry:'3,000₩', naver:'https://map.naver.com/v5/search/비자림', kakao:'https://map.kakao.com/?q=비자림', instagram:'https://www.instagram.com/explore/tags/비자림/' },
+
+    { city:'jeju', name:'月汀里カフェ海岸通り',             kr:'월정리 카페거리',        area:'제주시',   cat:'cafe',    sns:['Instagram','TikTok'],
+      why:'透明度抜群の北海岸沿いにカフェが集結。「아이스라테+월정리 감성」（アイスラテ持ちながら浜辺散歩）がInstagramの定番スタイルとして世界中に拡散中。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/월정리카페', kakao:'https://map.kakao.com/?q=월정리+카페', instagram:'https://www.instagram.com/explore/tags/월정리카페거리/' },
+
+    { city:'jeju', name:'城山日出峰 日の出',                 kr:'성산일출봉 일출',        area:'서귀포',   cat:'nature',  sns:['Instagram','YouTube'],
+      why:'世界遺産の火山丘から見る朝日が「人生の日の出ベスト1」と旅行者に絶大な支持。早起きの苦労を補う絶景として海外旅行YouTuberが必訪スポットに指定。',
+      entry:'5,000₩', naver:'https://map.naver.com/v5/search/성산일출봉', kakao:'https://map.kakao.com/?q=성산일출봉', instagram:'https://www.instagram.com/explore/tags/성산일출봉/' },
+
+    { city:'jeju', name:'漢拏山 白鹿潭',                     kr:'한라산 백록담',          area:'서귀포',   cat:'nature',  sns:['YouTube','Instagram'],
+      why:'山頂火口湖の絶景が秋の紅葉・冬の雪景色シーズンにYouTubeの韓国自然シリーズで世界的注目を集める。登山口によって難易度異なりルート比較投稿も多数。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/한라산', kakao:'https://map.kakao.com/?q=한라산', instagram:'https://www.instagram.com/explore/tags/한라산백록담/' },
+
+    // ── 慶州 ──────────────────────────────
+    { city:'gyeongju', name:'皇里丹路（ファンリダンギル）', kr:'황리단길',               area:'경주',     cat:'cafe',    sns:['Instagram','TikTok'],
+      why:'慶州の古墳群近くの古い路地がカフェ・ギャラリーに変身。「역사와 힙스터의 만남（歴史とヒップスターの出会い）」コンセプトがTikTokでバズり国内外から若者が殺到。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/황리단길', kakao:'https://map.kakao.com/?q=황리단길', instagram:'https://www.instagram.com/explore/tags/황리단길/' },
+
+    { city:'gyeongju', name:'東宮와月池 夜景',               kr:'동궁과 월지 야경',       area:'경주',     cat:'night',   sns:['Instagram','TikTok'],
+      why:'新羅時代の離宮跡のライトアップが「韓国で一番美しい夜景」としてInstagramを席巻。水面に映る幻想的な倒影が必撮スポットとして国内外で認知度急上昇。',
+      entry:'3,000₩', naver:'https://map.naver.com/v5/search/동궁과월지', kakao:'https://map.kakao.com/?q=동궁과월지', instagram:'https://www.instagram.com/explore/tags/동궁과월지/' },
+
+    { city:'gyeongju', name:'大陵苑 古墳散策',               kr:'대릉원 고분 산책',       area:'경주',     cat:'history', sns:['TikTok','YouTube'],
+      why:'巨大な古墳群を自由散策できる珍しい公園。「モンゴルの草原のよう」という異国感ある映像が外国人向けTikTokで拡散。夕暮れ時のシルエットが特に映える。',
+      entry:'3,000₩', naver:'https://map.naver.com/v5/search/대릉원', kakao:'https://map.kakao.com/?q=대릉원', instagram:'https://www.instagram.com/explore/tags/대릉원/' },
+
+    // ── 全州 ──────────────────────────────
+    { city:'jeonju', name:'全州韓屋村 早朝散策',             kr:'전주한옥마을 새벽',     area:'전주',     cat:'photo',   sns:['Instagram','TikTok'],
+      why:'早朝の韓屋村は観光客ゼロの静寂。朝靄の中の韓屋の風景が「KBSドラマのエンディングみたい」とSNSで拡散。韓服レンタルで早朝撮影が旅行者に人気急上昇。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/전주한옥마을', kakao:'https://map.kakao.com/?q=전주한옥마을', instagram:'https://www.instagram.com/explore/tags/전주한옥마을새벽/' },
+
+    { city:'jeonju', name:'慶基殿 夜景散策',                 kr:'경기전 야경',             area:'전주',     cat:'night',   sns:['Instagram','Naver Blog'],
+      why:'朝鮮太祖の肖像を祀る祠堂のライトアップが幻想的。夜間も入場可能で「全州で一番のフォトスポット」として韓服レンタル店の推薦No.1スポットになっている。',
+      entry:'3,000₩', naver:'https://map.naver.com/v5/search/경기전', kakao:'https://map.kakao.com/?q=경기전', instagram:'https://www.instagram.com/explore/tags/경기전야경/' },
+
+    { city:'jeonju', name:'豊南門 広場 夜市',                kr:'풍남문 야시장',           area:'전주',     cat:'photo',   sns:['TikTok','YouTube'],
+      why:'朝鮮時代の南大門横に開く夜市。屋台グルメと伝統建築のコントラストがTikTokの「야시장 vlog」でバズり中。全州特産チョコパイ・비빔밥バーガーが映え食として人気。',
+      entry:'無料', naver:'https://map.naver.com/v5/search/전주+풍남문+야시장', kakao:'https://map.kakao.com/?q=풍남문광장', instagram:'https://www.instagram.com/explore/tags/전주야시장/' },
+  ],
+};
 
 const FOODS = [
   {c:'meat',em:'🐖',jp:'サムギョプサル',kr:'삼겹살',desc:'豚バラの炭火BBQ。定番の韓国グルメ',pr:'15,000〜22,000₩/人前'},
@@ -1407,27 +1582,51 @@ function renderPhrases() {
     : '<div style="text-align:center;color:rgba(255,255,255,.3);padding:40px 0">フレーズが見つかりません</div>';
 }
 
-// ─── SPOTS ───
-let curCity = 'all';
-function setCity(city, btn) {
-  curCity = city;
-  document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('on'));
+// ─── SPOTS (SNSトレンド版) ───
+let curSpotCity = 'all';
+let curSpotCat  = 'all';
+function setSCity(city, btn) {
+  curSpotCity = city;
+  document.querySelectorAll('#scity-scroll .tcity-btn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
-  renderSpots();
+  renderTrendingSpots();
 }
-function renderSpots() {
-  const items = curCity === 'all' ? SPOTS : SPOTS.filter(s => s.city === curCity);
-  document.getElementById('slist').innerHTML = items.map(s => `
-    <div class="scard">
-      <div class="s-banner" style="background:linear-gradient(135deg,${s.bg},${s.bg}88)">${s.em}</div>
-      <div class="s-body">
-        <div class="s-nmjp">${s.name}</div>
-        <div class="s-nmkr">${s.kr}</div>
-        <div class="s-desc">${s.desc}</div>
-        <div class="s-tags">${s.tags.map(t => `<span class="s-tag">${t}</span>`).join('')}</div>
-        <a href="${s.map}" target="_blank" rel="noopener" class="mapbtn">🗺️ Google Mapsで見る</a>
+function setSCat(cat, btn) {
+  curSpotCat = cat;
+  document.querySelectorAll('#scat-scroll .scat-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderTrendingSpots();
+}
+function renderTrendingSpots() {
+  document.getElementById('spots-month-badge').textContent = TRENDING_SPOTS.month;
+  let items = TRENDING_SPOTS.items;
+  if (curSpotCity !== 'all') items = items.filter(s => s.city === curSpotCity);
+  if (curSpotCat  !== 'all') items = items.filter(s => s.cat  === curSpotCat);
+  const top = items.slice(0, 12);
+  document.getElementById('spots-list').innerHTML = top.map((s, i) => {
+    const rank  = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}`;
+    const isTop = i < 3;
+    const snsLabels = { TikTok:'🎵 TikTok', Instagram:'📸 Instagram', YouTube:'▶ YouTube', 'Naver Blog':'🟢 Naver Blog' };
+    return `<div class="tcard spot">
+      <div class="tcard-top">
+        <div class="tcard-names">
+          <div class="tcard-name">${s.name}</div>
+          <div class="tcard-kr">${s.kr} · ${s.area}</div>
+        </div>
+        <div class="tcard-rank${isTop ? ' top' : ''}">${rank}</div>
       </div>
-    </div>`).join('');
+      <div class="tcard-meta">
+        ${s.sns.map(n => `<span class="tmeta${n === 'TikTok' ? ' tmeta-hot' : ''}">${snsLabels[n] || n}</span>`).join('')}
+        ${s.entry ? `<span class="spot-entry${s.entry.startsWith('無料') ? ' spot-free' : ''}">${s.entry}</span>` : ''}
+      </div>
+      <div class="tcard-why">${s.why}</div>
+      <div class="tcard-btns">
+        <button class="tbtn tbtn-naver"  onclick="window.open('${s.naver}','_blank')">🟢 Naver</button>
+        <button class="tbtn tbtn-kakao"  onclick="window.open('${s.kakao}','_blank')">🟡 Kakao</button>
+        <button class="tbtn tbtn-insta"  onclick="window.open('${s.instagram}','_blank')">📸 Insta</button>
+      </div>
+    </div>`;
+  }).join('') || '<div style="text-align:center;color:rgba(255,255,255,.3);padding:40px 0">スポットが見つかりません</div>';
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2005,7 +2204,7 @@ if ('serviceWorker' in navigator) {
 fetchRates();
 calcCur();
 renderPhrases();
-renderSpots();
+renderTrendingSpots();
 renderFood();
 renderTrending();
 renderHospitals();

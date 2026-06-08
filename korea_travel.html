@@ -59,15 +59,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .hcs:active{transform:scale(.92)}
 .hcs-icon{font-size:28px;display:block;margin-bottom:7px;line-height:1}
 .hcs-title{font-size:11px;font-weight:700;color:#5A5870;display:block}
-.emg-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.emg-chip{border-radius:16px;padding:16px 8px;border:none;text-align:center;cursor:pointer;font-family:inherit;transition:transform .12s;-webkit-tap-highlight-color:transparent;width:100%}
-.emg-chip:active{transform:scale(.94)}
-.ec-icon{font-size:22px;display:block;margin-bottom:5px;line-height:1}
-.ec-num{font-size:21px;font-weight:800;display:block}
-.ec-lbl{font-size:10px;display:block;margin-top:3px;line-height:1.3;opacity:.8}
-.ecc-p{background:#FFF0F2;border:1.5px solid #FFCCD4;color:#C0304A}
-.ecc-f{background:#FFF5F0;border:1.5px solid #FFD8C0;color:#C05020}
-.ecc-i{background:#EEF6FF;border:1.5px solid #B8DCFF;color:#1A60A8}
+.emg-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:linear-gradient(135deg,#1A0A0A,#2A0A0A);border-radius:20px;padding:16px;box-shadow:0 4px 20px rgba(200,0,30,.18)}
+.emg-chip{border-radius:14px;padding:18px 6px 14px;border:none;text-align:center;cursor:pointer;font-family:inherit;transition:transform .12s,filter .12s;-webkit-tap-highlight-color:transparent;width:100%;position:relative;overflow:hidden}
+.emg-chip:active{transform:scale(.93);filter:brightness(.88)}
+.ec-icon{font-size:26px;display:block;margin-bottom:6px;line-height:1}
+.ec-num{font-size:24px;font-weight:900;display:block;letter-spacing:-0.5px}
+.ec-lbl{font-size:10px;font-weight:600;display:block;margin-top:4px;line-height:1.3;opacity:.9}
+.ecc-p{background:linear-gradient(145deg,#C8001E,#8B0015);color:#fff;box-shadow:0 3px 12px rgba(200,0,30,.5)}
+.ecc-f{background:linear-gradient(145deg,#E84000,#A83000);color:#fff;box-shadow:0 3px 12px rgba(232,64,0,.45)}
+.ecc-i{background:linear-gradient(145deg,#1A4DB8,#0A2F80);color:#fff;box-shadow:0 3px 12px rgba(26,77,184,.45)}
 .home-hosp-btns{display:flex;gap:8px;margin-bottom:12px}
 .home-hosp-btns .hosp-gps-btn{flex:1}
 
@@ -476,12 +476,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
     </button>
   </div>
 
-  <div class="home-sec-lbl">緊急通報</div>
+  <div class="home-sec-lbl" style="color:#C8001E;letter-spacing:1.5px">🚨 緊急通報</div>
   <div class="emg-strip">
     <button class="emg-chip ecc-p" onclick="callNum('112')">
-      <span class="ec-icon">🚨</span>
+      <span class="ec-icon">👮</span>
       <span class="ec-num">112</span>
-      <span class="ec-lbl">警察</span>
+      <span class="ec-lbl">警察・事件</span>
     </button>
     <button class="emg-chip ecc-f" onclick="callNum('119')">
       <span class="ec-icon">🚑</span>
@@ -489,9 +489,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
       <span class="ec-lbl">救急・消防</span>
     </button>
     <button class="emg-chip ecc-i" onclick="callNum('1330')">
-      <span class="ec-icon">ℹ️</span>
+      <span class="ec-icon">🗣️</span>
       <span class="ec-num">1330</span>
-      <span class="ec-lbl">観光案内<br>日本語可</span>
+      <span class="ec-lbl">観光通報<br>日本語OK</span>
     </button>
   </div>
 

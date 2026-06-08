@@ -1,7 +1,7 @@
 {
-  "name": "韓国旅行ツール",
-  "short_name": "韓国旅行",
-  "description": "韓国旅行に役立つ全機能を一括管理",
+  "name": "チョギヨ！",
+  "short_name": "チョギヨ",
+  "description": "저기요！韓国旅行オールインワンアプリ",
   "start_url": "./korea_travel.html",
   "display": "standalone",
   "orientation": "portrait",

@@ -239,6 +239,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .chip-scroll::-webkit-scrollbar{display:none}
 .chip{padding:8px 14px;border-radius:20px;border:1.5px solid #E0DFE8;background:#fff;font-size:13px;font-weight:500;white-space:nowrap;cursor:pointer;color:#6B7080;font-family:inherit;transition:all .15s;flex-shrink:0}
 .chip:active,.chip.picked{background:#E8627A;color:#fff;border-color:#E8627A}
+.food-genre-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none;margin-bottom:10px}
+.food-genre-scroll::-webkit-scrollbar{display:none}
+.food-genre-btn{padding:7px 14px;border-radius:20px;border:1.5px solid #E0DFE8;background:#fff;font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;color:#6B7080;font-family:inherit;transition:all .15s;flex-shrink:0}
+.food-genre-btn.on{background:#E8627A;color:#fff;border-color:#E8627A}
+.chip-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;min-height:36px}
 .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .svc-btn{padding:13px 10px;border:none;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:filter .12s}
 .svc-btn:active{filter:brightness(.9)}
@@ -834,23 +839,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
     <div class="sp-hint">※ キーワードか料理チップを選んでから押すと絞り込めます</div>
     <div class="sp-divider"></div>
 
-    <!-- Category quick picks -->
-    <div class="chip-scroll">
-      <button class="chip" onclick="pickChip('삼겹살',this)">🐖 삼겹살</button>
-      <button class="chip" onclick="pickChip('치킨',this)">🍗 치킨</button>
-      <button class="chip" onclick="pickChip('카페',this)">☕ カフェ</button>
-      <button class="chip" onclick="pickChip('냉면',this)">🍜 냉면</button>
-      <button class="chip" onclick="pickChip('갈비',this)">🥩 갈비</button>
-      <button class="chip" onclick="pickChip('비빔밥',this)">🍚 비빔밥</button>
-      <button class="chip" onclick="pickChip('순두부찌개',this)">🫕 순두부</button>
-      <button class="chip" onclick="pickChip('떡볶이',this)">🌶️ 떡볶이</button>
-      <button class="chip" onclick="pickChip('해물파전',this)">🥞 파전</button>
-      <button class="chip" onclick="pickChip('삼계탕',this)">🍲 삼계탕</button>
-      <button class="chip" onclick="pickChip('곱창',this)">🍖 곱창</button>
-      <button class="chip" onclick="pickChip('라멘',this)">🍜 ラーメン</button>
-      <button class="chip" onclick="pickChip('스시',this)">🍣 スシ</button>
-      <button class="chip" onclick="pickChip('디저트',this)">🍰 デザート</button>
+    <!-- ジャンル選択 -->
+    <div class="food-genre-scroll">
+      <button class="food-genre-btn on" onclick="setFoodGenre('all',this)">🍽️ すべて</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('bbq',this)">🔥 焼肉・肉</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('noodle',this)">🍜 麺・スープ</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('rice',this)">🍚 ご飯</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('street',this)">🌶️ 屋台</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('cafe',this)">☕ カフェ</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('seafood',this)">🌊 海鮮</button>
     </div>
+    <!-- チップエリア（ジャンルに応じて動的生成） -->
+    <div class="chip-wrap" id="food-chip-wrap"></div>
 
     <!-- Search service buttons -->
     <div class="svc-grid">
@@ -2270,6 +2270,98 @@ function getLocation() {
   );
 }
 
+// ─── FOOD GENRE ───
+const FOOD_GENRES = {
+  all: { chips: [
+    {kr:'삼겹살',  label:'🐖 삼겹살'},
+    {kr:'치킨',    label:'🍗 치킨'},
+    {kr:'카페',    label:'☕ 카페'},
+    {kr:'냉면',    label:'🍜 냉면'},
+    {kr:'갈비',    label:'🥩 갈비'},
+    {kr:'비빔밥',  label:'🍚 비빔밥'},
+    {kr:'떡볶이',  label:'🌶️ 떡볶이'},
+    {kr:'빙수',    label:'🧊 빙수'},
+    {kr:'게장',    label:'🦀 게장'},
+    {kr:'부대찌개',label:'🍲 부대찌개'},
+    {kr:'삼계탕',  label:'🍲 삼계탕'},
+    {kr:'곱창',    label:'🍖 곱창'},
+    {kr:'김밥',    label:'🌯 김밥'},
+    {kr:'순대',    label:'🌭 순대'},
+    {kr:'한정식',  label:'🎎 한정식'},
+    {kr:'디저트',  label:'🍰 디저트'},
+  ]},
+  bbq: { chips: [
+    {kr:'삼겹살',  label:'🐖 삼겹살'},
+    {kr:'갈비',    label:'🥩 갈비'},
+    {kr:'소고기',  label:'🥩 소고기'},
+    {kr:'돼지갈비',label:'🔥 돼지갈비'},
+    {kr:'불고기',  label:'🥩 불고기'},
+    {kr:'곱창',    label:'🍖 곱창'},
+    {kr:'치킨',    label:'🍗 치킨'},
+    {kr:'닭갈비',  label:'🍗 닭갈비'},
+  ]},
+  noodle: { chips: [
+    {kr:'냉면',    label:'🍜 냉면'},
+    {kr:'라면',    label:'🍜 라면'},
+    {kr:'칼국수',  label:'🍜 칼국수'},
+    {kr:'순두부찌개',label:'🫕 순두부'},
+    {kr:'부대찌개',label:'🍲 부대찌개'},
+    {kr:'삼계탕',  label:'🍲 삼계탕'},
+    {kr:'감자탕',  label:'🦴 감자탕'},
+    {kr:'설렁탕',  label:'🍲 설렁탕'},
+  ]},
+  rice: { chips: [
+    {kr:'비빔밥',     label:'🍚 비빔밥'},
+    {kr:'돌솥비빔밥', label:'🍲 돌솥비빔밥'},
+    {kr:'김밥',       label:'🌯 김밥'},
+    {kr:'볶음밥',     label:'🍳 볶음밥'},
+    {kr:'한정식',     label:'🎎 한정식'},
+    {kr:'쌀국수',     label:'🍜 쌀국수'},
+  ]},
+  street: { chips: [
+    {kr:'떡볶이',  label:'🌶️ 떡볶이'},
+    {kr:'해물파전',label:'🥞 파전'},
+    {kr:'순대',    label:'🌭 순대'},
+    {kr:'호떡',    label:'🥞 호떡'},
+    {kr:'붕어빵',  label:'🐟 붕어빵'},
+    {kr:'튀김',    label:'🍤 튀김'},
+    {kr:'포장마차',label:'🏮 포장마차'},
+  ]},
+  cafe: { chips: [
+    {kr:'카페',      label:'☕ 카페'},
+    {kr:'빙수',      label:'🧊 빙수'},
+    {kr:'디저트',    label:'🍰 디저트'},
+    {kr:'달고나',    label:'🍬 달고나'},
+    {kr:'마카롱',    label:'🌸 마카롱'},
+    {kr:'케이크',    label:'🎂 케이크'},
+    {kr:'아이스크림',label:'🍦 아이스크림'},
+    {kr:'베이커리',  label:'🥐 베이커리'},
+  ]},
+  seafood: { chips: [
+    {kr:'회',      label:'🐟 회'},
+    {kr:'게장',    label:'🦀 게장'},
+    {kr:'해물탕',  label:'🦞 해물탕'},
+    {kr:'굴',      label:'🦪 굴'},
+    {kr:'고등어',  label:'🐠 고등어'},
+    {kr:'해물파전',label:'🥞 해물파전'},
+    {kr:'생선구이',label:'🐟 생선구이'},
+  ]},
+};
+let curFoodGenre = 'all';
+
+function setFoodGenre(genre, btn) {
+  curFoodGenre = genre;
+  document.querySelectorAll('.food-genre-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  renderFoodChips();
+}
+
+function renderFoodChips() {
+  const chips = FOOD_GENRES[curFoodGenre]?.chips || FOOD_GENRES.all.chips;
+  document.getElementById('food-chip-wrap').innerHTML =
+    chips.map(c => `<button class="chip" onclick="pickChip('${c.kr}',this)">${c.label}</button>`).join('');
+}
+
 function pickChip(query, btn) {
   document.getElementById('rest-q').value = query;
   document.querySelectorAll('.chip').forEach(c => c.classList.remove('picked'));
@@ -2784,7 +2876,7 @@ fetchRates();
 calcCur();
 renderPhrases();
 renderTrendingSpots();
-renderFood();
+renderFoodChips();
 renderTrending();
 renderHospitals();
 renderStChips();

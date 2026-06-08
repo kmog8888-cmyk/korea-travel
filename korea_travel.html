@@ -1433,7 +1433,9 @@ async function fetchRates() {
     document.getElementById('rv-EUR').value = Math.round(eur);
     document.getElementById('rv-CNY').value = cny.toFixed(1);
     const b = document.getElementById('rbadge');
-    b.textContent = '✅ 最新レート';
+    const now = new Date();
+    const ts = `${now.getMonth()+1}/${now.getDate()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')} 取得`;
+    b.textContent = '✅ ' + ts;
     b.className = 'rate-badge2 rate-ok';
     calcCur();
   } catch {

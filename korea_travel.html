@@ -239,7 +239,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .svc-mango{background:#FF6B35;color:#fff}
 .svc-baemin{background:#2AC1BC;color:#fff}
 .svc-coupang{background:#C00D45;color:#fff}
-.food-guide-label{font-size:12px;font-weight:700;color:#A8AFBF;letter-spacing:1px;text-transform:uppercase;margin:20px 0 10px}
 
 /* ─── AREA SUB-FILTER ─── */
 .sarea-scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px;padding-bottom:2px;margin-top:-6px}
@@ -282,15 +281,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .tcity-scroll::-webkit-scrollbar{display:none}
 .tcity-btn{padding:7px 16px;border-radius:20px;border:1.5px solid #E0DFE8;background:#fff;font-size:13px;font-weight:600;white-space:nowrap;cursor:pointer;color:#6B7080;font-family:inherit;transition:all .15s;flex-shrink:0}
 .tcity-btn.on{background:#E8627A;color:#fff;border-color:#E8627A}
-
-/* ─── FOOD TAB ─── */
-.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.fcard{background:#fff;border-radius:16px;padding:14px;border:1px solid #F0EFF5;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-.f-em{font-size:34px;margin-bottom:8px}
-.f-jp{font-size:14px;font-weight:700;color:#1A1825}
-.f-kr{font-size:12px;color:#9395A5}
-.f-desc{font-size:12px;color:#6B7080;line-height:1.5;margin-top:6px}
-.f-pr{display:inline-block;font-size:11px;font-weight:600;color:#C06030;background:#FFF5F0;padding:2px 7px;border-radius:6px;margin-top:6px}
 
 /* ─── TRANSIT ─── */
 .transit-card{background:#fff;border:1px solid #F0EFF5;border-radius:20px;padding:18px 16px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,.05)}
@@ -839,16 +829,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
     </div>
   </div>
 
-  <!-- FOOD GUIDE -->
-  <div class="food-guide-label">料理ガイド</div>
-  <div class="cscroll" id="fcat-scroll">
-    <button class="cbtn on" onclick="setFood('all',this)">すべて</button>
-    <button class="cbtn" onclick="setFood('meat',this)">🥩 肉料理</button>
-    <button class="cbtn" onclick="setFood('rice',this)">🍚 麺・ご飯</button>
-    <button class="cbtn" onclick="setFood('street',this)">🍡 屋台</button>
-    <button class="cbtn" onclick="setFood('drink',this)">🍺 飲み物</button>
-  </div>
-  <div id="fgrid" class="fgrid"></div>
 
 </section>
 
@@ -1636,24 +1616,6 @@ const TRENDING_SPOTS = {
   ],
 };
 
-const FOODS = [
-  {c:'meat',em:'🐖',jp:'サムギョプサル',kr:'삼겹살',desc:'豚バラの炭火BBQ。定番の韓国グルメ',pr:'15,000〜22,000₩/人前'},
-  {c:'meat',em:'🥩',jp:'カルビ',kr:'갈비',desc:'牛カルビの炭火焼き。甘醤油タレが人気',pr:'20,000〜40,000₩/人前'},
-  {c:'meat',em:'🍖',jp:'プルゴギ',kr:'불고기',desc:'甘辛タレ漬け牛肉の炒め焼き',pr:'12,000〜18,000₩'},
-  {c:'meat',em:'🍗',jp:'タッカルビ',kr:'닭갈비',desc:'鶏肉のコチュジャン辛味炒め',pr:'12,000〜15,000₩'},
-  {c:'rice',em:'🍚',jp:'ビビンバ',kr:'비빔밥',desc:'野菜・肉・コチュジャンの混ぜご飯',pr:'10,000〜15,000₩'},
-  {c:'rice',em:'🍜',jp:'ネンミョン',kr:'냉면',desc:'そば粉の冷麺。水冷麺・混ぜ冷麺',pr:'10,000〜14,000₩'},
-  {c:'rice',em:'🫕',jp:'スンドゥブチゲ',kr:'순두부찌개',desc:'柔らかい豆腐の辛いチゲ',pr:'8,000〜12,000₩'},
-  {c:'rice',em:'🍲',jp:'サムゲタン',kr:'삼계탕',desc:'丸鶏を高麗人参・もち米で煮込んだ滋養スープ',pr:'15,000〜20,000₩'},
-  {c:'street',em:'🌶️',jp:'トッポッキ',kr:'떡볶이',desc:'辛甘ソースの餅炒め。屋台の王道',pr:'3,000〜5,000₩'},
-  {c:'street',em:'🍗',jp:'韓国チキン',kr:'치킨',desc:'二度揚げのサクサクフライドチキン',pr:'18,000〜25,000₩/羽'},
-  {c:'street',em:'🥞',jp:'ホットク',kr:'호떡',desc:'黒糖・ナッツ入りのもちもちパンケーキ',pr:'1,000〜2,000₩'},
-  {c:'street',em:'🐟',jp:'プンオパン',kr:'붕어빵',desc:'鯉型のたい焼き。あんこ・クリームなど',pr:'1,000〜2,000₩'},
-  {c:'drink',em:'🍧',jp:'パッピンス',kr:'빙수',desc:'牛乳かき氷にあんこ・フルーツ・モチ',pr:'10,000〜18,000₩'},
-  {c:'drink',em:'🥃',jp:'ソジュ',kr:'소주',desc:'韓国の国民的焼酎。度数16〜25%',pr:'1,500〜3,000₩/本'},
-  {c:'drink',em:'🍶',jp:'マッコリ',kr:'막걸리',desc:'米の伝統醸造酒。甘酸っぱい',pr:'3,000〜5,000₩/本'},
-];
-
 // ─── PHRASES ───
 let curCat = 'all';
 function setCat(cat, btn) {
@@ -2012,25 +1974,6 @@ function searchRest(svc) {
 }
 
 // ─── FOOD ───
-let curFood = 'all';
-function setFood(cat, btn) {
-  curFood = cat;
-  document.querySelectorAll('#fcat-scroll .cbtn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-  renderFood();
-}
-function renderFood() {
-  const items = curFood === 'all' ? FOODS : FOODS.filter(f => f.c === curFood);
-  document.getElementById('fgrid').innerHTML = items.map(f => `
-    <div class="fcard">
-      <div class="f-em">${f.em}</div>
-      <div class="f-jp">${f.jp}</div>
-      <div class="f-kr">${f.kr}</div>
-      <div class="f-desc">${f.desc}</div>
-      <span class="f-pr">${f.pr}</span>
-    </div>`).join('');
-}
-
 // ─── TRANSIT ───
 const STATIONS = {
   seoul: [

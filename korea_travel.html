@@ -238,6 +238,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .svc-coupang{background:#C00D45;color:#fff}
 .food-guide-label{font-size:12px;font-weight:700;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase;margin:20px 0 10px}
 
+/* ─── AREA SUB-FILTER ─── */
+.sarea-scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px;padding-bottom:2px;margin-top:-6px}
+.sarea-scroll::-webkit-scrollbar{display:none}
+.sarea-btn{padding:4px 10px;border-radius:12px;border:1.5px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);font-size:11px;font-weight:600;white-space:nowrap;cursor:pointer;color:rgba(255,255,255,.5);font-family:inherit;transition:all .15s;flex-shrink:0}
+.sarea-btn.on{background:rgba(8,145,178,.3);color:#7FD4F5;border-color:rgba(8,145,178,.8)}
 /* ─── SPOT TRENDING ─── */
 .scat-scroll{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:14px;padding-bottom:2px}
 .scat-scroll::-webkit-scrollbar{display:none}
@@ -629,6 +634,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
       <button class="tcity-btn" onclick="setSCity('gyeongju',this)">🏛️ 慶州</button>
       <button class="tcity-btn" onclick="setSCity('jeonju',this)">🏘️ 全州</button>
     </div>
+    <!-- エリアフィルター（都市選択時に動的生成） -->
+    <div class="sarea-scroll" id="sarea-scroll" style="display:none"></div>
 
     <!-- カテゴリフィルター -->
     <div class="scat-scroll" id="scat-scroll">
@@ -667,6 +674,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
       <button class="tcity-btn" onclick="setTCity('gyeongju',this)">🏛️ 慶州</button>
       <button class="tcity-btn" onclick="setTCity('jeonju',this)">🍱 全州</button>
     </div>
+    <!-- エリアフィルター（都市選択時に動的生成） -->
+    <div class="sarea-scroll" id="tarea-scroll" style="display:none"></div>
     <div id="trend-list"></div>
   </div>
 
@@ -1582,12 +1591,58 @@ function renderPhrases() {
     : '<div style="text-align:center;color:rgba(255,255,255,.3);padding:40px 0">フレーズが見つかりません</div>';
 }
 
+// ─── エリアラベル（韓国語 → 日本語表示） ───
+const AREA_LABELS = {
+  // ソウル
+  '성수동':'聖水洞','을지로':'乙支路','연남동':'延南洞','종로':'鍾路',
+  '노들섬':'鷺梁島','동대문':'東大門','망원':'望遠','망원동':'望遠洞',
+  '북촌':'北村','광장시장':'廣場市場','익선동':'益善洞','삼청동':'三清洞',
+  '홍대':'弘大','강남':'江南','마포':'麻浦','이태원':'梨泰院',
+  '압구정':'狎鷗亭','신사동':'新沙洞','한남동':'漢南洞','용산':'龍山',
+  // 釜山
+  '영도':'影島','해운대':'海雲台','청사포':'淸沙浦','기장':'機張',
+  '수영구':'水営区','서구':'西区','초량':'草梁','광안리':'廣安里',
+  '사하구':'沙下区','중구':'中区','남포동':'南浦洞','서면':'西面',
+  '자갈치':'チャガルチ','센텀시티':'センタム','감천':'甘川','부산진':'釜山鎮',
+  // 済州島
+  '제주시':'済州市','서귀포':'西帰浦','우도':'牛島','구좌읍':'旧左邑',
+  '애월읍':'涯月邑','성산읍':'城山邑','협재':'挾才','제주시내':'済州市内',
+  // 慶州
+  '경주':'慶州全域','황남동':'皇南洞','교동':'校洞','대릉원':'大陵苑',
+  // 全州
+  '전주':'全州全域','한옥마을':'韓屋村',
+};
+function _areaLabel(kr) { return AREA_LABELS[kr] || kr; }
+
+// エリアフィルターを動的に生成する共通関数
+function buildAreaScroll(scrollId, city, dataset, curArea, setFnName) {
+  const el = document.getElementById(scrollId);
+  if (city === 'all') { el.style.display = 'none'; el.innerHTML = ''; return; }
+  const areas = [...new Set(dataset.filter(s => s.city === city).map(s => s.area))];
+  if (areas.length <= 1) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.innerHTML =
+    `<button class="sarea-btn${curArea === 'all' ? ' on' : ''}" onclick="${setFnName}('all',this)">すべて</button>` +
+    areas.map(a =>
+      `<button class="sarea-btn${curArea === a ? ' on' : ''}" onclick="${setFnName}('${a}',this)">${_areaLabel(a)}</button>`
+    ).join('');
+  el.style.display = 'flex';
+}
+
 // ─── SPOTS (SNSトレンド版) ───
 let curSpotCity = 'all';
+let curSpotArea = 'all';
 let curSpotCat  = 'all';
 function setSCity(city, btn) {
   curSpotCity = city;
+  curSpotArea = 'all';
   document.querySelectorAll('#scity-scroll .tcity-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  buildAreaScroll('sarea-scroll', city, TRENDING_SPOTS.items, curSpotArea, 'setSArea');
+  renderTrendingSpots();
+}
+function setSArea(area, btn) {
+  curSpotArea = area;
+  document.querySelectorAll('#sarea-scroll .sarea-btn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   renderTrendingSpots();
 }
@@ -1601,6 +1656,7 @@ function renderTrendingSpots() {
   document.getElementById('spots-month-badge').textContent = TRENDING_SPOTS.month;
   let items = TRENDING_SPOTS.items;
   if (curSpotCity !== 'all') items = items.filter(s => s.city === curSpotCity);
+  if (curSpotArea !== 'all') items = items.filter(s => s.area === curSpotArea);
   if (curSpotCat  !== 'all') items = items.filter(s => s.cat  === curSpotCat);
   const top = items.slice(0, 12);
   document.getElementById('spots-list').innerHTML = top.map((s, i) => {
@@ -1687,9 +1743,18 @@ const TRENDING = {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 let curTCity = 'all';
+let curTArea = 'all';
 function setTCity(city, btn) {
   curTCity = city;
+  curTArea = 'all';
   document.querySelectorAll('#tcity-scroll .tcity-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  buildAreaScroll('tarea-scroll', city, TRENDING.items, curTArea, 'setTArea');
+  renderTrending();
+}
+function setTArea(area, btn) {
+  curTArea = area;
+  document.querySelectorAll('#tarea-scroll .sarea-btn').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
   renderTrending();
 }
@@ -1697,8 +1762,9 @@ function setTCity(city, btn) {
 function renderTrending() {
   document.getElementById('trend-month-badge').textContent = TRENDING.month;
   const el = document.getElementById('trend-list');
-  const all = TRENDING.items;
-  const filtered = curTCity === 'all' ? all : all.filter(r => r.city === curTCity);
+  let filtered = TRENDING.items;
+  if (curTCity !== 'all') filtered = filtered.filter(r => r.city === curTCity);
+  if (curTArea !== 'all') filtered = filtered.filter(r => r.area === curTArea);
   const items = filtered.slice(0, 10);
 
   if (!items.length) {

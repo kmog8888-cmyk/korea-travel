@@ -59,7 +59,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .hcs:active{transform:scale(.92)}
 .hcs-icon{font-size:28px;display:block;margin-bottom:7px;line-height:1}
 .hcs-title{font-size:11px;font-weight:700;color:#5A5870;display:block}
-.emg-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:linear-gradient(135deg,#1A0A0A,#2A0A0A);border-radius:20px;padding:16px;box-shadow:0 4px 20px rgba(200,0,30,.18)}
+.emg-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:linear-gradient(135deg,#1A0A0A,#2A0A0A);border-radius:20px;padding:14px;box-shadow:0 4px 20px rgba(200,0,30,.18)}
 .emg-chip{border-radius:14px;padding:18px 6px 14px;border:none;text-align:center;cursor:pointer;font-family:inherit;transition:transform .12s,filter .12s;-webkit-tap-highlight-color:transparent;width:100%;position:relative;overflow:hidden}
 .emg-chip:active{transform:scale(.93);filter:brightness(.88)}
 .ec-icon{font-size:26px;display:block;margin-bottom:6px;line-height:1}
@@ -68,6 +68,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .ecc-p{background:linear-gradient(145deg,#C8001E,#8B0015);color:#fff;box-shadow:0 3px 12px rgba(200,0,30,.5)}
 .ecc-f{background:linear-gradient(145deg,#E84000,#A83000);color:#fff;box-shadow:0 3px 12px rgba(232,64,0,.45)}
 .ecc-i{background:linear-gradient(145deg,#1A4DB8,#0A2F80);color:#fff;box-shadow:0 3px 12px rgba(26,77,184,.45)}
+.ecc-h{background:linear-gradient(145deg,#0A7A4A,#065530);color:#fff;box-shadow:0 3px 12px rgba(10,122,74,.45)}
+.hosp-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:flex-end;justify-content:center}
+.hosp-modal-overlay.open{display:flex}
+.hosp-modal{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;padding:20px 16px 32px;box-sizing:border-box}
+.hosp-modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.hosp-modal-title{font-size:18px;font-weight:800;color:#1A1A2E}
+.hosp-modal-close{background:none;border:none;font-size:24px;cursor:pointer;color:#888;padding:0;line-height:1}
 .home-hosp-btns{display:flex;gap:8px;margin-bottom:12px}
 .home-hosp-btns .hosp-gps-btn{flex:1}
 
@@ -283,6 +290,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
 .tcard-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .tmeta{font-size:11px;padding:3px 9px;border-radius:8px;background:#F0EFF5;color:#7A7890}
 .tmeta-hot{background:#FFF0F2;color:#C04858}
+.tmeta-related{background:#F0F4FF;color:#3B5BDB}
+.tcard-extra{opacity:.88;border-left:3px solid #B0BEC5}
 .tcard-why{font-size:13px;color:#6B7080;line-height:1.6;margin-bottom:12px}
 .tcard-btns{display:flex;gap:8px}
 .tbtn{flex:1;padding:9px;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:filter .12s}
@@ -526,25 +535,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
       <span class="ec-num">1330</span>
       <span class="ec-lbl">観光通報<br>日本語OK</span>
     </button>
-  </div>
-
-  <div class="home-sec-lbl" style="margin-top:24px">病院を探す</div>
-  <div class="home-hosp-btns">
-    <button class="hosp-gps-btn" onclick="searchHospGPS('naver')"><span>📍</span>現在地から（Naver）</button>
-    <button class="hosp-gps-btn" onclick="searchHospGPS('google')" style="background:linear-gradient(135deg,#4285F4,#1A6AE8)"><span>🗺️</span>Google</button>
-  </div>
-  <div class="hosp-city-scroll" id="hcity-scroll">
-    <button class="hcity-btn on" onclick="setHCity('seoul',this)">🏙️ ソウル</button>
-    <button class="hcity-btn" onclick="setHCity('busan',this)">🌊 釜山</button>
-    <button class="hcity-btn" onclick="setHCity('jeju',this)">🌴 済州島</button>
-  </div>
-  <div id="hosp-list"></div>
-  <div class="hosp-note">
-    <strong>救急の場合 → まず119に電話！</strong><br>
-    「119」は24時間対応・英語可。重症の場合は自力で移動せず救急車を呼んでください。
+    <button class="emg-chip ecc-h" onclick="openHospModal()">
+      <span class="ec-icon">🏥</span>
+      <span class="ec-num" style="font-size:13px">病院</span>
+      <span class="ec-lbl">近くの<br>病院を探す</span>
+    </button>
   </div>
 
 </section>
+
+<!-- 病院モーダル -->
+<div class="hosp-modal-overlay" id="hosp-modal-overlay" onclick="closeHospModal(event)">
+  <div class="hosp-modal">
+    <div class="hosp-modal-hdr">
+      <span class="hosp-modal-title">🏥 病院を探す</span>
+      <button class="hosp-modal-close" onclick="closeHospModal()">✕</button>
+    </div>
+    <div class="home-hosp-btns">
+      <button class="hosp-gps-btn" onclick="searchHospGPS('naver')"><span>📍</span>現在地から（Naver）</button>
+      <button class="hosp-gps-btn" onclick="searchHospGPS('google')" style="background:linear-gradient(135deg,#4285F4,#1A6AE8)"><span>🗺️</span>Google</button>
+    </div>
+    <div class="hosp-city-scroll" id="hcity-scroll">
+      <button class="hcity-btn on" onclick="setHCity('seoul',this)">🏙️ ソウル</button>
+      <button class="hcity-btn" onclick="setHCity('busan',this)">🌊 釜山</button>
+      <button class="hcity-btn" onclick="setHCity('jeju',this)">🌴 済州島</button>
+    </div>
+    <div id="hosp-list"></div>
+    <div class="hosp-note">
+      <strong>救急の場合 → まず119に電話！</strong><br>
+      「119」は24時間対応・英語可。重症の場合は自力で移動せず救急車を呼んでください。
+    </div>
+  </div>
+</div>
 
 <!-- ══════════════════════════════
      LAUNCHER (アプリ起動)
@@ -790,13 +812,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
     <!-- ジャンルフィルター -->
     <div class="food-genre-scroll" id="tgenre-scroll">
       <button class="food-genre-btn on" onclick="setTGenre('all',this)">🍽️ すべて</button>
-      <button class="food-genre-btn" onclick="setTGenre('bbq',this)">🔥 焼肉・肉</button>
-      <button class="food-genre-btn" onclick="setTGenre('noodle',this)">🍜 麺・スープ</button>
-      <button class="food-genre-btn" onclick="setTGenre('rice',this)">🍚 ご飯</button>
-      <button class="food-genre-btn" onclick="setTGenre('cafe',this)">☕ カフェ</button>
-      <button class="food-genre-btn" onclick="setTGenre('seafood',this)">🌊 海鮮</button>
-      <button class="food-genre-btn" onclick="setTGenre('street',this)">🌶️ 屋台</button>
-      <button class="food-genre-btn" onclick="setTGenre('bar',this)">🍷 バー</button>
+      <button class="food-genre-btn" onclick="setTGenre('bbq',this)">🥩 サムギョプサル・カルビ</button>
+      <button class="food-genre-btn" onclick="setTGenre('tteok',this)">🌶️ トッポギ・粉食</button>
+      <button class="food-genre-btn" onclick="setTGenre('mala',this)">🫕 マラタン・異国飯</button>
+      <button class="food-genre-btn" onclick="setTGenre('omakase',this)">🦞 オマカセ・海鮮</button>
+      <button class="food-genre-btn" onclick="setTGenre('cafe',this)">☕ カフェ・スイーツ</button>
+      <button class="food-genre-btn" onclick="setTGenre('pocha',this)">🍺 ポジャンマチャ・酒</button>
+      <button class="food-genre-btn" onclick="setTGenre('hansik',this)">🍱 韓食・ビビンバ</button>
     </div>
     <div id="trend-list"></div>
   </div>
@@ -853,12 +875,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Noto Sans JP'
     <!-- ジャンル選択 -->
     <div class="food-genre-scroll">
       <button class="food-genre-btn on" onclick="setFoodGenre('all',this)">🍽️ すべて</button>
-      <button class="food-genre-btn" onclick="setFoodGenre('bbq',this)">🔥 焼肉・肉</button>
-      <button class="food-genre-btn" onclick="setFoodGenre('noodle',this)">🍜 麺・スープ</button>
-      <button class="food-genre-btn" onclick="setFoodGenre('rice',this)">🍚 ご飯</button>
-      <button class="food-genre-btn" onclick="setFoodGenre('street',this)">🌶️ 屋台</button>
-      <button class="food-genre-btn" onclick="setFoodGenre('cafe',this)">☕ カフェ</button>
-      <button class="food-genre-btn" onclick="setFoodGenre('seafood',this)">🌊 海鮮</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('bbq',this)">🥩 サムギョプサル・カルビ</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('tteok',this)">🌶️ トッポギ・粉食</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('mala',this)">🫕 マラタン・異国飯</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('omakase',this)">🦞 オマカセ・海鮮</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('cafe',this)">☕ カフェ・スイーツ</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('pocha',this)">🍺 ポジャンマチャ・酒</button>
+      <button class="food-genre-btn" onclick="setFoodGenre('hansik',this)">🍱 韓食・ビビンバ</button>
     </div>
     <!-- チップエリア（ジャンルに応じて動的生成） -->
     <div class="chip-wrap" id="food-chip-wrap"></div>
@@ -1536,6 +1559,18 @@ const HOSPITALS = {
 };
 let curHCity = 'seoul';
 
+function openHospModal() {
+  const overlay = document.getElementById('hosp-modal-overlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderHospitals();
+}
+function closeHospModal(e) {
+  if (e && e.target !== document.getElementById('hosp-modal-overlay')) return;
+  document.getElementById('hosp-modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
 function setHCity(city, btn) {
   curHCity = city;
   document.querySelectorAll('.hcity-btn').forEach(b => b.classList.remove('on'));
@@ -2196,6 +2231,227 @@ const TRENDING = {
     { city:'jeonju', name:'全州ビビンバ元祖',  kr:'전주비빔밥원조',  area:'한옥마을',  cat:'🍚 비빔밥',   sns:['YouTube','Instagram','TikTok'], why:'전주 한옥마을의 원조 비빔밥집이 해외 유튜버 방문으로 다시 부각。全州韓屋村の元祖ビビンバ店が海外YouTuberの訪問で再び大注目。', price:'13,000〜18,000₩', naver:'https://map.naver.com/v5/search/전주+비빔밥', kakao:'https://map.kakao.com/?q=전주비빔밥', instagram:'https://www.instagram.com/explore/tags/전주비빔밥/' },
     { city:'jeonju', name:'全州韓屋村屋台',   kr:'한옥마을야시장', area:'한옥마을',  cat:'🌃 야시장',   sns:['TikTok','Instagram'],    why:'야경과 먹거리가 결합된 한옥마을 야시장이 국내외 SNS에서 동시 바이럴。夜景と屋台が融合した韓屋村夜市が国内外SNSで同時拡散。',       price:'2,000〜8,000₩',  naver:'https://map.naver.com/v5/search/전주+한옥마을+야시장', kakao:'https://map.kakao.com/?q=전주한옥마을', instagram:'https://www.instagram.com/explore/tags/전주한옥마을/' },
     { city:'jeonju', name:'全州コンナムルクッパ',kr:'전주콩나물국밥', area:'중앙동',    cat:'🍲 콩나물국밥',sns:['Naver Blog','YouTube'],  why:'해장국으로 유명한 전주 콩나물국밥이 아침 해장 문화와 함께 SNS에서 재조명。解宿文化と共に全州のもやし解宿スープが全国で再評価。',  price:'8,000〜11,000₩', naver:'https://map.naver.com/v5/search/전주+콩나물국밥', kakao:'https://map.kakao.com/?q=전주+콩나물국밥', instagram:'https://www.instagram.com/explore/tags/전주맛집/' },
+    // ── ソウル追加（麺・スープ）────────────────
+    { city:'seoul', name:'을밀대 冷麺',          kr:'을밀대',           area:'마포',      cat:'🍜 냉면',     sns:['Naver Blog','YouTube'],  why:'창업 60년 평양냉면의 성지。創業60年以上の老舗平壌冷麺。シンプルな見た目に反する奥深い出汁がグルメ通に絶大な支持を受け、週末は必ず行列ができる名店。',              price:'14,000〜17,000₩', naver:'https://map.naver.com/v5/search/을밀대+냉면', instagram:'https://www.instagram.com/explore/tags/을밀대/' },
+    { city:'seoul', name:'明洞餃子 カルグクス',   kr:'명동교자',         area:'명동',      cat:'🍜 칼국수',   sns:['YouTube','TikTok'],      why:'60년 전통 칼국수·만두 전문점으로 외국인 관광객 필수 방문지。創業60年のカルグクス専門店が外国人旅行者の「ソウル名物グルメ」として海外YouTubeで何度も紹介される必訪名店。', price:'10,000〜14,000₩', naver:'https://map.naver.com/v5/search/명동교자', instagram:'https://www.instagram.com/explore/tags/명동교자/' },
+    { city:'seoul', name:'광화문 콩나물국밥',    kr:'광화문콩나물국밥',  area:'광화문',    cat:'🍲 콩나물국밥',sns:['Naver Blog'],             why:'광화문 직장인들의 해장 성지。광화문サラリーマンの解宿聖地。숙취 해소에 최고라는 소문이 관광객에게까지 퍼져 주말에도 줄이 서는 서울 대표 해장 메뉴。',                   price:'8,000〜11,000₩', naver:'https://map.naver.com/v5/search/광화문+콩나물국밥', instagram:'https://www.instagram.com/explore/tags/광화문맛집/' },
+    { city:'seoul', name:'종로 순대국 골목',      kr:'종로순대국',        area:'종로',      cat:'🍲 순대국',   sns:['YouTube','Naver Blog'],  why:'종로 3가 시장 골목의 진한 순대국밥 골목。종로3가市場の路地に集まる濃厚スンデクッパの店が「ソウルの昭和感ある食体験」として旅行者に人気急上昇。',                      price:'9,000〜12,000₩', naver:'https://map.naver.com/v5/search/종로+순대국', instagram:'https://www.instagram.com/explore/tags/종로맛집/' },
+    { city:'seoul', name:'강남 라멘 골목',        kr:'강남라멘',          area:'강남',      cat:'🍜 라멘',     sns:['TikTok','Instagram'],    why:'강남 뒷골목에 숨은 일본식 라멘 맛집들이 MZ세대 사이에서 입소문 중。江南の路地裏に点在する本格ラーメン店がZ世代の間で口コミ拡散し外国人にも大人気。',                   price:'13,000〜18,000₩', naver:'https://map.naver.com/v5/search/강남+라멘', instagram:'https://www.instagram.com/explore/tags/강남라멘/' },
+    { city:'seoul', name:'이태원 쌀국수 골목',    kr:'이태원쌀국수',      area:'이태원',    cat:'🍜 쌀국수',   sns:['Instagram','Naver Blog'],why:'이태원 글로벌 음식 거리의 정통 베트남 쌀국수。梨泰院の多国籍グルメストリートで食べる本格ベトナムフォー。現地出身シェフが作る骨スープが外国人にも評判。',             price:'11,000〜15,000₩', naver:'https://map.naver.com/v5/search/이태원+쌀국수', instagram:'https://www.instagram.com/explore/tags/이태원쌀국수/' },
+    { city:'seoul', name:'성수 우동',             kr:'성수우동',          area:'성수동',    cat:'🍜 우동',     sns:['Instagram','TikTok'],    why:'성수 감성의 공간에서 즐기는 수제 우동이 TikTok에서 화제。成水のオシャレ空間で食べる手打ちうどんが「韓国でこんな本格うどんが食べられる」と食レポ動画でバズる。',          price:'12,000〜17,000₩', naver:'https://map.naver.com/v5/search/성수+우동', instagram:'https://www.instagram.com/explore/tags/성수동맛집/' },
+    { city:'seoul', name:'신설동 설렁탕',          kr:'신설동설렁탕',      area:'동대문',    cat:'🍲 설렁탕',   sns:['Naver Blog','YouTube'],  why:'새벽 4시부터 영업하는 전통 설렁탕 노포。深夜4時から営業する伝統ソルロンタンの老舗がグルメYouTuberに発掘され「ソウルの夜明けグルメ」として一躍有名に。',               price:'10,000〜14,000₩', naver:'https://map.naver.com/v5/search/신설동+설렁탕', instagram:'https://www.instagram.com/explore/tags/설렁탕맛집/' },
+    // ── ソウル追加（ご飯・韓食）────────────────
+    { city:'seoul', name:'北村 한정식',            kr:'북촌한정식',        area:'북촌',      cat:'🍚 한정식',   sns:['Instagram','Naver Blog'],why:'한옥에서 즐기는 코스형 한정식이 외국인 관광객 사이에서 인기 폭발。韓屋でいただくコース形式の韓定食が外国人旅行者に大人気。景福宮散策後の必訪グルメとして定着。',          price:'45,000〜80,000₩', naver:'https://map.naver.com/v5/search/북촌+한정식', instagram:'https://www.instagram.com/explore/tags/북촌한정식/' },
+    { city:'seoul', name:'仁寺洞 비빔밥',          kr:'인사동비빔밥',      area:'인사동',    cat:'🍚 비빔밥',   sns:['YouTube','TikTok'],      why:'인사동 전통 거리에서 먹는 돌솥 비빔밥이 관광객 필수 코스로 자리 잡았다。인사동伝統通りで食べる石鍋ビビンバが観光客の必訪グルメとして定着。',                         price:'13,000〜18,000₩', naver:'https://map.naver.com/v5/search/인사동+비빔밥', instagram:'https://www.instagram.com/explore/tags/인사동비빔밥/' },
+    { city:'seoul', name:'三清洞 돌솥비빔밥',      kr:'삼청동돌솥',        area:'삼청동',    cat:'🍚 비빔밥',   sns:['Instagram'],             why:'경복궁 근처 삼청동에서 먹는 구수한 돌솥비빔밥。景福宮近くの三清洞でいただく香ばしい石鍋ビビンバ。路地の韓屋カフェと合わせた散策コースが女性旅行者に大人気。',          price:'13,000〜17,000₩', naver:'https://map.naver.com/v5/search/삼청동+돌솥비빔밥', instagram:'https://www.instagram.com/explore/tags/삼청동맛집/' },
+    { city:'seoul', name:'광화문 한상차림',        kr:'광화문한정식',      area:'광화문',    cat:'🍚 한정식',   sns:['Instagram','Naver Blog'],why:'광화문 고궁 산책 후 먹는 격식 있는 한정식。광화문古宮散策後に食べる格式ある韓定食コース。20種類以上の小鉢が並ぶ贅沢な一膳が海外インフルエンサーにも話題に。',          price:'35,000〜65,000₩', naver:'https://map.naver.com/v5/search/광화문+한정식', instagram:'https://www.instagram.com/explore/tags/광화문맛집/' },
+    { city:'seoul', name:'홍대 모던 한식',         kr:'홍대모던한식',      area:'홍대',      cat:'🍚 한식',     sns:['Instagram','TikTok'],    why:'전통 한식을 현대적으로 재해석한 홍대의 모던 한식당이 여성 여행자 사이에서 폭발적 인기。伝統料理を現代風にアレンジしたモダン韓食が女性旅行者の定番グルメに。',             price:'18,000〜28,000₩', naver:'https://map.naver.com/v5/search/홍대+한식', instagram:'https://www.instagram.com/explore/tags/홍대한식/' },
+    { city:'seoul', name:'清潭 한정식',            kr:'청담한정식',        area:'강남',      cat:'🍚 한정식',   sns:['Instagram'],             why:'청담동 고급 한정식이 강남 파인다이닝의 새로운 기준을 세웠다。청담동の高級韓定食が江南ファインダイニングの新基準に。繊細な盛り付けとスタイリッシュな空間が世界的に注目される。', price:'80,000〜150,000₩', naver:'https://map.naver.com/v5/search/청담+한정식', instagram:'https://www.instagram.com/explore/tags/청담한정식/' },
+    { city:'seoul', name:'梨泰院 한식 퓨전',       kr:'이태원한식퓨전',    area:'이태원',    cat:'🍚 한식',     sns:['Instagram','TikTok'],    why:'한식과 이국적인 재료를 결합한 퓨전 한식이 이태원에서 글로벌 트렌드가 되다。韓食と異国の食材を組み合わせたフュージョン韓食が梨泰院から世界トレンドへ。',               price:'22,000〜38,000₩', naver:'https://map.naver.com/v5/search/이태원+한식', instagram:'https://www.instagram.com/explore/tags/이태원한식/' },
+    { city:'seoul', name:'성수 모던 한식 코스',    kr:'성수모던한식',      area:'성수동',    cat:'🍚 한정식',   sns:['Instagram'],             why:'성수의 공장 감성 공간에서 즐기는 코스형 한식。成水の倉庫系空間でいただくコース韓食。「工場×韓国料理」のギャップが話題を呼びInstagramで連日バズる予約困難店。',             price:'65,000〜120,000₩', naver:'https://map.naver.com/v5/search/성수+한식', instagram:'https://www.instagram.com/explore/tags/성수동맛집/' },
+    // ── ソウル追加（海鮮）──────────────────────
+    { city:'seoul', name:'鷺梁津 水産市場',        kr:'노량진수산시장',    area:'노량진',    cat:'🐟 횟감',     sns:['YouTube','TikTok'],      why:'서울 최대 어시장에서 직접 고른 활어회를 즉석에서 먹을 수 있다。ソウル最大の鮮魚市場で選んだ活魚の刺身をその場で食べる体験がYouTubeで世界的に話題に。',              price:'20,000〜50,000₩', naver:'https://map.naver.com/v5/search/노량진수산시장', instagram:'https://www.instagram.com/explore/tags/노량진수산시장/' },
+    { city:'seoul', name:'연남동 스시',             kr:'연남동스시',        area:'홍대',      cat:'🍣 스시',     sns:['Instagram','Naver Blog'],why:'연남동 골목길에 숨은 실력파 스시집이 입소문으로 예약 필수점이 되다。연남동路地裏の実力派スシ店が口コミで予約必須の名店に。リーズナブルな価格が女性客に大人気。',         price:'35,000〜65,000₩', naver:'https://map.naver.com/v5/search/연남동+스시', instagram:'https://www.instagram.com/explore/tags/연남동스시/' },
+    { city:'seoul', name:'도산공원 오마카세',       kr:'도산공원오마카세',  area:'강남',      cat:'🍣 오마카세', sns:['Instagram'],             why:'가로수길 근처의 하이엔드 스시 오마카세가 강남 미식가들의 성지로 등극。カロスキル近くのハイエンドスシオマカセが江南グルメピープルの聖地に。季節の食材を使った繊細な仕事が話題。', price:'120,000〜200,000₩', naver:'https://map.naver.com/v5/search/도산공원+오마카세', instagram:'https://www.instagram.com/explore/tags/강남오마카세/' },
+    { city:'seoul', name:'한남동 스시 오마카세',    kr:'한남스시',          area:'이태원',    cat:'🍣 오마카세', sns:['Instagram','TikTok'],    why:'한남동 와인바 거리에 자리잡은 스시 오마카세가 소셜미디어에서 바이럴。漢南洞ワインバー通りに位置するスシオマカセがSNSで大拡散。コスパ抜群として予約困難に。',             price:'80,000〜130,000₩', naver:'https://map.naver.com/v5/search/한남동+스시', instagram:'https://www.instagram.com/explore/tags/한남동스시/' },
+    { city:'seoul', name:'마포 회포차',             kr:'마포회포차',        area:'마포',      cat:'🐟 횟감',     sns:['YouTube','Naver Blog'],  why:'마포 한강변 포차에서 즐기는 활어회가 현지인들의 단골 코스。마포漢江沿いの屋台で食べる活魚の刺身が地元民の定番コース。格安で鮮度抜群の会が旅行者にも人気。',           price:'25,000〜45,000₩', naver:'https://map.naver.com/v5/search/마포+회포차', instagram:'https://www.instagram.com/explore/tags/마포맛집/' },
+    { city:'seoul', name:'청담 성게 요리',          kr:'청담성게',          area:'강남',      cat:'🦔 성게',     sns:['Instagram'],             why:'청담의 고급 레스토랑에서 제주산 성게로 만든 성게 크림 파스타가 인스타에서 바이럴。청담의高級レストランの済州産ウニクリームパスタがInstagramで大バズり。',               price:'45,000〜75,000₩', naver:'https://map.naver.com/v5/search/청담+성게', instagram:'https://www.instagram.com/explore/tags/청담맛집/' },
+    { city:'seoul', name:'성수 양념게장',           kr:'성수양념게장',      area:'성수동',    cat:'🦀 게장',     sns:['TikTok','YouTube'],      why:'성수 힙한 공간에서 먹는 제대로 된 양념게장이 TikTok에서 화제。成水のオシャレ空間で食べる本格ヤンニョムケジャンがTikTokで「ご飯泥棒系」グルメとして大バズり。',         price:'18,000〜28,000₩', naver:'https://map.naver.com/v5/search/성수+게장', instagram:'https://www.instagram.com/explore/tags/게장맛집/' },
+    // ── ソウル追加（屋台・ストリート）────────────
+    { city:'seoul', name:'동대문 포장마차',         kr:'동대문포장마차',    area:'동대문',    cat:'🌃 포장마차', sns:['TikTok','YouTube'],      why:'동대문 쇼핑 후 들르는 야간 포장마차 문화가 유튜브에서 바이럴。東大門ショッピング後に立ち寄る深夜屋台文化がYouTubeで世界中に拡散。煌びやかな夜の東大門の定番体験。',     price:'8,000〜20,000₩', naver:'https://map.naver.com/v5/search/동대문+포장마차', instagram:'https://www.instagram.com/explore/tags/동대문포장마차/' },
+    { city:'seoul', name:'명동 어묵 골목',          kr:'명동어묵',          area:'명동',      cat:'🍢 어묵',     sns:['TikTok','YouTube'],      why:'명동 쇼핑 거리의 어묵 꼬치가 한국 길거리 음식의 아이콘으로 외국인에게도 유명。明洞ショッピング街のおでん串が韓国ストリートフードのアイコンとして外国人観光客必食グルメに。', price:'1,000〜3,000₩', naver:'https://map.naver.com/v5/search/명동+어묵', instagram:'https://www.instagram.com/explore/tags/명동어묵/' },
+    { city:'seoul', name:'인사동 씨앗호떡',         kr:'인사동씨앗호떡',    area:'인사동',    cat:'🥞 호떡',     sns:['TikTok','Instagram'],    why:'인사동 전통 거리의 씨앗호떡이 외국인 관광객 사이에서 필식 간식으로 자리잡다。인사동伝統街の種ホトックが外国人観光客の「韓国で必ず食べるスナック」として定番化。',           price:'2,000〜3,000₩', naver:'https://map.naver.com/v5/search/인사동+씨앗호떡', instagram:'https://www.instagram.com/explore/tags/인사동호떡/' },
+    { city:'seoul', name:'신촌 야시장',             kr:'신촌야시장',        area:'신촌',      cat:'🌃 야시장',   sns:['TikTok','Instagram'],    why:'대학가 신촌에서 열리는 야시장이 젊은이들 사이에서 핫플로 부상。大学街の新村で開かれる夜市が若者の間でホットスポットに浮上。B級グルメと大学生文化が融合した体験。',          price:'3,000〜10,000₩', naver:'https://map.naver.com/v5/search/신촌+야시장', instagram:'https://www.instagram.com/explore/tags/신촌야시장/' },
+    // ── ソウル追加（バー・お酒）────────────────
+    { city:'seoul', name:'익선동 전통주 살롱',      kr:'익선동전통주',      area:'익선동',    cat:'🍶 전통주',   sns:['Instagram','TikTok'],    why:'한옥을 개조한 공간에서 즐기는 한국 전통주 페어링。韓屋をリノベした空間で韓国伝統酒のペアリング体験。マッコリ・清酒・果実酒など50種以上がInstagramで大人気。',             price:'15,000〜35,000₩', naver:'https://map.naver.com/v5/search/익선동+전통주', instagram:'https://www.instagram.com/explore/tags/익선동전통주/' },
+    { city:'seoul', name:'연남동 내추럴 와인',      kr:'연남동와인바',      area:'연남동',    cat:'🍷 와인바',   sns:['Instagram'],             why:'경의선 숲길 옆의 내추럴 와인 바가 와인 러버들의 성지로 등극。경의선緑道沿いのナチュラルワインバーがワイン愛好家の聖地に。自然派ワインと韓国식の창의적 안주 조합이 화제。', price:'20,000〜50,000₩/잔', naver:'https://map.naver.com/v5/search/연남동+와인바', instagram:'https://www.instagram.com/explore/tags/연남동와인바/' },
+    { city:'seoul', name:'이태원 크래프트 맥주 바', kr:'이태원크래프트바',  area:'이태원',    cat:'🍺 수제맥주', sns:['TikTok','Instagram'],    why:'이태원 세계 맥주 문화가 집결된 크래프트 비어 바。梨泰院の世界のビール文化が集まるクラフトビールバー。国内外40種以上のタップが並ぶ店内が外国人旅行者に大人気。',            price:'8,000〜18,000₩/잔', naver:'https://map.naver.com/v5/search/이태원+수제맥주', instagram:'https://www.instagram.com/explore/tags/이태원크래프트맥주/' },
+    { city:'seoul', name:'청담 와인바',             kr:'청담와인바',        area:'강남',      cat:'🍷 와인바',   sns:['Instagram'],             why:'청담동 명품 거리에 자리한 고급 와인 바가 강남 소셜라이트들의 모임 장소로 인기。청담名品通りの高級ワインバーが江南のソーシャライトの集いの場として定番に。',              price:'25,000〜80,000₩/잔', naver:'https://map.naver.com/v5/search/청담+와인바', instagram:'https://www.instagram.com/explore/tags/청담와인바/' },
+    { city:'seoul', name:'홍대 이자카야 골목',      kr:'홍대이자카야',      area:'홍대',      cat:'🍶 이자카야', sns:['TikTok','Instagram'],    why:'홍대 뒷골목에 즐비한 일본식 이자카야가 한일 젊은이들의 교류 장소로 인기。弘大の路地裏に連なる日本式居酒屋が日韓若者の交流スポットとして話題。深夜まで賑わう。',            price:'20,000〜40,000₩', naver:'https://map.naver.com/v5/search/홍대+이자카야', instagram:'https://www.instagram.com/explore/tags/홍대이자카야/' },
+    { city:'seoul', name:'성수 수제맥주 탭룸',      kr:'성수수제맥주',      area:'성수동',    cat:'🍺 수제맥주', sns:['Instagram','TikTok'],    why:'성수의 개성 있는 공간에서 즐기는 로컬 수제맥주가 힙스터들의 성지로 자리잡다。成水のユニークな空間で楽しむクラフトビールがヒップスターの聖地に。国産クラフト30種以上を常時提供。', price:'8,000〜16,000₩/잔', naver:'https://map.naver.com/v5/search/성수+수제맥주', instagram:'https://www.instagram.com/explore/tags/성수수제맥주/' },
+    { city:'seoul', name:'한남동 이자카야',         kr:'한남이자카야',      area:'이태원',    cat:'🍶 이자카야', sns:['Instagram','Naver Blog'],why:'한남동 고급 주택가 골목의 숨은 이자카야가 와인바와 함께 한남 나이트라이프의 핵심으로 부상。漢南洞の路地裏に隠れた居酒屋が「東京より本場感がある」と話題に。',               price:'25,000〜50,000₩', naver:'https://map.naver.com/v5/search/한남동+이자카야', instagram:'https://www.instagram.com/explore/tags/한남동이자카야/' },
+    { city:'seoul', name:'종로 막걸리 바',          kr:'종로막걸리',        area:'종로',      cat:'🍶 막걸리',   sns:['YouTube','TikTok'],      why:'종로 전통 주점 거리에서 맛보는 다양한 전통 막걸리。종로伝統酒場通りで楽しむ多彩な伝統マッコリ。「韓国の地酒を試す夜」として外国人YouTuberが繰り返し訪れる定番スポット。',   price:'10,000〜25,000₩', naver:'https://map.naver.com/v5/search/종로+막걸리', instagram:'https://www.instagram.com/explore/tags/종로막걸리/' },
+    // ── ソウル追加（焼肉）──────────────────────
+    { city:'seoul', name:'마포 삼겹살 거리',        kr:'마포삼겹살',        area:'마포',      cat:'🥓 삼겹살',   sns:['YouTube','TikTok'],      why:'마포 공덕 삼겹살 골목이 서울 삼겹살의 성지로 여전히 건재。마포サムギョプサル横丁がソウルのサムギョプサルの聖地として健在。炭火焼きの豚バラ肉と소주コンビが外国人に大ウケ。', price:'15,000〜22,000₩', naver:'https://map.naver.com/v5/search/마포+삼겹살', instagram:'https://www.instagram.com/explore/tags/마포삼겹살/' },
+    // ── 釜山追加（焼肉）────────────────────────
+    { city:'busan', name:'해운대 갈비',            kr:'해운대갈비',        area:'해운대',    cat:'🥩 갈비',     sns:['Instagram','Naver Blog'],why:'해운대 바다 근처에서 즐기는 숯불 갈비가 부산 여행의 필수 코스로 자리잡다。海雲台の海辺で食べる炭火カルビが釜山旅行の定番コースに。絶景と絶品の組み合わせが女性旅行者に大人気。', price:'35,000〜60,000₩', naver:'https://map.naver.com/v5/search/해운대+갈비', instagram:'https://www.instagram.com/explore/tags/해운대갈비/' },
+    { city:'busan', name:'광안리 흑돼지',          kr:'광안리흑돼지',      area:'광안리',    cat:'🐷 흑돼지',   sns:['TikTok','YouTube'],      why:'광안대교 야경을 바라보며 먹는 흑돼지 구이가 부산 SNS 핫플의 대명사。広安大橋の夜景を眺めながら食べる黒豚焼きが釜山SNSホットプレイスの代名詞に。', price:'18,000〜28,000₩', naver:'https://map.naver.com/v5/search/광안리+흑돼지', instagram:'https://www.instagram.com/explore/tags/광안리흑돼지/' },
+    { city:'busan', name:'남포동 족발',            kr:'남포동족발',        area:'남포동',    cat:'🐷 족발',     sns:['Naver Blog','YouTube'],  why:'남포동 골목 깊숙이 자리한 족발 전문점이 부산 시민들의 오랜 단골 맛집。南浦洞の路地奥にある豚足専門店が釜山市民の長年の愛店。コラーゲンたっぷりと評判で女性客急増。', price:'30,000〜50,000₩', naver:'https://map.naver.com/v5/search/남포동+족발', instagram:'https://www.instagram.com/explore/tags/남포동족발/' },
+    { city:'busan', name:'기장 닭갈비',            kr:'기장닭갈비',        area:'기장',      cat:'🍗 닭갈비',   sns:['TikTok','Instagram'],    why:'기장 바다 근처의 닭갈비 전문점이 TikTok에서 바이럴되며 전국구 맛집으로 등극。機張の海辺のタッカルビ専門店がTikTokで全国区の人気店に。チーズを絡める映像が何度もバズる。', price:'13,000〜19,000₩', naver:'https://map.naver.com/v5/search/기장+닭갈비', instagram:'https://www.instagram.com/explore/tags/기장닭갈비/' },
+    { city:'busan', name:'서면 삼겹살 골목',       kr:'서면삼겹살',        area:'서면',      cat:'🥓 삼겹살',   sns:['YouTube','Naver Blog'],  why:'서면 번화가 뒷골목의 삼겹살 거리가 부산 로컬 문화의 핵심으로 손꼽힌다。西面繁華街の裏路地のサムギョプサル通りが釜山ローカル文化の象徴として旅行者に人気。', price:'15,000〜22,000₩', naver:'https://map.naver.com/v5/search/서면+삼겹살', instagram:'https://www.instagram.com/explore/tags/서면삼겹살/' },
+    { city:'busan', name:'동래 갈비',              kr:'동래갈비',          area:'동래',      cat:'🥩 고기구이', sns:['Naver Blog'],            why:'동래 전통 시장 근처의 갈비 전문점이 부산 토박이들이 특별한 날 찾는 명소。東萊伝統市場近くのカルビ専門店が釜山土着民が特別な日に訪れる名所として有名。', price:'38,000〜65,000₩', naver:'https://map.naver.com/v5/search/동래+갈비', instagram:'https://www.instagram.com/explore/tags/동래맛집/' },
+    { city:'busan', name:'해운대 보쌈',            kr:'해운대보쌈',        area:'해운대',    cat:'🥬 보쌈',     sns:['Instagram','Naver Blog'],why:'해운대 해변 근처에서 즐기는 보쌈이 부산 야경과 함께 최고의 조합으로 통한다。海雲台海辺近くのポッサムが絶景夜景とのベストコンボとして旅行者に広まっている。', price:'28,000〜45,000₩', naver:'https://map.naver.com/v5/search/해운대+보쌈', instagram:'https://www.instagram.com/explore/tags/해운대보쌈/' },
+    { city:'busan', name:'범일동 곱창 골목',       kr:'범일동곱창',        area:'부산진',    cat:'🍖 곱창',     sns:['TikTok','YouTube'],      why:'범일동 곱창 골목이 부산 로컬 맛집 탐방 코스의 필수 코스로 부상。凡一洞ホルモン横丁が釜山ローカルグルメ探訪コースの必須スポットとして台頭。濃厚タレが中毒性大。', price:'20,000〜35,000₩', naver:'https://map.naver.com/v5/search/범일동+곱창', instagram:'https://www.instagram.com/explore/tags/부산곱창/' },
+    { city:'busan', name:'남포동 돼지 갈비',       kr:'남포돼지갈비',      area:'남포동',    cat:'🥩 갈비',     sns:['YouTube','Naver Blog'],  why:'남포동에서 50년 넘게 영업 중인 돼지 갈비 노포가 SNS에서 재조명 받다。南浦洞で50年以上営業する豚カルビの老舗がSNSで再発見され行列必至の名店に。', price:'18,000〜28,000₩', naver:'https://map.naver.com/v5/search/남포동+돼지갈비', instagram:'https://www.instagram.com/explore/tags/남포동맛집/' },
+    // ── 釜山追加（麺・スープ）──────────────────
+    { city:'busan', name:'해운대 라멘',            kr:'해운대라멘',        area:'해운대',    cat:'🍜 라멘',     sns:['TikTok','Instagram'],    why:'해운대 라멘 거리의 진한 돼지뼈 라멘이 SNS를 통해 부산 여행의 새로운 핫플로 부상。海雲台ラーメン通りの濃厚豚骨ラーメンが「釜山の新しいグルメ」としてSNSで拡散中。', price:'12,000〜17,000₩', naver:'https://map.naver.com/v5/search/해운대+라멘', instagram:'https://www.instagram.com/explore/tags/해운대라멘/' },
+    { city:'busan', name:'광안리 냉면',            kr:'광안리냉면',        area:'광안리',    cat:'🍜 냉면',     sns:['Naver Blog','Instagram'],why:'광안리 야경을 보며 즐기는 시원한 냉면이 여름 부산 여행의 필수 아이템。広安里の夜景を眺めながら食べる冷たい冷麺が夏の釜山旅行の必食グルメとして定着。', price:'11,000〜15,000₩', naver:'https://map.naver.com/v5/search/광안리+냉면', instagram:'https://www.instagram.com/explore/tags/광안리냉면/' },
+    { city:'busan', name:'남포동 칼국수',          kr:'남포동칼국수',      area:'남포동',    cat:'🍜 칼국수',   sns:['Naver Blog','YouTube'],  why:'남포동 재래시장 골목의 손칼국수 노포가 부산 서민 음식의 진수를 보여준다。南浦洞市場の路地にある手打ちカルグクスの老舗が釜山庶民グルメの真髄を体現。', price:'8,000〜12,000₩', naver:'https://map.naver.com/v5/search/남포동+칼국수', instagram:'https://www.instagram.com/explore/tags/남포동칼국수/' },
+    { city:'busan', name:'부산진 순대국',          kr:'부산진순대국',      area:'부산진',    cat:'🍲 순대국',   sns:['YouTube','Naver Blog'],  why:'부산진 시장 옆 순대국 골목이 부산 해장 성지로 알려지다。釜山鎮市場脇のスンデクッパ横丁が釜山の解宿聖地として知られ早朝から観光客も訪れる。', price:'9,000〜12,000₩', naver:'https://map.naver.com/v5/search/부산진+순대국', instagram:'https://www.instagram.com/explore/tags/부산순대국/' },
+    { city:'busan', name:'해운대 순대국',          kr:'해운대순대국',      area:'해운대',    cat:'🍲 순대국',   sns:['Naver Blog'],            why:'해운대 뒷골목에서 아침을 여는 순대국 골목이 여행자들에게 진짜 부산을 체험할 수 있는 장소로 통한다。海雲台裏路地の早朝スンデクッパが旅行者に「本物の釜山体験」と評判。', price:'9,000〜13,000₩', naver:'https://map.naver.com/v5/search/해운대+순대국', instagram:'https://www.instagram.com/explore/tags/해운대순대국/' },
+    { city:'busan', name:'서면 라멘 골목',         kr:'서면라멘',          area:'서면',      cat:'🍜 라멘',     sns:['TikTok','Instagram'],    why:'서면 번화가 뒷골목의 라멘 거리가 MZ세대 사이에서 부산 새로운 힙플로 부상。西面繁華街裏のラーメン通りがZ世代の間で釜山の新ヒップスポットとして台頭。', price:'12,000〜17,000₩', naver:'https://map.naver.com/v5/search/서면+라멘', instagram:'https://www.instagram.com/explore/tags/서면라멘/' },
+    { city:'busan', name:'초량 냉면',              kr:'초량냉면',          area:'초량',      cat:'🍜 냉면',     sns:['Naver Blog','YouTube'],  why:'초량 차이나타운 근처의 냉면집이 부산 로컬 맛집 탐방의 숨은 보석으로 알려지다。草梁チャイナタウン近くの冷麺店が釜山ローカルグルメ探訪の隠れた宝として人気。', price:'10,000〜14,000₩', naver:'https://map.naver.com/v5/search/초량+냉면', instagram:'https://www.instagram.com/explore/tags/초량맛집/' },
+    { city:'busan', name:'사직동 돼지국밥',        kr:'사직동돼지국밥',    area:'사직동',    cat:'🍲 돼지국밥', sns:['Naver Blog'],            why:'부산 사직동 야구장 근처 돼지국밥 집이 야구 관람 후 필식 코스로 자리잡다。釜山野球場近くの豚骨クッパが野球観戦後の必食コースとして地元民に定着。', price:'9,000〜12,000₩', naver:'https://map.naver.com/v5/search/사직동+돼지국밥', instagram:'https://www.instagram.com/explore/tags/사직동맛집/' },
+    // ── 釜山追加（ご飯・韓食）──────────────────
+    { city:'busan', name:'해운대 한정식',          kr:'해운대한정식',      area:'해운대',    cat:'🍚 한정식',   sns:['Instagram','Naver Blog'],why:'해운대 오션뷰를 바라보며 즐기는 부산식 한정식이 미식 여행자들 사이에서 최고 체험으로 꼽힌다。海雲台オーシャンビューを眺めながら食べる釜山式韓定食が美食旅行者に最高体験として評判。', price:'45,000〜80,000₩', naver:'https://map.naver.com/v5/search/해운대+한정식', instagram:'https://www.instagram.com/explore/tags/해운대한정식/' },
+    { city:'busan', name:'광안리 비빔밥',          kr:'광안리비빔밥',      area:'광안리',    cat:'🍚 비빔밥',   sns:['Instagram'],             why:'광안리 바다 근처의 신선한 해산물로 만든 부산식 해물비빔밥이 인스타에서 화제。広安里の海鮮ビビンバが「釜山らしいビビンバ」としてInstagramで話題に。', price:'13,000〜18,000₩', naver:'https://map.naver.com/v5/search/광안리+비빔밥', instagram:'https://www.instagram.com/explore/tags/광안리비빔밥/' },
+    { city:'busan', name:'범어사 산채비빔밥',      kr:'범어사산채비빔밥',  area:'금정구',    cat:'🍚 비빔밥',   sns:['YouTube','Naver Blog'],  why:'범어사 등산 코스에서 먹는 산나물 비빔밥이 힐링 여행의 대명사로 알려지다。梵魚寺ハイキングコースで食べる山菜ビビンバが癒し旅行のシンボルとしてYouTubeで紹介。', price:'10,000〜14,000₩', naver:'https://map.naver.com/v5/search/범어사+비빔밥', instagram:'https://www.instagram.com/explore/tags/범어사맛집/' },
+    { city:'busan', name:'기장 한정식',            kr:'기장한정식',        area:'기장',      cat:'🍚 한정식',   sns:['Instagram','Naver Blog'],why:'기장 바닷가 근처에서 즐기는 해산물 중심의 한정식이 부산 미식 여행의 숨은 보석。機張の海辺近くの海鮮中心の韓定食が釜山美食旅行の隠れた宝石として口コミ拡大。', price:'35,000〜60,000₩', naver:'https://map.naver.com/v5/search/기장+한정식', instagram:'https://www.instagram.com/explore/tags/기장한정식/' },
+    { city:'busan', name:'동래 파전 한정식',       kr:'동래한정식',        area:'동래',      cat:'🍚 한정식',   sns:['YouTube','Naver Blog'],  why:'동래 전통 문화와 함께 즐기는 동래파전 중심 한정식이 역사 여행과 미식을 결합한 체험으로 인기。東萊の伝統文化と共に楽しむ韓定食が歴史観光と食を組み合わせた体験として評判。', price:'30,000〜55,000₩', naver:'https://map.naver.com/v5/search/동래+한정식', instagram:'https://www.instagram.com/explore/tags/동래맛집/' },
+    { city:'busan', name:'해운대 돌솥비빔밥',      kr:'해운대돌솥비빔밥',  area:'해운대',    cat:'🍚 비빔밥',   sns:['Instagram'],             why:'해운대 관광지 중심부의 인기 비빔밥 집이 외국인 관광객 사이에서 부산 대표 음식으로 알려지다。海雲台中心部の人気ビビンバ店が外国人観光客の間で釜山代表グルメとして定着。', price:'12,000〜16,000₩', naver:'https://map.naver.com/v5/search/해운대+돌솥비빔밥', instagram:'https://www.instagram.com/explore/tags/해운대비빔밥/' },
+    { city:'busan', name:'남포동 한식뷔페',        kr:'남포동한식뷔페',    area:'남포동',    cat:'🍚 한식',     sns:['Naver Blog','YouTube'],  why:'남포동에서 가성비 좋게 다양한 한식을 즐길 수 있는 한식 뷔페가 여행자들에게 인기。南浦洞でコスパよく多彩な韓食を楽しめる韓食ビュッフェが旅行者に人気急上昇。', price:'12,000〜18,000₩', naver:'https://map.naver.com/v5/search/남포동+한식', instagram:'https://www.instagram.com/explore/tags/남포동한식/' },
+    { city:'busan', name:'서면 비빔밥',            kr:'서면비빔밥',        area:'서면',      cat:'🍚 비빔밥',   sns:['TikTok','Instagram'],    why:'서면에서 신선한 재료로 만드는 비빔밥이 부산 젊은이들의 점심 대표 메뉴로 자리잡다。西面の新鮮食材で作るビビンバが釜山若者のランチ代表メニューに定着。', price:'11,000〜15,000₩', naver:'https://map.naver.com/v5/search/서면+비빔밥', instagram:'https://www.instagram.com/explore/tags/서면비빔밥/' },
+    { city:'busan', name:'광안리 한식',            kr:'광안리한식',        area:'광안리',    cat:'🍚 한식',     sns:['Instagram','Naver Blog'],why:'광안리 해변 산책로 근처의 모던 한식당이 부산 미식 여행의 새로운 트렌드로 부상。広安里海岸遊歩道近くのモダン韓食堂が釜山美食旅行の新トレンドとして台頭。', price:'15,000〜25,000₩', naver:'https://map.naver.com/v5/search/광안리+한식', instagram:'https://www.instagram.com/explore/tags/광안리한식/' },
+    // ── 釜山追加（カフェ）────────────────────
+    { city:'busan', name:'해운대 오션뷰 카페',     kr:'해운대뷰카페',      area:'해운대',    cat:'☕ 뷰카페',   sns:['Instagram','TikTok'],    why:'해운대 해변을 정면으로 바라보는 오션뷰 카페에서 찍은 사진이 부산 인스타 최고 명소로 꼽힌다。海雲台ビーチを正面に望むオーシャンビューカフェが釜山Instagramの最高スポットに。', price:'7,000〜14,000₩', naver:'https://map.naver.com/v5/search/해운대+카페', instagram:'https://www.instagram.com/explore/tags/해운대카페/' },
+    { city:'busan', name:'광안리 루프탑 카페',     kr:'광안리루프탑카페',  area:'광안리',    cat:'☕ 뷰카페',   sns:['Instagram','TikTok'],    why:'광안대교가 한눈에 보이는 루프탑 카페에서 찍은 야경 사진이 200만 좋아요를 넘겼다。広安大橋が一望できるルーフトップカフェの夜景写真が200万いいね超え。', price:'8,000〜15,000₩', naver:'https://map.naver.com/v5/search/광안리+루프탑+카페', instagram:'https://www.instagram.com/explore/tags/광안리카페/' },
+    { city:'busan', name:'남포동 베이커리',        kr:'남포동베이커리',    area:'남포동',    cat:'☕ 베이커리', sns:['Instagram','TikTok'],    why:'남포동 구도심 빈티지 공간에서 즐기는 수제 빵과 커피가 인스타에서 화제。南浦洞旧市街のヴィンテージ空間で楽しむ手作りパンとコーヒーがInstagramで大バズり。', price:'5,000〜12,000₩', naver:'https://map.naver.com/v5/search/남포동+베이커리', instagram:'https://www.instagram.com/explore/tags/남포동베이커리/' },
+    { city:'busan', name:'서면 스페셜티 커피',     kr:'서면커피',          area:'서면',      cat:'☕ 스페셜티커피', sns:['Instagram'],          why:'서면 번화가에서 즐기는 스페셜티 커피가 부산 커피 문화를 이끌어가는 명소로 자리잡다。西面繁華街のスペシャルティコーヒーが釜山コーヒー文化をリードする名所に。', price:'6,000〜11,000₩', naver:'https://map.naver.com/v5/search/서면+커피', instagram:'https://www.instagram.com/explore/tags/서면카페/' },
+    { city:'busan', name:'기장 오션뷰 카페',       kr:'기장카페',          area:'기장',      cat:'☕ 뷰카페',   sns:['Instagram','TikTok'],    why:'기장 해변 절벽 위에 세워진 카페에서 바라보는 동해의 절경이 부산 최고 포토스팟으로 꼽힌다。機張の海岸崖の上のカフェから見る東海の絶景が釜山最高のフォトスポットとして人気。', price:'8,000〜15,000₩', naver:'https://map.naver.com/v5/search/기장+카페', instagram:'https://www.instagram.com/explore/tags/기장카페/' },
+    { city:'busan', name:'영도 전망 카페',         kr:'영도카페',          area:'영도',      cat:'☕ 뷰카페',   sns:['Instagram','YouTube'],   why:'영도 절영해안산책로 위 전망 카페가 새로운 부산 힙플로 입소문 중。影島の海岸遊歩道上の展望カフェが新しい釜山ヒップスポットとして話題沸騰中。', price:'7,000〜13,000₩', naver:'https://map.naver.com/v5/search/영도+카페', instagram:'https://www.instagram.com/explore/tags/영도카페/' },
+    { city:'busan', name:'해운대 브런치 카페',     kr:'해운대브런치',      area:'해운대',    cat:'☕ 브런치',   sns:['Instagram','TikTok'],    why:'해운대 해변 근처의 오션뷰 브런치 카페가 부산 여행의 완벽한 아침을 완성해준다。海雲台の海辺近くのオーシャンビューブランチカフェが釜山旅行の完璧な朝を演出。', price:'14,000〜24,000₩', naver:'https://map.naver.com/v5/search/해운대+브런치', instagram:'https://www.instagram.com/explore/tags/해운대브런치/' },
+    { city:'busan', name:'남포동 레트로 카페',     kr:'남포동레트로카페',  area:'남포동',    cat:'☕ 레트로카페', sns:['Instagram','TikTok'],   why:'남포동 구도심의 옛 건물을 활용한 레트로 카페가 인스타 핫플로 부상。南浦洞旧市街の古い建物を活用したレトロカフェがInstagramホットスポットとして台頭。', price:'6,000〜12,000₩', naver:'https://map.naver.com/v5/search/남포동+레트로카페', instagram:'https://www.instagram.com/explore/tags/남포동카페/' },
+    { city:'busan', name:'초량 이바구길 카페',     kr:'초량카페',          area:'초량',      cat:'☕ 카페',     sns:['Instagram'],             why:'초량 이바구길 위 경사진 골목에 자리한 전망 카페가 부산항 뷰로 유명。草梁イバグキルの急な路地にある展望カフェが釜山港ビューで有名になり旅行者必訪スポットに。', price:'6,000〜11,000₩', naver:'https://map.naver.com/v5/search/초량+카페', instagram:'https://www.instagram.com/explore/tags/초량카페/' },
+    // ── 釜山追加（海鮮）──────────────────────
+    { city:'busan', name:'해운대 활어회',          kr:'해운대활어회',      area:'해운대',    cat:'🐟 횟감',     sns:['YouTube','Naver Blog'],  why:'해운대 회 타운에서 즐기는 신선한 활어회가 부산 여행의 하이라이트로 자리잡다。海雲台の刺身タウンで食べる新鮮な活魚が釜山旅行のハイライトとして定着。', price:'30,000〜60,000₩', naver:'https://map.naver.com/v5/search/해운대+활어회', instagram:'https://www.instagram.com/explore/tags/해운대회/' },
+    { city:'busan', name:'광안리 스시 오마카세',   kr:'광안리오마카세',    area:'광안리',    cat:'🍣 오마카세', sns:['Instagram'],             why:'광안리 야경을 바라보며 즐기는 스시 오마카세가 부산 파인다이닝의 새로운 기준을 세웠다。広安里夜景を眺めながら楽しむスシオマカセが釜山ファインダイニングの新基準に。', price:'80,000〜130,000₩', naver:'https://map.naver.com/v5/search/광안리+오마카세', instagram:'https://www.instagram.com/explore/tags/광안리오마카세/' },
+    { city:'busan', name:'자갈치 성게 덮밥',       kr:'자갈치성게덮밥',    area:'자갈치',    cat:'🦔 성게덮밥', sns:['TikTok','YouTube'],      why:'자갈치 시장에서 바로 공수한 성게로 만든 성게 덮밥이 TikTok 먹방의 단골 소재로 등극。チャガルチ市場直送のウニ丼がTikTok食レポの定番コンテンツとして外国人観光客に大人気。', price:'25,000〜38,000₩', naver:'https://map.naver.com/v5/search/자갈치+성게덮밥', instagram:'https://www.instagram.com/explore/tags/성게덮밥/' },
+    { city:'busan', name:'기장 게장',              kr:'기장게장',          area:'기장',      cat:'🦀 게장',     sns:['YouTube','Naver Blog'],  why:'기장에서 갓 잡은 꽃게로 만든 간장게장과 양념게장이 부산 여행의 필식 리스트에 항상 등장。機張で獲れたてのワタリガニの醤油漬けと양념게장が釜山旅行の必食リストに常に登場。', price:'15,000〜25,000₩', naver:'https://map.naver.com/v5/search/기장+게장', instagram:'https://www.instagram.com/explore/tags/기장게장/' },
+    { city:'busan', name:'해운대 스시',            kr:'해운대스시',        area:'해운대',    cat:'🍣 스시',     sns:['Instagram','Naver Blog'],why:'해운대 근처의 수준 높은 스시 전문점이 부산 해산물의 신선함을 최고로 끌어올린 곳으로 평가。海雲台近くの高水準スシ専門店が釜山海産物の鮮度を最大限に引き出す場所として高評価。', price:'50,000〜90,000₩', naver:'https://map.naver.com/v5/search/해운대+스시', instagram:'https://www.instagram.com/explore/tags/해운대스시/' },
+    { city:'busan', name:'광안리 해녀촌',          kr:'광안리해녀촌',      area:'광안리',    cat:'🌊 해녀',     sns:['YouTube','TikTok'],      why:'광안리 근처 해녀들이 직접 잡은 해산물을 바로 먹을 수 있는 해녀촌이 유튜브 먹방으로 유명。広安里近くの海女直採り海産物が食べられる海女村がYouTube食レポで有名に。', price:'20,000〜40,000₩', naver:'https://map.naver.com/v5/search/광안리+해녀촌', instagram:'https://www.instagram.com/explore/tags/광안리해녀/' },
+    { city:'busan', name:'서면 성게 덮밥',         kr:'서면성게덮밥',      area:'서면',      cat:'🦔 성게',     sns:['TikTok','Instagram'],    why:'서면 번화가에서도 기장산 성게를 저렴하게 즐길 수 있는 성게 덮밥 전문점이 화제。西面繁華街でも機張産ウニをリーズナブルに楽しめるウニ丼専門店が話題沸騰。', price:'22,000〜35,000₩', naver:'https://map.naver.com/v5/search/서면+성게덮밥', instagram:'https://www.instagram.com/explore/tags/서면성게/' },
+    // ── 釜山追加（屋台・ストリート）────────────
+    { city:'busan', name:'부평시장 야시장',        kr:'부평야시장',        area:'남포동',    cat:'🌃 야시장',   sns:['TikTok','YouTube'],      why:'부평 깡통시장 야시장이 부산 야간 관광의 대명사로 자리잡다。釜平カンツン市場の夜市が釜山夜間観光の代名詞として定着。多彩なストリートフードが一堂に会するTikTok定番スポット。', price:'2,000〜8,000₩', naver:'https://map.naver.com/v5/search/부평시장+야시장', instagram:'https://www.instagram.com/explore/tags/부평야시장/' },
+    { city:'busan', name:'광안리 포장마차',        kr:'광안리포장마차',    area:'광안리',    cat:'🌃 포장마차', sns:['Instagram','TikTok'],    why:'광안대교 야경 앞에 펼쳐진 포장마차 거리가 부산 낭만의 상징이 되다。広安大橋夜景を前に広がる屋台通りが釜山ロマンスの象徴として定番化。夜景映えする屋台体験。', price:'8,000〜18,000₩', naver:'https://map.naver.com/v5/search/광안리+포장마차', instagram:'https://www.instagram.com/explore/tags/광안리포장마차/' },
+    { city:'busan', name:'해운대 어묵 거리',       kr:'해운대어묵',        area:'해운대',    cat:'🍢 어묵',     sns:['TikTok','YouTube'],      why:'해운대 해수욕장 근처의 부산 명물 어묵 거리가 외국인 여행자들의 필식 코스로 자리잡다。海雲台海水浴場近くの釜山名物おでん通りが外国人旅行者の必食コースとして定着。', price:'1,000〜3,000₩', naver:'https://map.naver.com/v5/search/해운대+어묵', instagram:'https://www.instagram.com/explore/tags/해운대어묵/' },
+    { city:'busan', name:'남포동 빈대떡',          kr:'남포동빈대떡',      area:'남포동',    cat:'🥞 빈대떡',   sns:['YouTube','Naver Blog'],  why:'남포동 재래시장 골목의 노릇노릇 빈대떡이 부산 전통 서민 음식의 진수를 보여준다。南浦洞市場路地のカリカリのピンデトックが釜山伝統庶民グルメの真髄を体現。', price:'3,000〜5,000₩', naver:'https://map.naver.com/v5/search/남포동+빈대떡', instagram:'https://www.instagram.com/explore/tags/남포동빈대떡/' },
+    { city:'busan', name:'서면 호떡 골목',         kr:'서면호떡',          area:'서면',      cat:'🥞 호떡',     sns:['TikTok','Instagram'],    why:'서면 버스터미널 근처의 호떡 골목이 부산 길거리 간식의 성지로 입소문 중。西面バスターミナル近くのホトック横丁が釜山ストリートスナックの聖地として口コミ拡大中。', price:'1,500〜2,500₩', naver:'https://map.naver.com/v5/search/서면+호떡', instagram:'https://www.instagram.com/explore/tags/서면호떡/' },
+    { city:'busan', name:'기장 해변 포장마차',     kr:'기장포장마차',      area:'기장',      cat:'🌃 포장마차', sns:['Instagram','YouTube'],   why:'기장 해변에 늘어선 포장마차에서 신선한 해산물을 먹는 체험이 부산 여행의 숨은 매력으로 꼽힌다。機張海辺に並ぶ屋台で新鮮な海産物を食べる体験が釜山旅行の隠れた魅力に。', price:'10,000〜25,000₩', naver:'https://map.naver.com/v5/search/기장+포장마차', instagram:'https://www.instagram.com/explore/tags/기장포장마차/' },
+    { city:'busan', name:'광안리 어묵',            kr:'광안리어묵',        area:'광안리',    cat:'🍢 어묵',     sns:['TikTok'],                why:'광안리 해변 산책 중 즐기는 뜨끈한 어묵 꼬치가 부산 바다 풍경과 완벽한 조화를 이룬다。広安里海辺散歩中に食べる熱々おでん串が釜山の海景色と完璧にマッチすると話題。', price:'1,000〜2,500₩', naver:'https://map.naver.com/v5/search/광안리+어묵', instagram:'https://www.instagram.com/explore/tags/광안리어묵/' },
+    { city:'busan', name:'자갈치 포장마차',        kr:'자갈치포장마차',    area:'자갈치',    cat:'🌃 포장마차', sns:['YouTube','TikTok'],      why:'자갈치 시장 주변의 포장마차에서 즉석에서 먹는 해산물이 부산 진짜 여행 체험의 정수。チャガルチ市場周辺の屋台でその場で食べる海産物が釜山本物の旅行体験の真髄として人気。', price:'5,000〜15,000₩', naver:'https://map.naver.com/v5/search/자갈치+포장마차', instagram:'https://www.instagram.com/explore/tags/자갈치포차/' },
+    { city:'busan', name:'동래 야시장',            kr:'동래야시장',        area:'동래',      cat:'🌃 야시장',   sns:['Instagram','Naver Blog'],why:'동래 전통 시장의 야시장이 지역 문화와 함께 부산 로컬 야간 관광 코스로 인기를 얻고 있다。東萊伝統市場の夜市が地域文化と共に釜山ローカル夜間観光コースとして人気上昇中。', price:'2,000〜8,000₩', naver:'https://map.naver.com/v5/search/동래+야시장', instagram:'https://www.instagram.com/explore/tags/동래야시장/' },
+    // ── 釜山追加（バー・お酒）──────────────────
+    { city:'busan', name:'해운대 루프탑 바',       kr:'해운대루프탑바',    area:'해운대',    cat:'🍺 수제맥주', sns:['Instagram','TikTok'],    why:'해운대 고층 건물 루프탑에서 즐기는 크래프트 맥주가 부산 야경과 함께 최고의 경험으로 꼽힌다。海雲台高層ビルのルーフトップで楽しむクラフトビールが釜山夜景と共に最高の体験に。', price:'9,000〜18,000₩/잔', naver:'https://map.naver.com/v5/search/해운대+루프탑+바', instagram:'https://www.instagram.com/explore/tags/해운대루프탑바/' },
+    { city:'busan', name:'광안리 이자카야',        kr:'광안리이자카야',    area:'광안리',    cat:'🍶 이자카야', sns:['Instagram','Naver Blog'],why:'광안대교 야경을 바라보며 즐기는 이자카야가 부산 최고의 야간 술자리 명소로 자리잡다。広安大橋夜景を眺めながら楽しむ居酒屋が釜山最高の夜の酒場スポットとして定着。', price:'20,000〜40,000₩', naver:'https://map.naver.com/v5/search/광안리+이자카야', instagram:'https://www.instagram.com/explore/tags/광안리이자카야/' },
+    { city:'busan', name:'남포동 전통주 바',       kr:'남포동전통주',      area:'남포동',    cat:'🍶 전통주',   sns:['Instagram','TikTok'],    why:'남포동 구도심 골목의 전통주 바에서 부산의 역사와 함께 한국 전통주를 즐길 수 있다。南浦洞旧市街路地の伝統酒バーで釜山の歴史と共に韓国伝統酒を楽しめる体験が話題に。', price:'12,000〜30,000₩', naver:'https://map.naver.com/v5/search/남포동+전통주', instagram:'https://www.instagram.com/explore/tags/남포동전통주/' },
+    { city:'busan', name:'서면 수제맥주 바',       kr:'서면수제맥주',      area:'서면',      cat:'🍺 수제맥주', sns:['TikTok','YouTube'],      why:'서면 번화가의 크래프트 비어 바가 부산 젊은이들의 힙한 음주 문화를 이끌어가다。西面繁華街のクラフトビールバーが釜山若者のヒップな飲み文化を牽引。国内外30種以上のクラフトが揃う。', price:'7,000〜16,000₩/잔', naver:'https://map.naver.com/v5/search/서면+수제맥주', instagram:'https://www.instagram.com/explore/tags/서면수제맥주/' },
+    { city:'busan', name:'해운대 수제맥주',        kr:'해운대수제맥주',    area:'해운대',    cat:'🍺 수제맥주', sns:['Instagram'],             why:'해운대 바다를 바라보며 즐기는 수제맥주가 부산 여름 여행의 최고 선택으로 꼽힌다。海雲台の海を眺めながら楽しむクラフトビールが釜山夏旅行の最高の選択として人気。', price:'8,000〜16,000₩/잔', naver:'https://map.naver.com/v5/search/해운대+수제맥주', instagram:'https://www.instagram.com/explore/tags/해운대수제맥주/' },
+    { city:'busan', name:'광안리 와인바',          kr:'광안리와인바',      area:'광안리',    cat:'🍷 와인바',   sns:['Instagram'],             why:'광안리 야경 앞에서 즐기는 내추럴 와인이 부산 데이트 문화의 새로운 트렌드를 만들다。広安里夜景を前に楽しむナチュラルワインが釜山デート文化の新トレンドを生み出す。', price:'18,000〜45,000₩/잔', naver:'https://map.naver.com/v5/search/광안리+와인바', instagram:'https://www.instagram.com/explore/tags/광안리와인바/' },
+    { city:'busan', name:'영도 루프탑 바',         kr:'영도루프탑바',      area:'영도',      cat:'🍷 와인바',   sns:['Instagram','TikTok'],    why:'영도 절벽 위 루프탑 바에서 부산 전경을 바라보며 즐기는 한 잔이 부산 최고의 뷰 술집으로 인기。影島の崖の上ルーフトップバーが釜山全景を望む最高のビュー酒場として人気急上昇。', price:'15,000〜35,000₩', naver:'https://map.naver.com/v5/search/영도+루프탑', instagram:'https://www.instagram.com/explore/tags/영도루프탑/' },
+    { city:'busan', name:'남포동 이자카야',        kr:'남포동이자카야',    area:'남포동',    cat:'🍶 이자카야', sns:['YouTube','Naver Blog'],  why:'남포동 구도심에 자리잡은 이자카야 골목이 부산 로컬 야간 문화의 핵심으로 부상。南浦洞旧市街の居酒屋横丁が釜山ローカル夜文化の核として台頭。深夜まで賑わう隠れた名所。', price:'20,000〜40,000₩', naver:'https://map.naver.com/v5/search/남포동+이자카야', instagram:'https://www.instagram.com/explore/tags/남포동이자카야/' },
+    { city:'busan', name:'서면 막걸리 바',         kr:'서면막걸리',        area:'서면',      cat:'🍶 막걸리',   sns:['TikTok','YouTube'],      why:'서면에서 다양한 지역 막걸리를 즐길 수 있는 전통주 바가 MZ세대 사이에서 인기를 끌다。西面で多彩な地方マッコリを楽しめる伝統酒バーがZ世代の間で人気急上昇。', price:'10,000〜25,000₩', naver:'https://map.naver.com/v5/search/서면+막걸리', instagram:'https://www.instagram.com/explore/tags/서면막걸리/' },
+    // ── 済州島追加（焼肉）──────────────────────
+    { city:'jeju', name:'서귀포 갈비',             kr:'서귀포갈비',        area:'서귀포',    cat:'🥩 갈비',     sns:['Instagram','Naver Blog'],why:'서귀포 바다 근처에서 제주산 돼지 갈비를 즐기는 것이 제주 미식 여행의 진수로 꼽힌다。西帰浦の海近くで済州産豚カルビを楽しむことが済州美食旅行の真髄として定評。', price:'28,000〜45,000₩', naver:'https://map.naver.com/v5/search/서귀포+갈비', kakao:'https://map.kakao.com/?q=서귀포+갈비', instagram:'https://www.instagram.com/explore/tags/서귀포갈비/' },
+    { city:'jeju', name:'제주 곱창 구이',           kr:'제주곱창',          area:'제주시내',  cat:'🍖 곱창',     sns:['TikTok','YouTube'],      why:'제주 토종 돼지를 활용한 곱창이 TikTok에서 바이럴되며 제주 로컬 맛집으로 주목받다。済州在来豚のホルモンがTikTokでバイラルして済州ローカルグルメとして注目を集める。', price:'18,000〜30,000₩', naver:'https://map.naver.com/v5/search/제주+곱창', kakao:'https://map.kakao.com/?q=제주+곱창', instagram:'https://www.instagram.com/explore/tags/제주곱창/' },
+    { city:'jeju', name:'애월 닭갈비',              kr:'애월닭갈비',        area:'애월읍',    cat:'🍗 닭갈비',   sns:['Instagram','TikTok'],    why:'애월 바다 뷰를 즐기며 먹는 제주식 닭갈비가 인스타에서 화제。愛月の海ビューを楽しみながら食べる済州式タッカルビがInstagramで大バズり。チーズ乗せが特に人気。', price:'13,000〜19,000₩', naver:'https://map.naver.com/v5/search/애월+닭갈비', kakao:'https://map.kakao.com/?q=애월+닭갈비', instagram:'https://www.instagram.com/explore/tags/애월닭갈비/' },
+    { city:'jeju', name:'성산 보쌈',                kr:'성산보쌈',          area:'성산읍',    cat:'🥬 보쌈',     sns:['Naver Blog','Instagram'],why:'성산일출봉 관람 후 즐기는 제주산 흑돼지 보쌈이 성산 여행 필식 코스로 자리잡다。城山日出峰観覧後に楽しむ済州黒豚ポッサムが城山旅行の必食コースとして定着。', price:'30,000〜50,000₩', naver:'https://map.naver.com/v5/search/성산+보쌈', kakao:'https://map.kakao.com/?q=성산+보쌈', instagram:'https://www.instagram.com/explore/tags/성산맛집/' },
+    { city:'jeju', name:'제주 스테이크 하우스',     kr:'제주스테이크',      area:'제주시내',  cat:'🥩 스테이크', sns:['Instagram'],             why:'제주 제주흑우를 활용한 스테이크가 제주 미식 여행의 하이라이트로 급부상。済州黒牛を使ったステーキが済州美食旅行のハイライトとして急浮上。希少な在来牛の深い味わいが人気。', price:'65,000〜120,000₩', naver:'https://map.naver.com/v5/search/제주+스테이크', kakao:'https://map.kakao.com/?q=제주+스테이크', instagram:'https://www.instagram.com/explore/tags/제주스테이크/' },
+    { city:'jeju', name:'서귀포 족발',              kr:'서귀포족발',        area:'서귀포',    cat:'🐷 족발',     sns:['YouTube','Naver Blog'],  why:'서귀포 시내에서 오래된 족발 명가가 제주 흑돼지의 콜라겐 가득한 맛을 전한다。西帰浦市内の老舗豚足名店が済州黒豚のコラーゲンたっぷりな味を伝え女性客に人気。', price:'32,000〜52,000₩', naver:'https://map.naver.com/v5/search/서귀포+족발', kakao:'https://map.kakao.com/?q=서귀포+족발', instagram:'https://www.instagram.com/explore/tags/서귀포맛집/' },
+    { city:'jeju', name:'제주 고기구이 거리',       kr:'제주고기구이',      area:'제주시내',  cat:'🥓 고기구이', sns:['TikTok','YouTube'],      why:'제주시 공항 근처의 고기구이 거리가 공항 픽업·픽드롭 때 들르는 필식 코스로 자리잡다。済州空港近くの焼肉通りが送迎時の立ち寄り必食コースとして定着。', price:'15,000〜25,000₩', naver:'https://map.naver.com/v5/search/제주+고기구이', kakao:'https://map.kakao.com/?q=제주+고기구이', instagram:'https://www.instagram.com/explore/tags/제주고기구이/' },
+    { city:'jeju', name:'한림 삼겹살',              kr:'한림삼겹살',        area:'한림',      cat:'🥓 삼겹살',   sns:['Naver Blog','Instagram'],why:'협재 해수욕장 관광 후 들르는 한림 삼겹살 집이 지역 주민과 여행자 모두에게 인기。挟才海水浴場観光後に立ち寄る翰林のサムギョプサル店が地元民と旅行者両方に人気。', price:'15,000〜22,000₩', naver:'https://map.naver.com/v5/search/한림+삼겹살', kakao:'https://map.kakao.com/?q=한림+삼겹살', instagram:'https://www.instagram.com/explore/tags/한림맛집/' },
+    // ── 済州島追加（麺・スープ）────────────────
+    { city:'jeju', name:'제주 냉면',                kr:'제주냉면',          area:'제주시내',  cat:'🍜 냉면',     sns:['Naver Blog','Instagram'],why:'제주 사계절 즐길 수 있는 시원한 제주식 냉면이 제주 여행 필식 메뉴로 자리잡다。済州の四季を通じて楽しめる涼やかな済州式冷麺が旅行必食メニューとして定着。', price:'11,000〜15,000₩', naver:'https://map.naver.com/v5/search/제주+냉면', kakao:'https://map.kakao.com/?q=제주+냉면', instagram:'https://www.instagram.com/explore/tags/제주냉면/' },
+    { city:'jeju', name:'서귀포 라멘',              kr:'서귀포라멘',        area:'서귀포',    cat:'🍜 라멘',     sns:['TikTok','Instagram'],    why:'서귀포 바다 뷰를 보며 즐기는 제주산 돼지뼈 라멘이 TikTok에서 화제。西帰浦の海ビューを眺めながら食べる済州産豚骨ラーメンがTikTokで話題。', price:'12,000〜17,000₩', naver:'https://map.naver.com/v5/search/서귀포+라멘', kakao:'https://map.kakao.com/?q=서귀포+라멘', instagram:'https://www.instagram.com/explore/tags/서귀포맛집/' },
+    { city:'jeju', name:'제주 순대국',              kr:'제주순대국',        area:'제주시내',  cat:'🍲 순대국',   sns:['Naver Blog','YouTube'],  why:'제주 재래시장 옆 순대국 노포가 제주 현지인들의 아침 식사 성지로 통한다。済州在来市場脇のスンデクッパ老舗が済州地元民の朝食の聖地として知られ旅行者にも人気。', price:'9,000〜12,000₩', naver:'https://map.naver.com/v5/search/제주+순대국', kakao:'https://map.kakao.com/?q=제주+순대국', instagram:'https://www.instagram.com/explore/tags/제주순대국/' },
+    { city:'jeju', name:'제주 돼지국밥',            kr:'제주돼지국밥',      area:'제주시내',  cat:'🍲 돼지국밥', sns:['YouTube','Naver Blog'],  why:'제주 흑돼지 뼈로 끓인 진한 국밥이 제주 여행의 아침을 완벽하게 여는 한 그릇으로 평가。済州黒豚の骨で煮込んだ濃厚クッパが済州旅行の朝を完璧に開くと高評価。', price:'10,000〜14,000₩', naver:'https://map.naver.com/v5/search/제주+돼지국밥', kakao:'https://map.kakao.com/?q=제주+돼지국밥', instagram:'https://www.instagram.com/explore/tags/제주돼지국밥/' },
+    { city:'jeju', name:'애월 라멘',                kr:'애월라멘',          area:'애월읍',    cat:'🍜 라멘',     sns:['Instagram','TikTok'],    why:'애월 해안 도로를 따라 자리한 라멘집이 제주 드라이브 코스와 함께 인기를 얻다。愛月の海岸道路沿いのラーメン店が済州ドライブコースと組み合わせて人気急上昇。', price:'12,000〜16,000₩', naver:'https://map.naver.com/v5/search/애월+라멘', kakao:'https://map.kakao.com/?q=애월+라멘', instagram:'https://www.instagram.com/explore/tags/애월맛집/' },
+    { city:'jeju', name:'성산 칼국수',              kr:'성산칼국수',        area:'성산읍',    cat:'🍜 칼국수',   sns:['Naver Blog'],            why:'성산일출봉 근처의 칼국수 집이 일출 관람 후 아침 식사로 제격이라는 입소문이 퍼지다。城山日出峰近くのカルグクス店が日の出観賞後の朝食に最適と口コミが広まる。', price:'10,000〜14,000₩', naver:'https://map.naver.com/v5/search/성산+칼국수', kakao:'https://map.kakao.com/?q=성산+칼국수', instagram:'https://www.instagram.com/explore/tags/성산칼국수/' },
+    { city:'jeju', name:'서귀포 냉면',              kr:'서귀포냉면',        area:'서귀포',    cat:'🍜 냉면',     sns:['Instagram','Naver Blog'],why:'한라산 등반 후 서귀포에서 즐기는 시원한 냉면이 등산 후 필식으로 손꼽힌다。漢拏山登山後に西帰浦で食べる涼やかな冷麺が登山後の必食グルメとして定評。', price:'11,000〜15,000₩', naver:'https://map.naver.com/v5/search/서귀포+냉면', kakao:'https://map.kakao.com/?q=서귀포+냉면', instagram:'https://www.instagram.com/explore/tags/서귀포냉면/' },
+    { city:'jeju', name:'한림 칼국수',              kr:'한림칼국수',        area:'한림',      cat:'🍜 칼국수',   sns:['YouTube','Naver Blog'],  why:'협재 해변 관광 후 들르는 한림 칼국수 집이 현지인들이 추천하는 제주 서부 맛집으로 통한다。挟才海辺観光後に立ち寄る翰林カルグクスが地元民推薦の済州西部グルメとして評判。', price:'10,000〜14,000₩', naver:'https://map.naver.com/v5/search/한림+칼국수', kakao:'https://map.kakao.com/?q=한림+칼국수', instagram:'https://www.instagram.com/explore/tags/한림맛집/' },
+    // ── 済州島追加（ご飯・韓食）────────────────
+    { city:'jeju', name:'제주 한정식',              kr:'제주한정식',        area:'제주시내',  cat:'🍚 한정식',   sns:['Instagram','Naver Blog'],why:'제주 재료로 차린 제주식 한정식 코스가 제주 미식 여행의 클라이막스로 꼽힌다。済州の食材で仕立てた済州式韓定食コースが済州美食旅行のクライマックスとして評判。', price:'45,000〜80,000₩', naver:'https://map.naver.com/v5/search/제주+한정식', kakao:'https://map.kakao.com/?q=제주+한정식', instagram:'https://www.instagram.com/explore/tags/제주한정식/' },
+    { city:'jeju', name:'서귀포 비빔밥',            kr:'서귀포비빔밥',      area:'서귀포',    cat:'🍚 비빔밥',   sns:['YouTube','Instagram'],   why:'서귀포 제주 식재료를 활용한 해물 비빔밥이 제주 여행의 필식으로 자리잡다。西帰浦の済州食材を活かした海鮮ビビンバが済州旅行の必食グルメとして定着。', price:'13,000〜18,000₩', naver:'https://map.naver.com/v5/search/서귀포+비빔밥', kakao:'https://map.kakao.com/?q=서귀포+비빔밥', instagram:'https://www.instagram.com/explore/tags/서귀포비빔밥/' },
+    { city:'jeju', name:'애월 한식',                kr:'애월한식',          area:'애월읍',    cat:'🍚 한식',     sns:['Instagram','TikTok'],    why:'애월 오션뷰를 즐기며 먹는 제주식 한식이 인스타에서 화제。愛月の海ビューを楽しみながら食べる済州式韓食がInstagramで話題に。カフェと韓食を組み合わせた贅沢な体験。', price:'18,000〜28,000₩', naver:'https://map.naver.com/v5/search/애월+한식', kakao:'https://map.kakao.com/?q=애월+한식', instagram:'https://www.instagram.com/explore/tags/애월한식/' },
+    { city:'jeju', name:'성산 돌솥비빔밥',          kr:'성산돌솥비빔밥',    area:'성산읍',    cat:'🍚 비빔밥',   sns:['Instagram'],             why:'성산일출봉 관람 후 즐기는 해산물 듬뿍 돌솥비빔밥이 성산 여행의 완벽한 마무리로 통한다。城山日出峰観覧後の海鮮たっぷり石鍋ビビンバが城山旅行の完璧な締めとして定評。', price:'13,000〜18,000₩', naver:'https://map.naver.com/v5/search/성산+돌솥비빔밥', kakao:'https://map.kakao.com/?q=성산+비빔밥', instagram:'https://www.instagram.com/explore/tags/성산맛집/' },
+    { city:'jeju', name:'한림 한정식',              kr:'한림한정식',        area:'한림',      cat:'🍚 한정식',   sns:['Naver Blog','YouTube'],  why:'협재 바다가 보이는 한림의 한정식 집이 제주 서부 여행의 숨은 보석으로 알려지다。挟才の海が見える翰林の韓定食店が済州西部旅行の隠れた宝石として口コミで人気。', price:'35,000〜60,000₩', naver:'https://map.naver.com/v5/search/한림+한정식', kakao:'https://map.kakao.com/?q=한림+한정식', instagram:'https://www.instagram.com/explore/tags/한림맛집/' },
+    { city:'jeju', name:'제주 모던 한식',           kr:'제주모던한식',      area:'제주시내',  cat:'🍚 한식',     sns:['Instagram'],             why:'제주 로컬 재료를 모던하게 재해석한 한식 레스토랑이 제주 파인다이닝의 새 기준을 세우다。済州ローカル食材をモダンに再解釈した韓食レストランが済州ファインダイニングの新基準に。', price:'55,000〜100,000₩', naver:'https://map.naver.com/v5/search/제주+모던한식', kakao:'https://map.kakao.com/?q=제주+모던한식', instagram:'https://www.instagram.com/explore/tags/제주모던한식/' },
+    { city:'jeju', name:'오분자기 덮밥',            kr:'오분자기덮밥',      area:'제주시내',  cat:'🍚 덮밥',     sns:['TikTok','YouTube'],      why:'제주 특산 오분자기(자그만 전복)로 만든 덮밥이 TikTok에서 바이럴되며 제주 대표 해산물 덮밥으로 등극。済州特産の小鮑で作った丼がTikTokでバイラル。済州代表海産物丼として人気に。', price:'18,000〜28,000₩', naver:'https://map.naver.com/v5/search/제주+오분자기덮밥', kakao:'https://map.kakao.com/?q=오분자기덮밥', instagram:'https://www.instagram.com/explore/tags/오분자기덮밥/' },
+    { city:'jeju', name:'협재 돌솥 한정식',         kr:'협재한정식',        area:'협재',      cat:'🍚 한정식',   sns:['Instagram','Naver Blog'],why:'협재 에메랄드 바다가 보이는 한정식 레스토랑에서의 식사가 제주 여행 최고의 경험으로 꼽힌다。挟才エメラルドの海が見える韓定食レストランが済州旅行最高の体験として評判。', price:'45,000〜75,000₩', naver:'https://map.naver.com/v5/search/협재+한정식', kakao:'https://map.kakao.com/?q=협재+한정식', instagram:'https://www.instagram.com/explore/tags/협재맛집/' },
+    { city:'jeju', name:'구좌 당근 비빔밥',         kr:'구좌당근비빔밥',    area:'구좌읍',    cat:'🍚 비빔밥',   sns:['TikTok','Instagram'],    why:'구좌 당근 산지에서 즐기는 신선한 당근을 활용한 비빔밥이 제주 색깔을 담은 창의적 메뉴로 화제。旧左の人参産地で食べる新鮮な人参を使ったビビンバが済州らしい創意的メニューとして話題。', price:'12,000〜16,000₩', naver:'https://map.naver.com/v5/search/구좌+비빔밥', kakao:'https://map.kakao.com/?q=구좌+비빔밥', instagram:'https://www.instagram.com/explore/tags/구좌맛집/' },
+    { city:'jeju', name:'서귀포 한식 코스',         kr:'서귀포한식코스',    area:'서귀포',    cat:'🍚 한식',     sns:['Instagram'],             why:'서귀포 레스토랑의 제주 로컬 재료로 만든 한식 코스 요리가 제주 미식 여행의 숨은 보석으로 알려지다。西帰浦の济州ローカル食材を使った韓食コース料理が済州美食旅行の隠れた宝石として注目。', price:'35,000〜65,000₩', naver:'https://map.naver.com/v5/search/서귀포+한식', kakao:'https://map.kakao.com/?q=서귀포+한식', instagram:'https://www.instagram.com/explore/tags/서귀포한식/' },
+    // ── 済州島追加（カフェ）────────────────────
+    { city:'jeju', name:'서귀포 오션뷰 카페',       kr:'서귀포카페',        area:'서귀포',    cat:'☕ 뷰카페',   sns:['Instagram','TikTok'],    why:'서귀포 바다를 정면으로 바라보는 카페에서의 사진이 제주 여행 인스타 필수 명소로 꼽힌다。西帰浦の海を正面に望むカフェでの写真が済州旅行Instagram必須スポットとして定番化。', price:'8,000〜15,000₩', naver:'https://map.naver.com/v5/search/서귀포+카페', kakao:'https://map.kakao.com/?q=서귀포+카페', instagram:'https://www.instagram.com/explore/tags/서귀포카페/' },
+    { city:'jeju', name:'구좌 당근 카페',           kr:'구좌카페',          area:'구좌읍',    cat:'☕ 카페',     sns:['TikTok','Instagram'],    why:'구좌 당근으로 만든 독창적인 당근 케이크와 음료가 제주만의 카페 문화로 TikTok에서 바이럴。旧左の人参で作るユニークな人参ケーキとドリンクが済州独自のカフェ文化としてTikTokでバイラル。', price:'7,000〜13,000₩', naver:'https://map.naver.com/v5/search/구좌+카페', kakao:'https://map.kakao.com/?q=구좌+카페', instagram:'https://www.instagram.com/explore/tags/구좌카페/' },
+    { city:'jeju', name:'성산 오션뷰 카페',         kr:'성산카페',          area:'성산읍',    cat:'☕ 뷰카페',   sns:['Instagram'],             why:'성산일출봉이 정면으로 보이는 카페에서 찍은 사진이 제주 여행 필수 인증샷으로 자리잡다。城山日出峰が正面に見えるカフェの写真が済州旅行の必須認証ショットとして定番化。', price:'7,000〜14,000₩', naver:'https://map.naver.com/v5/search/성산+카페', kakao:'https://map.kakao.com/?q=성산+카페', instagram:'https://www.instagram.com/explore/tags/성산카페/' },
+    { city:'jeju', name:'제주 감귤 베이커리',       kr:'제주베이커리',      area:'제주시내',  cat:'☕ 베이커리', sns:['TikTok','Instagram'],    why:'제주 감귤을 활용한 감귤빵·감귤케이크가 제주 기념 먹거리로 인기 폭발。済州みかんを使ったみかんパン・みかんケーキが済州お土産グルメとして大人気。必ず買って帰りたいNo.1スイーツ。', price:'3,500〜9,000₩', naver:'https://map.naver.com/v5/search/제주+감귤베이커리', kakao:'https://map.kakao.com/?q=제주+베이커리', instagram:'https://www.instagram.com/explore/tags/제주베이커리/' },
+    { city:'jeju', name:'한림 오션뷰 카페',         kr:'한림카페',          area:'한림',      cat:'☕ 카페',     sns:['Instagram','YouTube'],   why:'협재 에메랄드빛 바다가 창 너머로 보이는 한림 카페에서 찍은 사진이 제주 인스타 핫플로 인기。挟才エメラルドの海が窓越しに見える翰林カフェの写真が済州のInstagramホットスポットとして人気。', price:'8,000〜14,000₩', naver:'https://map.naver.com/v5/search/한림+카페', kakao:'https://map.kakao.com/?q=한림+카페', instagram:'https://www.instagram.com/explore/tags/한림카페/' },
+    { city:'jeju', name:'제주 에스프레소 바',       kr:'제주에스프레소바',  area:'제주시내',  cat:'☕ 에스프레소', sns:['Instagram'],             why:'제주 공항 근처의 스페셜티 커피 전문점이 여행 시작과 끝을 함께하는 커피 성지로 자리잡다。済州空港近くのスペシャルティコーヒー専門店が旅の始まりと終わりを共にするコーヒーの聖地に。', price:'5,000〜9,000₩', naver:'https://map.naver.com/v5/search/제주+에스프레소', kakao:'https://map.kakao.com/?q=제주+에스프레소', instagram:'https://www.instagram.com/explore/tags/제주커피/' },
+    // ── 済州島追加（海鮮）──────────────────────
+    { city:'jeju', name:'서귀포 스시 오마카세',     kr:'서귀포오마카세',    area:'서귀포',    cat:'🍣 오마카세', sns:['Instagram'],             why:'서귀포 제주 해산물을 최대로 활용한 스시 오마카세가 제주 미식 여행의 최고봉으로 평가。西帰浦の済州海産物を最大限に活用したスシオマカセが済州美食旅行の最高峰と評価される。', price:'80,000〜150,000₩', naver:'https://map.naver.com/v5/search/서귀포+오마카세', kakao:'https://map.kakao.com/?q=서귀포+오마카세', instagram:'https://www.instagram.com/explore/tags/서귀포오마카세/' },
+    { city:'jeju', name:'제주시 간장게장',          kr:'제주간장게장',      area:'제주시내',  cat:'🦀 게장',     sns:['TikTok','YouTube'],      why:'제주 꽃게로 담근 간장게장이 TikTok 먹방 영상에서 "제주 최고의 밥도둑"으로 소개되며 화제。済州ワタリガニの醤油漬けがTikTok食レポで「済州最高のご飯泥棒」として紹介され大バズり。', price:'18,000〜28,000₩', naver:'https://map.naver.com/v5/search/제주+게장', kakao:'https://map.kakao.com/?q=제주+게장', instagram:'https://www.instagram.com/explore/tags/제주게장/' },
+    { city:'jeju', name:'성산 성게 비빔밥',         kr:'성산성게비빔밥',    area:'성산읍',    cat:'🦔 성게',     sns:['YouTube','Instagram'],   why:'성산 일출봉 앞에서 즐기는 신선한 성게 비빔밥이 제주 여행 최고의 맛으로 꼽힌다。城山日出峰前で食べる新鮮ウニビビンバが済州旅行最高の味として定評。一面に広がるウニが贅沢の極み。', price:'20,000〜30,000₩', naver:'https://map.naver.com/v5/search/성산+성게비빔밥', kakao:'https://map.kakao.com/?q=성산+성게', instagram:'https://www.instagram.com/explore/tags/성산성게/' },
+    { city:'jeju', name:'제주시 스시',              kr:'제주스시',          area:'제주시내',  cat:'🍣 스시',     sns:['Instagram','Naver Blog'],why:'제주산 해산물로 만든 스시가 도쿄에 견줄 만한 수준으로 제주 파인다이닝 붐을 이끌다。済州産海産物で作るスシが東京に匹敵するレベルとして済州ファインダイニングブームを牽引。', price:'50,000〜90,000₩', naver:'https://map.naver.com/v5/search/제주+스시', kakao:'https://map.kakao.com/?q=제주+스시', instagram:'https://www.instagram.com/explore/tags/제주스시/' },
+    { city:'jeju', name:'모슬포 횟집',              kr:'모슬포횟집',        area:'모슬포',    cat:'🐟 횟감',     sns:['YouTube','Naver Blog'],  why:'제주 최남단 모슬포 항구에서 갓 잡은 활어회가 제주 로컬 여행의 숨은 보석으로 알려지다。済州最南端의漁港で獲れたての活魚刺身が済州ローカル旅行の隠れた宝石として人気急上昇。', price:'25,000〜50,000₩', naver:'https://map.naver.com/v5/search/모슬포+횟집', kakao:'https://map.kakao.com/?q=모슬포+횟집', instagram:'https://www.instagram.com/explore/tags/모슬포맛집/' },
+    { city:'jeju', name:'애월 스시',                kr:'애월스시',          area:'애월읍',    cat:'🍣 스시',     sns:['Instagram','TikTok'],    why:'애월 오션뷰를 즐기며 먹는 스시가 제주 여행의 완벽한 저녁으로 인스타에서 화제。愛月の海ビューを楽しみながら食べるスシが済州旅行の完璧な夜としてInstagramで話題に。', price:'45,000〜80,000₩', naver:'https://map.naver.com/v5/search/애월+스시', kakao:'https://map.kakao.com/?q=애월+스시', instagram:'https://www.instagram.com/explore/tags/애월스시/' },
+    { city:'jeju', name:'서귀포 성게 크림 파스타',  kr:'서귀포성게파스타',  area:'서귀포',    cat:'🦔 성게',     sns:['Instagram'],             why:'서귀포 오션뷰 레스토랑의 제주 성게 크림 파스타가 인스타에서 "제주 필식 파스타"로 바이럴。西帰浦オーシャンビューレストランの済州ウニクリームパスタがInstagramで「済州必食パスタ」としてバイラル。', price:'28,000〜42,000₩', naver:'https://map.naver.com/v5/search/서귀포+성게파스타', kakao:'https://map.kakao.com/?q=서귀포+파스타', instagram:'https://www.instagram.com/explore/tags/서귀포성게/' },
+    { city:'jeju', name:'우도 해산물 한상',         kr:'우도해산물',        area:'우도',      cat:'🌊 해산물',   sns:['YouTube','TikTok'],      why:'우도 해녀들이 직접 잡은 해산물로 차린 한상이 우도 여행의 하이라이트로 꼽힌다。牛島の海女さんが直採りした海産物で仕立てた膳が牛島旅行のハイライトとして定評。', price:'30,000〜55,000₩', naver:'https://map.naver.com/v5/search/우도+해산물', kakao:'https://map.kakao.com/?q=우도+해산물', instagram:'https://www.instagram.com/explore/tags/우도맛집/' },
+    // ── 済州島追加（屋台・ストリート）────────────
+    { city:'jeju', name:'동문시장 야시장',          kr:'동문시장야시장',    area:'제주시',    cat:'🌃 야시장',   sns:['TikTok','YouTube'],      why:'제주 최대 전통시장인 동문시장의 야시장이 제주 야간 관광의 핵심으로 부상。済州最大の伝統市場、東門市場の夜市が済州夜間観光の核として台頭。多彩なB級グルメが勢揃い。', price:'2,000〜8,000₩', naver:'https://map.naver.com/v5/search/동문시장+야시장', kakao:'https://map.kakao.com/?q=동문시장+야시장', instagram:'https://www.instagram.com/explore/tags/동문시장야시장/' },
+    { city:'jeju', name:'서귀포 매일올레시장 야시장',kr:'서귀포야시장',     area:'서귀포',    cat:'🌃 야시장',   sns:['TikTok','Instagram'],    why:'서귀포 매일올레시장 야시장이 제주 서부 야간 관광의 핵심 명소로 자리잡다。西帰浦マイオルレ市場の夜市が済州西部夜間観光の核心スポットとして定着。', price:'2,000〜8,000₩', naver:'https://map.naver.com/v5/search/서귀포+야시장', kakao:'https://map.kakao.com/?q=서귀포+야시장', instagram:'https://www.instagram.com/explore/tags/서귀포야시장/' },
+    { city:'jeju', name:'제주 어묵 꼬치',           kr:'제주어묵',          area:'제주시내',  cat:'🍢 어묵',     sns:['TikTok'],                why:'제주 전통시장 골목에서 즐기는 뜨끈한 어묵 꼬치가 제주 길거리 음식의 소박한 매력을 보여준다。済州伝統市場の路地で楽しむ熱々おでん串が済州ストリートフードの素朴な魅力を体現。', price:'1,000〜2,500₩', naver:'https://map.naver.com/v5/search/제주+어묵', kakao:'https://map.kakao.com/?q=제주+어묵', instagram:'https://www.instagram.com/explore/tags/제주어묵/' },
+    { city:'jeju', name:'제주 감귤 호떡',           kr:'제주호떡',          area:'제주시내',  cat:'🥞 호떡',     sns:['TikTok','Instagram'],    why:'제주 감귤 시럽을 넣은 감귤 호떡이 제주에서만 맛볼 수 있는 독창적인 길거리 간식으로 화제。済州みかんシロップ入りみかんホトックが済州だけのオリジナルスナックとしてTikTokで話題に。', price:'2,000〜3,000₩', naver:'https://map.naver.com/v5/search/제주+호떡', kakao:'https://map.kakao.com/?q=제주+호떡', instagram:'https://www.instagram.com/explore/tags/제주호떡/' },
+    { city:'jeju', name:'한림 해변 포장마차',       kr:'한림포장마차',      area:'한림',      cat:'🌃 포장마차', sns:['Instagram','YouTube'],   why:'협재 해변 근처의 포장마차에서 즐기는 에메랄드 바다뷰와 함께하는 식사가 제주 여행의 낭만을 완성。挟才海辺近くの屋台でエメラルドの海ビューと共に楽しむ食事が済州旅行のロマンスを完成させる。', price:'8,000〜20,000₩', naver:'https://map.naver.com/v5/search/한림+포장마차', kakao:'https://map.kakao.com/?q=한림+포장마차', instagram:'https://www.instagram.com/explore/tags/한림포장마차/' },
+    { city:'jeju', name:'서귀포 빈대떡',            kr:'서귀포빈대떡',      area:'서귀포',    cat:'🥞 빈대떡',   sns:['Naver Blog'],            why:'서귀포 재래시장의 바삭한 빈대떡이 제주 서부 여행의 소박하지만 잊지 못할 맛으로 손꼽힌다。西帰浦在来市場のカリカリのピンデトックが済州西部旅行の素朴だが忘れられない味として人気。', price:'3,000〜5,000₩', naver:'https://map.naver.com/v5/search/서귀포+빈대떡', kakao:'https://map.kakao.com/?q=서귀포+빈대떡', instagram:'https://www.instagram.com/explore/tags/서귀포맛집/' },
+    { city:'jeju', name:'성산 야시장',              kr:'성산야시장',        area:'성산읍',    cat:'🌃 야시장',   sns:['TikTok','Instagram'],    why:'성산일출봉 아래 펼쳐지는 소규모 야시장이 성산 야간 여행의 새로운 명소로 주목받다。城山日出峰の麓に広がる小規模夜市が城山夜間旅行の新スポットとして注目を集める。', price:'2,000〜8,000₩', naver:'https://map.naver.com/v5/search/성산+야시장', kakao:'https://map.kakao.com/?q=성산+야시장', instagram:'https://www.instagram.com/explore/tags/성산야시장/' },
+    { city:'jeju', name:'애월 해변 포장마차',       kr:'애월포장마차',      area:'애월읍',    cat:'🌃 포장마차', sns:['TikTok','Instagram'],    why:'애월 해안도로를 따라 펼쳐진 포장마차에서 즐기는 간식이 제주 드라이브 코스의 정점으로 꼽힌다。愛月の海岸道路沿いに広がる屋台で楽しむおやつが済州ドライブコースの頂点として定評。', price:'5,000〜15,000₩', naver:'https://map.naver.com/v5/search/애월+포장마차', kakao:'https://map.kakao.com/?q=애월+포장마차', instagram:'https://www.instagram.com/explore/tags/애월포장마차/' },
+    { city:'jeju', name:'제주 타코',                kr:'제주타코',          area:'제주시내',  cat:'🌮 타코',     sns:['TikTok','Instagram'],    why:'제주 관광지에 자리한 이국적인 타코 가게가 핼랄 인증으로 무슬림 관광객에게도 대인기。済州の観光地にあるエキゾチックなタコス店がハラール認証で多国籍観光客に大人気。', price:'8,000〜14,000₩', naver:'https://map.naver.com/v5/search/제주+타코', kakao:'https://map.kakao.com/?q=제주+타코', instagram:'https://www.instagram.com/explore/tags/제주타코/' },
+    { city:'jeju', name:'제주 케밥',                kr:'제주케밥',          area:'제주시내',  cat:'🌯 케밥',     sns:['YouTube','TikTok'],      why:'제주 관광지의 핼랄 케밥 전문점이 무슬림·비무슬림 모두에게 인기를 끌며 제주 길거리 음식으로 정착。済州観光地のハラールケバブ専門店が多宗教観光客に人気で済州ストリートフードとして定着。', price:'7,000〜12,000₩', naver:'https://map.naver.com/v5/search/제주+케밥', kakao:'https://map.kakao.com/?q=제주+케밥', instagram:'https://www.instagram.com/explore/tags/제주케밥/' },
+    // ── 済州島追加（バー・お酒）────────────────
+    { city:'jeju', name:'제주 전통주 바',           kr:'제주전통주바',      area:'제주시내',  cat:'🍶 전통주',   sns:['Instagram','Naver Blog'],why:'제주 오메기술·고소리술 등 제주 고유 전통주를 체험할 수 있는 바가 제주 여행의 문화 체험으로 인기。済州固有の伝統酒オメギ酒・コソリ酒を体験できるバーが済州旅行の文化体験として人気。', price:'12,000〜30,000₩', naver:'https://map.naver.com/v5/search/제주+전통주', kakao:'https://map.kakao.com/?q=제주+전통주', instagram:'https://www.instagram.com/explore/tags/제주전통주/' },
+    { city:'jeju', name:'애월 와인바',              kr:'애월와인바',        area:'애월읍',    cat:'🍷 와인바',   sns:['Instagram'],             why:'애월 오션뷰를 바라보며 즐기는 내추럴 와인이 제주 여행의 완벽한 저녁을 만들어준다。愛月の海ビューを眺めながら楽しむナチュラルワインが済州旅行の完璧な夜を演出すると人気。', price:'18,000〜45,000₩/잔', naver:'https://map.naver.com/v5/search/애월+와인바', kakao:'https://map.kakao.com/?q=애월+와인바', instagram:'https://www.instagram.com/explore/tags/애월와인바/' },
+    { city:'jeju', name:'서귀포 이자카야',          kr:'서귀포이자카야',    area:'서귀포',    cat:'🍶 이자카야', sns:['Instagram','Naver Blog'],why:'서귀포 해변 근처의 이자카야에서 신선한 제주 해산물 안주를 즐길 수 있다。西帰浦海辺近くの居酒屋で新鮮な済州海産物のおつまみを楽しめると旅行者に高評価。', price:'20,000〜40,000₩', naver:'https://map.naver.com/v5/search/서귀포+이자카야', kakao:'https://map.kakao.com/?q=서귀포+이자카야', instagram:'https://www.instagram.com/explore/tags/서귀포이자카야/' },
+    { city:'jeju', name:'제주 수제맥주 탭룸',       kr:'제주수제맥주',      area:'제주시내',  cat:'🍺 수제맥주', sns:['Instagram','TikTok'],    why:'제주산 원료를 활용한 크래프트 맥주를 즐길 수 있는 탭룸이 제주 여행의 새로운 명소로 인기。済州産原料を使ったクラフトビールが楽しめるタップルームが済州旅行の新スポットとして人気。', price:'7,000〜15,000₩/잔', naver:'https://map.naver.com/v5/search/제주+수제맥주', kakao:'https://map.kakao.com/?q=제주+수제맥주', instagram:'https://www.instagram.com/explore/tags/제주수제맥주/' },
+    { city:'jeju', name:'협재 와인바',              kr:'협재와인바',        area:'협재',      cat:'🍷 와인바',   sns:['Instagram'],             why:'협재 에메랄드 바다가 보이는 와인바에서의 한잔이 제주 여행 최고의 로맨틱한 순간을 만들어준다。挟才エメラルドの海が見えるワインバーが済州旅行最高のロマンチックな瞬間を演出。', price:'15,000〜40,000₩/잔', naver:'https://map.naver.com/v5/search/협재+와인바', kakao:'https://map.kakao.com/?q=협재+와인바', instagram:'https://www.instagram.com/explore/tags/협재와인바/' },
+    { city:'jeju', name:'성산 이자카야',            kr:'성산이자카야',      area:'성산읍',    cat:'🍶 이자카야', sns:['Naver Blog','Instagram'],why:'성산일출봉을 바라보며 즐기는 이자카야에서의 한잔이 성산 여행의 완벽한 마무리로 통한다。城山日出峰を眺めながら楽しむ居酒屋が城山旅行の完璧な締めくくりとして旅行者に評判。', price:'20,000〜38,000₩', naver:'https://map.naver.com/v5/search/성산+이자카야', kakao:'https://map.kakao.com/?q=성산+이자카야', instagram:'https://www.instagram.com/explore/tags/성산이자카야/' },
+    { city:'jeju', name:'제주 사케 바',             kr:'제주사케바',        area:'제주시내',  cat:'🍶 사케',     sns:['Instagram'],             why:'일본인 관광객에게도 인기 있는 제주 사케 전문 바가 한국·일본 주류 문화의 교차점으로 주목받다。日本人旅行者にも人気の済州サケ専門バーが韓日の酒文化の交差点として注目を集める。', price:'15,000〜35,000₩/잔', naver:'https://map.naver.com/v5/search/제주+사케바', kakao:'https://map.kakao.com/?q=제주+사케바', instagram:'https://www.instagram.com/explore/tags/제주사케/' },
+    { city:'jeju', name:'서귀포 수제맥주 바',       kr:'서귀포수제맥주',    area:'서귀포',    cat:'🍺 수제맥주', sns:['Instagram','TikTok'],    why:'서귀포 바다 앞에서 즐기는 크래프트 맥주가 제주 서부 여행의 힐링 포인트로 자리잡다。西帰浦の海の前で楽しむクラフトビールが済州西部旅行のヒーリングポイントとして定着。', price:'7,000〜15,000₩/잔', naver:'https://map.naver.com/v5/search/서귀포+수제맥주', kakao:'https://map.kakao.com/?q=서귀포+수제맥주', instagram:'https://www.instagram.com/explore/tags/서귀포수제맥주/' },
+    { city:'jeju', name:'제주 오메기 막걸리 바',    kr:'제주막걸리바',      area:'제주시내',  cat:'🍶 막걸리',   sns:['Instagram','TikTok'],    why:'제주 오메기떡으로 만든 전통 막걸리를 즐길 수 있는 바가 제주 문화 여행의 필수 코스로 부상。済州オメギ餅から作る伝統マッコリが楽しめるバーが済州文化旅行の必須コースとして台頭。', price:'8,000〜20,000₩', naver:'https://map.naver.com/v5/search/제주+오메기막걸리', kakao:'https://map.kakao.com/?q=제주+막걸리', instagram:'https://www.instagram.com/explore/tags/제주막걸리/' },
+    { city:'jeju', name:'애월 수제맥주',            kr:'애월수제맥주',      area:'애월읍',    cat:'🍺 수제맥주', sns:['Instagram','YouTube'],   why:'애월 오션뷰 카페 거리에 자리한 크래프트 맥주 바에서 바다를 바라보며 즐기는 한잔이 최고。愛月オーシャンビューカフェ通りのクラフトビールバーで海を眺めながら楽しむ一杯が最高と大評判。', price:'7,000〜15,000₩/잔', naver:'https://map.naver.com/v5/search/애월+수제맥주', kakao:'https://map.kakao.com/?q=애월+수제맥주', instagram:'https://www.instagram.com/explore/tags/애월수제맥주/' },
+    // ── 慶州追加 ──────────────────────────────
+    { city:'gyeongju', name:'황리단길 카페',          kr:'황리단길카페',      area:'황리단길',  cat:'☕ 카페',     sns:['Instagram','TikTok'],    why:'신라 왕릉을 배경으로 즐기는 황리단길 카페 문화가 경주 여행의 새로운 트렌드로 자리잡다。新羅王陵を背景に楽しむ皇理段キルカフェ文化が慶州旅行の新トレンドとして定着。', price:'7,000〜13,000₩', naver:'https://map.naver.com/v5/search/황리단길+카페', kakao:'https://map.kakao.com/?q=황리단길+카페', instagram:'https://www.instagram.com/explore/tags/황리단길카페/' },
+    { city:'gyeongju', name:'경주 비빔밥',            kr:'경주비빔밥',        area:'황남동',    cat:'🍚 비빔밥',   sns:['YouTube','Instagram'],   why:'천년 고도 경주의 전통 비빔밥이 역사 여행과 함께 즐기는 필식 코스로 자리잡다。千年古都慶州の伝統ビビンバが歴史旅行と組み合わせた必食コースとして定着。', price:'11,000〜15,000₩', naver:'https://map.naver.com/v5/search/경주+비빔밥', kakao:'https://map.kakao.com/?q=경주+비빔밥', instagram:'https://www.instagram.com/explore/tags/경주비빔밥/' },
+    { city:'gyeongju', name:'경주 한정식',            kr:'경주한정식',        area:'교동',      cat:'🍚 한정식',   sns:['Naver Blog','Instagram'],why:'경주 교동 한옥에서 즐기는 신라 왕실 음식에서 영감을 받은 한정식이 역사 여행의 클라이막스로 통한다。慶州교동の韓屋で楽しむ新羅王室料理にインスパイアされた韓定食が歴史旅行のクライマックスとして評判。', price:'40,000〜70,000₩', naver:'https://map.naver.com/v5/search/경주+한정식', kakao:'https://map.kakao.com/?q=경주+한정식', instagram:'https://www.instagram.com/explore/tags/경주한정식/' },
+    { city:'gyeongju', name:'경주 칼국수',            kr:'경주칼국수',        area:'중앙시장',  cat:'🍜 칼국수',   sns:['Naver Blog','YouTube'],  why:'경주 중앙시장 옆 칼국수 노포가 경주 여행의 소박하지만 맛있는 현지 밥집으로 손꼽힌다。慶州中央市場脇のカルグクス老舗が慶州旅行の素朴だが美味しいローカル食堂として定評。', price:'8,000〜11,000₩', naver:'https://map.naver.com/v5/search/경주+칼국수', kakao:'https://map.kakao.com/?q=경주+칼국수', instagram:'https://www.instagram.com/explore/tags/경주칼국수/' },
+    { city:'gyeongju', name:'경주 갈비',              kr:'경주갈비',          area:'성동동',    cat:'🥩 갈비',     sns:['Naver Blog'],            why:'경주 여행의 저녁 식사 코스로 빠지지 않는 경주 갈비가 경주 여행자들의 단골 맛집으로 자리잡다。慶州旅行の夕食コースに欠かせない慶州カルビが旅行者の定番グルメとして定着。', price:'35,000〜60,000₩', naver:'https://map.naver.com/v5/search/경주+갈비', kakao:'https://map.kakao.com/?q=경주+갈비', instagram:'https://www.instagram.com/explore/tags/경주갈비/' },
+    { city:'gyeongju', name:'경주 스시 오마카세',     kr:'경주오마카세',      area:'황리단길',  cat:'🍣 오마카세', sns:['Instagram'],             why:'황리단길 근처에 자리한 경주 스시 오마카세가 의외의 미식 경험으로 여행자들 사이에서 화제。皇理段キル近くの慶州スシオマカセが意外な美食体験として旅行者の間で話題になっている。', price:'70,000〜120,000₩', naver:'https://map.naver.com/v5/search/경주+오마카세', kakao:'https://map.kakao.com/?q=경주+오마카세', instagram:'https://www.instagram.com/explore/tags/경주오마카세/' },
+    { city:'gyeongju', name:'황리단길 야시장',        kr:'황리단길야시장',    area:'황리단길',  cat:'🌃 야시장',   sns:['TikTok','Instagram'],    why:'경주 대릉원 근처 황리단길 야시장이 경주 야간 관광의 새로운 명소로 TikTok에서 바이럴。大陵苑近くの皇理段キル夜市が慶州夜間観光の新スポットとしてTikTokでバイラル。', price:'2,000〜8,000₩', naver:'https://map.naver.com/v5/search/황리단길+야시장', kakao:'https://map.kakao.com/?q=황리단길+야시장', instagram:'https://www.instagram.com/explore/tags/황리단길야시장/' },
+    // ── 全州追加 ────────────────────────────────
+    { city:'jeonju', name:'전주 한정식',             kr:'전주한정식',        area:'완산구',    cat:'🍚 한정식',   sns:['Instagram','Naver Blog'],why:'전주 한옥마을 근처의 격식 있는 한정식이 전주 미식 여행의 완성으로 평가받다。全州韓屋村近くの格式ある韓定食が全州美食旅行の完成として高評価。20種以上の小鉢が並ぶ贅沢な膳。', price:'40,000〜70,000₩', naver:'https://map.naver.com/v5/search/전주+한정식', kakao:'https://map.kakao.com/?q=전주+한정식', instagram:'https://www.instagram.com/explore/tags/전주한정식/' },
+    { city:'jeonju', name:'전주 냉면',               kr:'전주냉면',          area:'중앙동',    cat:'🍜 냉면',     sns:['Naver Blog','YouTube'],  why:'전주식 비빔냉면이 전주 비빔밥 문화와 함께 전주 여행의 필식 메뉴로 자리잡다。全州式ビビム冷麺が全州ビビンバ文化と共に全州旅行の必食メニューとして定着。', price:'10,000〜13,000₩', naver:'https://map.naver.com/v5/search/전주+냉면', kakao:'https://map.kakao.com/?q=전주+냉면', instagram:'https://www.instagram.com/explore/tags/전주냉면/' },
+    { city:'jeonju', name:'전주 막걸리 바',          kr:'전주막걸리',        area:'한옥마을',  cat:'🍶 막걸리',   sns:['TikTok','Instagram'],    why:'전주 한옥마을 골목에서 즐기는 전통 막걸리가 전주 야간 문화의 핵심으로 자리잡다。全州韓屋村路地で楽しむ伝統マッコリが全州夜文化の核として定着。外국인 관광객にも大人気。', price:'8,000〜20,000₩', naver:'https://map.naver.com/v5/search/전주+막걸리', kakao:'https://map.kakao.com/?q=전주+막걸리', instagram:'https://www.instagram.com/explore/tags/전주막걸리/' },
+    { city:'jeonju', name:'전주 게장 백반',          kr:'전주게장백반',      area:'완산구',    cat:'🦀 게장',     sns:['YouTube','Naver Blog'],  why:'전주의 간장게장 백반이 "밥도둑"의 원조로 꼽히며 전주 여행의 숨은 명물로 자리잡다。全州の醤油漬けワタリガニ定食が「ご飯泥棒」の元祖として全州旅行の隠れた名物として定着。', price:'15,000〜22,000₩', naver:'https://map.naver.com/v5/search/전주+게장백반', kakao:'https://map.kakao.com/?q=전주+게장', instagram:'https://www.instagram.com/explore/tags/전주게장/' },
+    { city:'jeonju', name:'전주 갈비',               kr:'전주갈비',          area:'서노송동',  cat:'🥩 갈비',     sns:['Naver Blog','Instagram'],why:'전주 갈비 거리의 숯불 갈비가 전주 비빔밥과 함께 전주 여행 2대 음식으로 꼽힌다。全州カルビ通りの炭火カルビが全州ビビンバと並ぶ全州旅行の2大グルメとして定評。', price:'35,000〜60,000₩', naver:'https://map.naver.com/v5/search/전주+갈비', kakao:'https://map.kakao.com/?q=전주+갈비', instagram:'https://www.instagram.com/explore/tags/전주갈비/' },
+    { city:'jeonju', name:'전주 한옥마을 카페',      kr:'전주카페',          area:'한옥마을',  cat:'☕ 카페',     sns:['Instagram','TikTok'],    why:'전주 한옥마을 안에 자리한 한옥 카페에서 즐기는 전통차와 커피가 인스타에서 화제。全州韓屋村内の韓屋カフェで楽しむ伝統茶とコーヒーがInstagramで話題に。한옥와 커피의 조화が인기。', price:'6,000〜13,000₩', naver:'https://map.naver.com/v5/search/전주+한옥마을+카페', kakao:'https://map.kakao.com/?q=전주한옥마을카페', instagram:'https://www.instagram.com/explore/tags/전주카페/' },
+    { city:'jeonju', name:'전주 어묵',               kr:'전주어묵',          area:'중앙동',    cat:'🍢 어묵',     sns:['TikTok','Naver Blog'],   why:'전주 재래시장 골목의 진한 국물 어묵이 전주 길거리 음식의 대표 주자로 알려지다。全州在来市場路地の濃厚スープのおでんが全州ストリートフードの代表格として旅行者にも人気。', price:'1,000〜2,500₩', naver:'https://map.naver.com/v5/search/전주+어묵', kakao:'https://map.kakao.com/?q=전주+어묵', instagram:'https://www.instagram.com/explore/tags/전주어묵/' },
+    // ── 마라탕・떡볶이 追加 ─────────────────────
+    // 서울 마라탕
+    { city:'seoul', name:'홍대 마라탕',              kr:'홍대마라탕',        area:'홍대',      cat:'🫕 마라탕',   sns:['TikTok','Instagram'],    why:'홍대 MZ세대 사이에서 마라탕이 새로운 소울 푸드로 정착。弘大のZ世代の間でマラタンが「新しいソウルフード」として定着。辛さレベル調整が可能で辛さが苦手な日本人にも人気。',    price:'12,000〜18,000₩', naver:'https://map.naver.com/v5/search/홍대+마라탕', instagram:'https://www.instagram.com/explore/tags/홍대마라탕/' },
+    { city:'seoul', name:'강남 마라샹궈',            kr:'강남마라샹궈',      area:'강남',      cat:'🫕 마라탕',   sns:['TikTok','Instagram'],    why:'강남에서 셀프로 재료를 골라 마라 소스와 볶아 먹는 마라샹궈 전문점이 SNS에서 화제。江南の自分で具材を選ぶ마라샹궈専門店がSNSで話題沸騰。「韓国に来てマラタン食べた」投稿が急増。', price:'15,000〜25,000₩', naver:'https://map.naver.com/v5/search/강남+마라탕', instagram:'https://www.instagram.com/explore/tags/강남마라탕/' },
+    { city:'seoul', name:'이태원 마라탕',            kr:'이태원마라탕',      area:'이태원',    cat:'🫕 마라탕',   sns:['TikTok','YouTube'],      why:'이태원 다국적 거리에서 즐기는 마라탕이 외국인 관광객 사이에서 "한국에서 꼭 먹어야 할 음식"으로 급부상。梨泰院の多国籍通りのマラタンが外国人観光客に「韓国で絶対食べたいもの」に急浮上。', price:'12,000〜20,000₩', naver:'https://map.naver.com/v5/search/이태원+마라탕', instagram:'https://www.instagram.com/explore/tags/이태원마라탕/' },
+    { city:'seoul', name:'성수 마라샹궈',            kr:'성수마라샹궈',      area:'성수동',    cat:'🫕 마라탕',   sns:['TikTok','Instagram'],    why:'성수 힙한 공간에서 즐기는 프리미엄 마라탕이 SNS에서 화제。成水のヒップな空間で楽しむプレミアムマラタンがSNSで話題。インテリアも食欲をそそる。',                                      price:'14,000〜22,000₩', naver:'https://map.naver.com/v5/search/성수+마라탕', instagram:'https://www.instagram.com/explore/tags/성수마라탕/' },
+    { city:'seoul', name:'신촌 탄탄멘',              kr:'신촌탄탄멘',        area:'신촌',      cat:'🍜 탄탄멘',   sns:['TikTok','Naver Blog'],   why:'신촌 대학가에서 인기 있는 탄탄멘이 마라탕 붐과 함께 중화 누들 문화로 자리잡다。新村大学街で人気の担担麺がマラタンブームと共に中華ヌードル文化として定着。スパイシーで濃厚。', price:'12,000〜16,000₩', naver:'https://map.naver.com/v5/search/신촌+탄탄멘', instagram:'https://www.instagram.com/explore/tags/탄탄멘/' },
+    // 서울 떡볶이
+    { city:'seoul', name:'신당동 떡볶이 골목',       kr:'신당동떡볶이',      area:'신당동',    cat:'🌶️ 떡볶이',  sns:['YouTube','TikTok'],      why:'50년 전통 신당동 떡볶이 골목이 해외 유튜버들의 단골 방문지로 자리잡다。創業50年の신당동トッポギ横丁が海外YouTuberの定番訪問地として世界的に有名に。',                                  price:'5,000〜8,000₩', naver:'https://map.naver.com/v5/search/신당동+떡볶이', instagram:'https://www.instagram.com/explore/tags/신당동떡볶이/' },
+    { city:'seoul', name:'홍대 엽기떡볶이',          kr:'홍대엽기떡볶이',    area:'홍대',      cat:'🌶️ 떡볶이',  sns:['TikTok','YouTube'],      why:'엽기적인 그녀 레시피 기반의 엽기떡볶이 프랜차이즈가 해외에서 "한국 최고 떡볶이"로 알려지다。엽기떡볶이チェーンが海外で「韓国最高のトッポギ」として知られるほどの人気に。', price:'6,000〜12,000₩', naver:'https://map.naver.com/v5/search/홍대+엽기떡볶이', instagram:'https://www.instagram.com/explore/tags/엽기떡볶이/' },
+    { city:'seoul', name:'강남 닭강정',              kr:'강남닭강정',        area:'강남',      cat:'🍗 닭강정',  sns:['TikTok','Instagram'],    why:'강남에서 인기를 끌고 있는 달콤짭짤한 닭강정이 TikTok 먹방의 단골 소재로 떠오르다。江南で人気の甘辛チキンがTikTok食レポの定番ネタとして急浮上。外国人観光客の「韓国B級グルメ」リストに常連入り。', price:'8,000〜15,000₩', naver:'https://map.naver.com/v5/search/강남+닭강정', instagram:'https://www.instagram.com/explore/tags/닭강정/' },
+    { city:'seoul', name:'종로 순대 골목',           kr:'종로순대골목',      area:'종로',      cat:'🌭 순대',    sns:['YouTube','Naver Blog'],  why:'종로 광장 시장 근처의 순대 골목이 서울 전통 분식 문화의 상징으로 자리잡다。종로広場市場近くのスンデ横丁がソウル伝統粉食文化の象徴として旅行者に定番のスポットに。', price:'4,000〜7,000₩', naver:'https://map.naver.com/v5/search/종로+순대', instagram:'https://www.instagram.com/explore/tags/종로순대/' },
+    { city:'seoul', name:'명동 닭강정',              kr:'명동닭강정',        area:'명동',      cat:'🍗 닭강정',  sns:['TikTok','YouTube'],      why:'명동 쇼핑 거리의 닭강정 가게들이 외국인 여행자 "한국 길거리 음식 투어" 필수 코스로 자리잡다。明洞쇼핑街のチキンガンジョン店が外国人旅行者の「韓国ストリートフードツアー」の定番コースに。', price:'5,000〜10,000₩', naver:'https://map.naver.com/v5/search/명동+닭강정', instagram:'https://www.instagram.com/explore/tags/명동닭강정/' },
+    // 부산 마라탕・떡볶이
+    { city:'busan', name:'서면 마라탕',              kr:'서면마라탕',        area:'서면',      cat:'🫕 마라탕',   sns:['TikTok','Instagram'],    why:'서면 번화가의 마라탕 전문점이 부산 젊은이들의 새로운 소울 푸드로 자리잡다。西面繁華街のマラタン専門店が釜山若者の新ソウルフードとして定着。鍋の具を自分で選ぶスタイルが人気。', price:'12,000〜20,000₩', naver:'https://map.naver.com/v5/search/서면+마라탕', instagram:'https://www.instagram.com/explore/tags/서면마라탕/' },
+    { city:'busan', name:'해운대 마라탕',            kr:'해운대마라탕',      area:'해운대',    cat:'🫕 마라탕',   sns:['TikTok'],                why:'해운대 관광지 근처에서 즐기는 마라탕이 부산 여행의 새로운 트렌드로 떠오르다。海雲台観光地近くで楽しむマラタンが釜山旅行の新トレンドとして台頭。観光後の夕食として定番化しつつある。', price:'12,000〜20,000₩', naver:'https://map.naver.com/v5/search/해운대+마라탕', instagram:'https://www.instagram.com/explore/tags/해운대마라탕/' },
+    { city:'busan', name:'남포동 떡볶이',            kr:'남포동떡볶이',      area:'남포동',    cat:'🌶️ 떡볶이',  sns:['TikTok','Naver Blog'],   why:'남포동 재래시장 골목의 매콤달콤한 떡볶이가 부산 분식 문화의 진수를 보여준다。南浦洞市場路地の甘辛トッポギが釜山粉食文化の真髄を体現。観光の合間に食べる定番スナックとして人気。', price:'4,000〜7,000₩', naver:'https://map.naver.com/v5/search/남포동+떡볶이', instagram:'https://www.instagram.com/explore/tags/남포동떡볶이/' },
+    { city:'busan', name:'서면 순대 골목',           kr:'서면순대골목',      area:'서면',      cat:'🌭 순대',    sns:['Naver Blog','YouTube'],  why:'서면 뒷골목의 순대 전문점이 부산 로컬 분식 문화의 핵심으로 부산 여행자들의 단골 코스로 자리잡다。西面裏路地のスンデ専門店が釜山ローカル粉食文化の核心として旅行者の定番コースに。', price:'4,000〜8,000₩', naver:'https://map.naver.com/v5/search/서면+순대', instagram:'https://www.instagram.com/explore/tags/서면순대/' },
+    { city:'busan', name:'해운대 떡볶이',            kr:'해운대떡볶이',      area:'해운대',    cat:'🌶️ 떡볶이',  sns:['TikTok','Instagram'],    why:'해운대 해변 근처의 떡볶이 노점이 부산 해변 간식 문화의 상징으로 자리잡다。海雲台해변近くのトッポギ屋台が釜山海辺スナック文化の象徴として定着。夕暮れ時の一杯に最高。', price:'3,000〜6,000₩', naver:'https://map.naver.com/v5/search/해운대+떡볶이', instagram:'https://www.instagram.com/explore/tags/해운대떡볶이/' },
+    // 제주 마라탕・떡볶이
+    { city:'jeju', name:'제주 마라탕',               kr:'제주마라탕',        area:'제주시내',  cat:'🫕 마라탕',   sns:['TikTok','Instagram'],    why:'제주 관광지에서도 마라탕 붐이 불면서 제주만의 해산물 마라탕이 등장하여 화제。済州の観光地でもマラタンブームが訪れ、済州産海産物マラタンが登場して大話題に。', price:'13,000〜22,000₩', naver:'https://map.naver.com/v5/search/제주+마라탕', instagram:'https://www.instagram.com/explore/tags/제주마라탕/' },
+    { city:'jeju', name:'제주 떡볶이',               kr:'제주떡볶이',        area:'제주시내',  cat:'🌶️ 떡볶이',  sns:['TikTok'],                why:'제주 동문시장 근처에서 즐기는 매콤한 떡볶이가 제주 길거리 음식 투어의 핵심 코스로 자리잡다。済州東門市場近くで楽しむ辛口トッポギが済州ストリートフードツアーの核心コースとして定着。', price:'4,000〜7,000₩', naver:'https://map.naver.com/v5/search/제주+떡볶이', instagram:'https://www.instagram.com/explore/tags/제주떡볶이/' },
+    { city:'jeju', name:'서귀포 순대국',             kr:'서귀포순대국',      area:'서귀포',    cat:'🌭 순대',    sns:['Naver Blog'],            why:'서귀포 재래시장 골목에서 즐기는 순대국이 제주 여행의 소박하지만 잊지 못할 맛으로 알려지다。西帰浦在来市場のスンデクッパが済州旅行の素朴で忘れられない味として口コミで人気。', price:'4,000〜7,000₩', naver:'https://map.naver.com/v5/search/서귀포+순대국', instagram:'https://www.instagram.com/explore/tags/서귀포순대/' },
+    // 경주 마라탕・떡볶이
+    { city:'gyeongju', name:'황리단길 떡볶이',       kr:'황리단길떡볶이',    area:'황리단길',  cat:'🌶️ 떡볶이',  sns:['TikTok','Instagram'],    why:'경주 황리단길의 매콤한 떡볶이가 역사 여행 중 즐기는 현대 길거리 음식으로 인기를 끌다。慶州황리단길の辛口トッポギが歴史旅行中に楽しむ現代ストリートフードとして人気を集める。', price:'4,000〜7,000₩', naver:'https://map.naver.com/v5/search/황리단길+떡볶이', instagram:'https://www.instagram.com/explore/tags/황리단길떡볶이/' },
+    { city:'gyeongju', name:'경주 마라탕',           kr:'경주마라탕',        area:'황남동',    cat:'🫕 마라탕',   sns:['TikTok'],                why:'경주 관광지에서도 마라탕 붐에 올라타 마라탕 전문점이 생겨나며 젊은 여행자들 사이에서 인기를 얻고 있다。慶州観光地でもマラタンブームに乗りマラタン専門店が誕生。若い旅行者の間で人気上昇中。', price:'12,000〜18,000₩', naver:'https://map.naver.com/v5/search/경주+마라탕', instagram:'https://www.instagram.com/explore/tags/경주마라탕/' },
+    // 전주 마라탕・떡볶이
+    { city:'jeonju', name:'전주 떡볶이',             kr:'전주떡볶이',        area:'한옥마을',  cat:'🌶️ 떡볶이',  sns:['TikTok','Naver Blog'],   why:'전주 한옥마을 입구의 매콤한 떡볶이가 전주 길거리 음식 투어의 필수 코스로 자리잡다。全州韓屋村入口の辛口トッポギが全州ストリートフードツアーの必須コースとして旅行者に定番化。', price:'4,000〜7,000₩', naver:'https://map.naver.com/v5/search/전주+떡볶이', instagram:'https://www.instagram.com/explore/tags/전주떡볶이/' },
+    { city:'jeonju', name:'전주 마라탕',             kr:'전주마라탕',        area:'중앙동',    cat:'🫕 마라탕',   sns:['TikTok'],                why:'전주에서도 마라탕 열풍이 불면서 중앙동에 마라탕 전문점들이 생겨나고 있다。全州でもマラタン熱風が訪れ中央洞にマラタン専門店が次々オープン。若者旅行者が殺到している。', price:'12,000〜18,000₩', naver:'https://map.naver.com/v5/search/전주+마라탕', instagram:'https://www.instagram.com/explore/tags/전주마라탕/' },
   ],
 };
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2206,13 +2462,13 @@ let curTGenre = 'all';
 
 function matchTrendGenre(cat) {
   switch(curTGenre) {
-    case 'bbq':     return /갈비|곱창|고기구이|스테이크|보쌈|족발|흑돼지|바베큐|닭갈비|치킨|돈가스|불고기/.test(cat);
-    case 'noodle':  return /고기국수|라멘|밀면|칼국수|돼지국밥|순대국|콩나물국밥|냉면/.test(cat);
-    case 'rice':    return /비빔밥|한식|한정식/.test(cat);
-    case 'cafe':    return /카페|カフェ|베이커리|커피|에스프레소|아이스크림|감귤|황남빵|伝統|브런치|ブランチ|샐러드|에그샌드|크레페|베이글|와플|소프트/.test(cat);
-    case 'seafood': return /횟감|게장|대게|한치|성게|오마카세|オマカセ|스시|해녀/.test(cat);
-    case 'street':  return /야시장|포장마차|타코|케밥|어묵|빈대떡|호떡/.test(cat);
-    case 'bar':     return /이자카야|전통주|와인바|수제맥주/.test(cat);
+    case 'bbq':     return /갈비|삼겹살|목살|갈매기살|항정살|고기구이|스테이크|보쌈|족발|흑돼지|바베큐|닭갈비|치킨|불고기|곱창|한우/.test(cat);
+    case 'tteok':   return /떡볶이|라볶이|순대|어묵|씨앗호떡|호떡|핫도그|빈대떡|분식|닭강정|튀김|붕어빵/.test(cat);
+    case 'mala':    return /마라|라멘|탄탄|타코|케밥|카레|파스타|피자|버거|딤섬|쌀국수|돈가스/.test(cat);
+    case 'omakase': return /오마카세|スシ|スシ|스시|회|횟감|게장|성게|한치|해녀|해산물|대게|굴/.test(cat);
+    case 'cafe':    return /카페|カフェ|베이커리|커피|에스프레소|소금빵|탕후루|크로플|아이스크림|감귤|황남빵|伝統|브런치|샐러드|에그샌드|크레페|베이글|와플|소프트|디저트|빙수|두바이/.test(cat);
+    case 'pocha':   return /포장마차|포차|전통주|막걸리|와인바|수제맥주|야시장|이자카야|사케/.test(cat);
+    case 'hansik':  return /비빔밥|한식|한정식|덮밥|냉면|국밥|순대국|칼국수|설렁탕|밀면|고기국수|콩나물국밥|우동|부대찌개|삼계탕/.test(cat);
     default:        return true;
   }
 }
@@ -2245,8 +2501,14 @@ function renderTrending() {
   let filtered = TRENDING.items;
   if (curTCity !== 'all') filtered = filtered.filter(r => r.city === curTCity);
   if (curTArea !== 'all') filtered = filtered.filter(r => r.area === curTArea);
-  if (curTGenre !== 'all') filtered = filtered.filter(r => matchTrendGenre(r.cat));
-  const items = filtered.slice(0, 10);
+  let genreFiltered = curTGenre !== 'all' ? filtered.filter(r => matchTrendGenre(r.cat)) : filtered;
+  let primaryItems = genreFiltered.slice(0, 10);
+  let extraItems = [];
+  if (primaryItems.length < 10 && curTGenre !== 'all' && curTArea === 'all') {
+    const used = new Set(primaryItems.map(r => r.kr));
+    extraItems = filtered.filter(r => !used.has(r.kr)).slice(0, 10 - primaryItems.length);
+  }
+  const items = [...primaryItems, ...extraItems];
 
   if (!items.length) {
     const msg = curTGenre !== 'all'
@@ -2256,11 +2518,12 @@ function renderTrending() {
     return;
   }
   el.innerHTML = items.map((r, i) => {
-    const rankLabel = ['🥇','🥈','🥉'][i] || (i + 1);
-    const rankClass = i < 3 ? 'top' : '';
+    const isExtra = i >= primaryItems.length;
+    const rankLabel = isExtra ? '＋' : (['🥇','🥈','🥉'][i] || (i + 1));
+    const rankClass = i < 3 && !isExtra ? 'top' : '';
     const snsBadges = r.sns.map(s => `<span class="tmeta tmeta-hot">${s}</span>`).join('');
     return `
-      <div class="tcard">
+      <div class="tcard${isExtra ? ' tcard-extra' : ''}">
         <div class="tcard-top">
           <div class="tcard-names">
             <div class="tcard-name">${r.name}</div>
@@ -2270,13 +2533,14 @@ function renderTrending() {
         </div>
         <div class="tcard-meta">
           <span class="tmeta">${r.cat}</span>
+          ${isExtra ? '<span class="tmeta tmeta-related">関連グルメ</span>' : ''}
           ${snsBadges}
           <span class="tmeta">${r.price}</span>
         </div>
         <div class="tcard-why">${r.why}</div>
         <div class="tcard-btns">
           <button class="tbtn tbtn-naver" onclick="window.open('${r.naver}','_blank')">🟢 Naver</button>
-          <button class="tbtn tbtn-catchtable" onclick="window.open('https://catchtable.co.kr/catch?keyword=${encodeURIComponent(r.jp)}','_blank')">🍽️ CatchTable</button>
+          <button class="tbtn tbtn-catchtable" onclick="window.open('https://catchtable.co.kr/catch?keyword=${encodeURIComponent(r.kr)}','_blank')">🍽️ CatchTable</button>
           ${r.instagram ? `<button class="tbtn tbtn-insta" onclick="window.open('${r.instagram}','_blank')">📸 Instagram</button>` : ''}
         </div>
       </div>`;
@@ -2310,78 +2574,102 @@ function getLocation() {
 // ─── FOOD GENRE ───
 const FOOD_GENRES = {
   all: { chips: [
-    {kr:'삼겹살',  label:'🐖 삼겹살'},
-    {kr:'치킨',    label:'🍗 치킨'},
-    {kr:'카페',    label:'☕ 카페'},
-    {kr:'냉면',    label:'🍜 냉면'},
-    {kr:'갈비',    label:'🥩 갈비'},
-    {kr:'비빔밥',  label:'🍚 비빔밥'},
-    {kr:'떡볶이',  label:'🌶️ 떡볶이'},
-    {kr:'빙수',    label:'🧊 빙수'},
-    {kr:'게장',    label:'🦀 게장'},
-    {kr:'부대찌개',label:'🍲 부대찌개'},
-    {kr:'삼계탕',  label:'🍲 삼계탕'},
-    {kr:'곱창',    label:'🍖 곱창'},
-    {kr:'김밥',    label:'🌯 김밥'},
-    {kr:'순대',    label:'🌭 순대'},
-    {kr:'한정식',  label:'🎎 한정식'},
-    {kr:'디저트',  label:'🍰 디저트'},
+    {kr:'삼겹살',  label:'🥓 サムギョプサル'},
+    {kr:'떡볶이',  label:'🌶️ トッポギ'},
+    {kr:'마라탕',  label:'🫕 マラタン'},
+    {kr:'오마카세',label:'🦞 オマカセ'},
+    {kr:'카페',    label:'☕ カフェ'},
+    {kr:'포장마차',label:'🏮 ポジャンマチャ'},
+    {kr:'비빔밥',  label:'🍚 ビビンバ'},
+    {kr:'소금빵',  label:'🥖 ソルトパン'},
+    {kr:'탕후루',  label:'🍡 タンフル'},
+    {kr:'냉면',    label:'🍜 ネンミョン'},
+    {kr:'게장',    label:'🦀 ケジャン'},
+    {kr:'전통주',  label:'🍶 チョントンジュ'},
+    {kr:'갈비',    label:'🥩 カルビ'},
+    {kr:'라멘',    label:'🍜 ラーメン'},
+    {kr:'빙수',    label:'🧊 パッピンス'},
+    {kr:'한정식',  label:'🍱 ハンジョンシク'},
   ]},
   bbq: { chips: [
-    {kr:'삼겹살',  label:'🐖 삼겹살'},
-    {kr:'갈비',    label:'🥩 갈비'},
-    {kr:'소고기',  label:'🥩 소고기'},
-    {kr:'돼지갈비',label:'🔥 돼지갈비'},
-    {kr:'불고기',  label:'🥩 불고기'},
-    {kr:'곱창',    label:'🍖 곱창'},
-    {kr:'치킨',    label:'🍗 치킨'},
-    {kr:'닭갈비',  label:'🍗 닭갈비'},
+    {kr:'삼겹살',  label:'🥓 サムギョプサル'},
+    {kr:'목살',    label:'🥩 モクサル'},
+    {kr:'갈비',    label:'🥩 カルビ'},
+    {kr:'갈매기살',label:'🔥 カルメギサル'},
+    {kr:'항정살',  label:'🐖 ハンジョンサル'},
+    {kr:'흑돼지',  label:'🐷 黒豚'},
+    {kr:'곱창',    label:'🍖 コプチャン'},
+    {kr:'닭갈비',  label:'🍗 タッカルビ'},
+    {kr:'한우',    label:'🥩 韓牛'},
+    {kr:'소갈비',  label:'🥩 ソカルビ'},
   ]},
-  noodle: { chips: [
-    {kr:'냉면',    label:'🍜 냉면'},
-    {kr:'라면',    label:'🍜 라면'},
-    {kr:'칼국수',  label:'🍜 칼국수'},
-    {kr:'순두부찌개',label:'🫕 순두부'},
-    {kr:'부대찌개',label:'🍲 부대찌개'},
-    {kr:'삼계탕',  label:'🍲 삼계탕'},
-    {kr:'감자탕',  label:'🦴 감자탕'},
-    {kr:'설렁탕',  label:'🍲 설렁탕'},
+  tteok: { chips: [
+    {kr:'떡볶이',    label:'🌶️ トッポギ'},
+    {kr:'엽기떡볶이',label:'🌶️🌶️ ヨプキ'},
+    {kr:'순대',      label:'🌭 スンデ'},
+    {kr:'어묵',      label:'🍢 オデン'},
+    {kr:'닭강정',    label:'🍗 タッカンジョン'},
+    {kr:'핫도그',    label:'🌭 ハットグ'},
+    {kr:'튀김',      label:'🍤 チュイギム'},
+    {kr:'붕어빵',    label:'🐟 ブンオパン'},
+    {kr:'호떡',      label:'🥞 ホトック'},
   ]},
-  rice: { chips: [
-    {kr:'비빔밥',     label:'🍚 비빔밥'},
-    {kr:'돌솥비빔밥', label:'🍲 돌솥비빔밥'},
-    {kr:'김밥',       label:'🌯 김밥'},
-    {kr:'볶음밥',     label:'🍳 볶음밥'},
-    {kr:'한정식',     label:'🎎 한정식'},
-    {kr:'쌀국수',     label:'🍜 쌀국수'},
+  mala: { chips: [
+    {kr:'마라탕',  label:'🫕 マラタン'},
+    {kr:'마라샹궈',label:'🌶️ マラシャンゴ'},
+    {kr:'라멘',    label:'🍜 ラーメン'},
+    {kr:'탄탄멘',  label:'🍜 担々麺'},
+    {kr:'타코',    label:'🌮 タコス'},
+    {kr:'케밥',    label:'🌯 ケバブ'},
+    {kr:'파스타',  label:'🍝 パスタ'},
+    {kr:'피자',    label:'🍕 ピザ'},
+    {kr:'수제버거',label:'🍔 手作りバーガー'},
+    {kr:'딤섬',    label:'🥟 点心'},
   ]},
-  street: { chips: [
-    {kr:'떡볶이',  label:'🌶️ 떡볶이'},
-    {kr:'해물파전',label:'🥞 파전'},
-    {kr:'순대',    label:'🌭 순대'},
-    {kr:'호떡',    label:'🥞 호떡'},
-    {kr:'붕어빵',  label:'🐟 붕어빵'},
-    {kr:'튀김',    label:'🍤 튀김'},
-    {kr:'포장마차',label:'🏮 포장마차'},
+  omakase: { chips: [
+    {kr:'오마카세',label:'🦞 オマカセ'},
+    {kr:'스시',    label:'🍣 スシ'},
+    {kr:'회',      label:'🐟 フェ（刺身）'},
+    {kr:'게장',    label:'🦀 ケジャン'},
+    {kr:'성게덮밥',label:'🦔 ウニ丼'},
+    {kr:'대게',    label:'🦀 カニ'},
+    {kr:'굴',      label:'🦪 カキ'},
+    {kr:'해물탕',  label:'🦞 ヘムルタン'},
+    {kr:'활어회',  label:'🐠 活魚刺身'},
   ]},
   cafe: { chips: [
-    {kr:'카페',      label:'☕ 카페'},
-    {kr:'빙수',      label:'🧊 빙수'},
-    {kr:'디저트',    label:'🍰 디저트'},
-    {kr:'달고나',    label:'🍬 달고나'},
-    {kr:'마카롱',    label:'🌸 마카롱'},
-    {kr:'케이크',    label:'🎂 케이크'},
-    {kr:'아이스크림',label:'🍦 아이스크림'},
-    {kr:'베이커리',  label:'🥐 베이커리'},
+    {kr:'카페',        label:'☕ カフェ'},
+    {kr:'소금빵',      label:'🥖 ソルトパン'},
+    {kr:'탕후루',      label:'🍡 タンフル'},
+    {kr:'크로플',      label:'🧇 クロフル'},
+    {kr:'두바이초콜릿',label:'🍫 ドバイチョコ'},
+    {kr:'빙수',        label:'🧊 パッピンス'},
+    {kr:'베이글',      label:'🥯 ベーグル'},
+    {kr:'에그드랍',    label:'🥚 エッグドロップ'},
+    {kr:'와플',        label:'🧇 ワッフル'},
+    {kr:'디저트카페',  label:'🍰 デザートカフェ'},
   ]},
-  seafood: { chips: [
-    {kr:'회',      label:'🐟 회'},
-    {kr:'게장',    label:'🦀 게장'},
-    {kr:'해물탕',  label:'🦞 해물탕'},
-    {kr:'굴',      label:'🦪 굴'},
-    {kr:'고등어',  label:'🐠 고등어'},
-    {kr:'해물파전',label:'🥞 해물파전'},
-    {kr:'생선구이',label:'🐟 생선구이'},
+  pocha: { chips: [
+    {kr:'포장마차',  label:'🏮 ポジャンマチャ'},
+    {kr:'야시장',    label:'🌃 夜市'},
+    {kr:'전통주',    label:'🍶 伝統酒'},
+    {kr:'막걸리',    label:'🍶 マッコリ'},
+    {kr:'오메기술',  label:'🍶 オメギ酒'},
+    {kr:'수제맥주',  label:'🍺 クラフトビール'},
+    {kr:'내추럴와인',label:'🍷 ナチュラルワイン'},
+    {kr:'이자카야',  label:'🍶 居酒屋'},
+  ]},
+  hansik: { chips: [
+    {kr:'비빔밥',    label:'🍚 ビビンバ'},
+    {kr:'한정식',    label:'🍱 ハンジョンシク'},
+    {kr:'냉면',      label:'🍜 ネンミョン'},
+    {kr:'돼지국밥',  label:'🍲 テジクッパ'},
+    {kr:'순대국',    label:'🍲 スンデグク'},
+    {kr:'설렁탕',    label:'🍲 ソルロンタン'},
+    {kr:'칼국수',    label:'🍜 カルグクス'},
+    {kr:'부대찌개',  label:'🫕 プデチゲ'},
+    {kr:'삼계탕',    label:'🍲 サムゲタン'},
+    {kr:'갈비탕',    label:'🍲 カルビタン'},
   ]},
 };
 let curFoodGenre = 'all';
